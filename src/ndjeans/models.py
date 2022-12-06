@@ -1,21 +1,30 @@
 #third-party
 from typing import Callable
+
 import jax
 import jax.numpy as jnp
 import numpy as np
-from jax._src.config import config
-config.update("jax_enable_x64", True)
+import astropy.units as u
 import scipy.special as sc
 from scipy.integrate import quad
-import astropy.units as u
+from jax._src.config import config
 
+config.update("jax_enable_x64", True)
+# import astropy.units as u
+# import scipy.special as sc
+from scipy.integrate import quad
+from scipy.integrate import fixed_quad
 # project 
 from . import abel
 from .base import BaseModel
 
-x,w  = np.loadtxt('/Users/juan/phd/projects/weird-jeans/src/data/gausleg_200',delimiter=',')
+#? What other classes should be here?
+# TODO: Some of the static methods in plummer, don't need to be there so i should get rid of them?
+
+x,w  = np.loadtxt('/Users/juan/phd/projects/weird-jeans/src/data/gausleg_100',delimiter=',')
 x = jnp.array(x)
 w = jnp.array(w)
+
 class HernquistZhao(BaseModel):
     
     def __init__(self,rhos: float,rs: float,a: float,b: float,c: float):
@@ -56,6 +65,34 @@ class HernquistZhao(BaseModel):
     def get_mass(self,r):
 
         return HernquistZhao.mass(r,self._rhos,self._rs, self._a, self._b, self._c)  
+
+    def potential(self,r):
+        '''
+        Potential for Hernquist density:
+        phi_in = -GM/r  term -- see mass()
+        phi_out = integral_{r}^{\infty} \rho(r) r dr -- calculated using a slightly different hypergeometric function -- evaluated at r and a very large number
+
+        shouldn't this just be r to r200?? 
+        '''
+        G =  4.5171031e-39
+        # for readability
+        a     = self._a
+        b     = self._b
+        c     = self._c
+        rs   = self._rs
+        rhos = self._rhos
+
+        q = r/rs
+
+        func = lambda r:    -r**2 *(q)**(-a) * \
+                            sc.hyp2f1((2 - a)/b, -(a - c)/b, 1 + (2 - a)/b, -q**b)/(-2 + a)
+        
+        phi_in  = -G*self.mass(r)/r 
+        
+        phi_out =  -(4*np.pi*G*rhos*(func(1e20)-func(r)))
+        
+        return phi_in+phi_out
+
 
     @staticmethod
     @jax.jit
@@ -128,46 +165,27 @@ class HernquistZhao(BaseModel):
     @staticmethod
     @jax.jit
     def mass(r: float,rhos: float,rs: float,a: float,b: float,c: float):
-        a=0 
-        xi=(r-a)*0.5*x[:,None] + .5*(r+a)
-        wi=(r-a)*0.5*w[:,None]
-        return jnp.sum(wi*4*jnp.pi*xi**2 *HernquistZhao.density(xi,rhos,rs,a,b,c),axis=0)
-
-    @staticmethod
-    @jax.jit
-    def mass_fixed2(r: float,rhos: float,rs: float,a: float,b: float,c: float):
-        xi=r*(0.5*x + .5)
-        wi=r*0.5*w
-        return jnp.sum(wi*4*jnp.pi*xi**2 *HernquistZhao.density(xi,rhos,rs,a,b,c),axis=0)
-
-    def potential(self,r):
-        '''
-        Potential for Hernquist density:
-        phi_in = -GM/r  term -- see mass()
-        phi_out = integral_{r}^{\infty} \rho(r) r dr -- calculated using a slightly different hypergeometric function -- evaluated at r and a very large number
-
-        shouldn't this just be r to r200?? 
-        '''
-        # for readability
-        a = self._a
-        b = self._b
-        c = self._c
-        r_s = self._r_s
-        rho_s = self._rhos
-        G =  4.5171031e-39
-        q = r/r_s
-
-        func = lambda r: -r**2 *(q)**(-a) * sc.hyp2f1((2 - a)/b, -(a - c)/b, 1 + (2 - a)/b, -q**b)/(-2 + a)
+        q  = r/rs
+        xk = 0.5*q*x + 0.5*q
+        wk = 0.5*q*w
+        units = 4*jnp.pi*rhos*rs**3
         
-        phi_in  = (-G*self.mass(r)/r)
-        phi_out =  -(4*np.pi*G*rho_s*(func(1e20)-func(r)))
-        
-        return phi_in+phi_out
+        return units* jnp.sum(wk*xk**2 *HernquistZhao.density(xk,1.0,1.0,a,b,c),axis=0)
 
 class NFW(BaseModel):
 
-    def __init__(self,rhos,rs):
+    def __init__(self,rhos: float,rs: float):
+        '''
+        Navarro-Frenk-White model
+        This will be useful for testing purposes. I dont think i'll actually use this for any science
 
+        Parameters
+        ----------
+        rhos : float
+            scale density
+        rs : float
+            scale radius
+        '''
         self._rhos   = rhos
         self._rs     = rs
         self._params = [self._rhos,self._rs]
@@ -188,11 +206,33 @@ class NFW(BaseModel):
 
     @staticmethod
     @jax.jit
-    def mass(r,rhos,rs):
-    
-        # r = np.logspace(-2,1,20)
-        q = rs/(rs+r)
-        mNFW = 4*jnp.pi*rhos*rs**3 * (q -jnp.log(q) -1) # Analytical NFW mass profile
+    def mass(r,rhos: float,rs: float):
+        '''
+        _summary_
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+        rhos : float
+            scale radius
+        rs : float
+            scale density
+
+        Returns
+        -------
+        _type_
+            _description_
+        NOTES
+        -----
+        BUG: Finding r200 doesnt work well when bounds for Bisection has very small lower bounds,
+            Maybe this function isnt behaving well at those very small values
+        '''
+        # q = rs/(rs+r)
+        # mNFW = 4*jnp.pi*rhos*rs**3 * (q - jnp.log(q) -1) # Analytical NFW mass profile
+        # tr
+        q = (rs+r)/rs
+        mNFW = 4*jnp.pi*rhos*rs**3 * (jnp.log(q) + 1/q - 1) # Analytical NFW mass profile
         return mNFW
 
 class Gaussians(BaseModel):
@@ -245,13 +285,12 @@ class Gaussians(BaseModel):
         _mass = jnp.sum(Gaussians.mass_j(r,M,sigma))
         return _mass
 
-class Plummer:
+class Plummer(BaseModel):
     
     def __init__(self,M,a):
         '''
-        TODO: 
-            - implement sampling from a self consistent plummer
-            - project into 2D
+        TODO: Implement sampling from a self consistent plummer
+        TODO: Project into 2D
         '''
         self._M = M 
         self._a = a
@@ -388,14 +427,14 @@ class Plummer:
         return term1/term2
 
     @staticmethod
-    def density_func(x: np.ndarray,M: float,a: float) -> np.ndarray:
+    def density_func(r: np.ndarray,M: float,a: float) -> np.ndarray:
         '''
         Making these static methods for fitting purposes
 
         Parameters
         ----------
-        x : np.ndarray
-            _description_
+        r : np.ndarray
+            radius : np.sqrt(x**2+y**2 + z**2)
         M : float
             _description_
         a : float
@@ -406,8 +445,10 @@ class Plummer:
         np.ndarray
             _description_
         '''
-        q  = x/a
-        return 3*M/(4*np.pi*a**3)*(1+q**2)**(-5/2)
+        q     = r/a
+        coeff = 3*M/(4*np.pi*a**3)
+        
+        return coeff * (1+q**2)**(-5/2)
 
     @staticmethod
     def projection(R: np.ndarray, M: float, a: float) -> np.ndarray:
@@ -428,9 +469,9 @@ class Plummer:
         np.ndarray
             [M.unit kpc^{-2}]
         '''
+        q     = R/a
         coeff = M/(np.pi*a**2) #units [M.unit/a.unit**2]
-        x = R/a
-        return coeff * (1 + x**2)**(-2)
+        return coeff * (1 + q**2)**(-2)
 
     @staticmethod
     def prob_func(x: np.ndarray,a: float) -> np.ndarray:
@@ -446,21 +487,24 @@ class Plummer:
 
     @staticmethod
     def radial_distribution(r,bin_method ='doane'):
-
         N,bin_edges = np.histogram(r,bins =bin_method)
         v_shell = (4/3)*np.pi*(bin_edges[1:]**3 - bin_edges[:-1]**3)
         r_center = (np.roll(bin_edges,-1)+bin_edges)[:-1]/2
         nu = N/v_shell
         return r_center,nu,bin_edges,v_shell
 
+    @staticmethod
+    def params():
+        print('number of parameters for a Plummer model are 2, a scale density, and a scale radii')
+        print('two options for priors are currently available, flat and gaussian')
+        print('If you are fitting multiple components, this is organized as a 4xN array')
+        return  
 
-
-#? What other classes should be here?
-# TODO: Some of the static methods in plummer, don't need to be there so i should get rid of them
 
 
 class JeansOM:    
-    def __init__(self,data: np.ndarray,model_dm,model_tr):
+
+    def __init__(self,data: np.ndarray,model_dm,model_tr,model_beta):
         '''
         Parameters
         ----------
@@ -472,54 +516,10 @@ class JeansOM:
         
         '''
         self._G    = 4.5171031e-39 # Gravitational constant in the right units
-        
-        self._data = data
-        self._dm   = model_dm # dark matter
-        self._tr   = model_tr # tracers 
-
-    def disp_integrand(self,x: float,R: float,kernel: Callable):
-        '''
-        integrand for line-of-sight velocity dipersion at position R
-
-        Parameters
-        ----------
-        x : float
-            dummy variable in integration
-        R : float
-            lower bound of integral
-        kernel : Callable
-            kernel for stellar anisotropy model
-
-        Returns
-        -------
-        _type_
-            _description_
-
-        Notes
-        -------
-        TODO: ADD upperbound to integral. Either cut off stellar distribution or set upper bound of integral to be r200
-        '''
-        kern    = kernel(x,R,self._beta)
-        nu_star = self._tracer.profile3d(x).value
-        mass_dm = self._dm.mass(x).value
-        
-        return kern * nu_star*mass_dm/x**(2-2*self._beta)
-
-    def dispersion(self,R):
-        '''
-        Project Velocity Dispersion
-        
-        Notes
-        -------
-        TODO: ADD upperbound to integral. Either cut off stellar distribution or set upper bound of integral to be r200
- 
-        '''
-        coeff = 2*self._G/self._tracer.profile2d(R).value
-        
-        R,units = R.value,R.unit
-        
-        output = np.array([quad(self.disp_integrand,i,np.inf,args=(i,JeansOM.kernel))[0] for i in R])
-        return ((coeff * output)*u.kpc**2/u.s**2).to(u.km**2/u.s**2).value
+        self._data = data          # data
+        self._dm   = model_dm      # dark matter
+        self._tr   = model_tr      # tracers
+        self._beta = model_beta    # stellar anisotropy model
 
     @staticmethod
     def likelihood(data: np.ndarray,model: Callable,theta: np.ndarray) -> float:
@@ -553,161 +553,400 @@ class JeansOM:
         return term1+term2+term3
 
     @staticmethod
-    def kernel(r:float,R:float,beta:float)-> float:
-        '''
-        Integration kernel for constant anisotropy models
-        See e.g. Capellari 2008 eq.43
-
-        Notes
-        -------
-        The special functions needed to make this integral simple make auto-grad capabilities undoable.
-        It's probably possible if we do out the full integral under no assumptions about the form of the stellar anisotropy.
-        ...might be worth looking into
-
-        '''
-        t1 = .5* R**(1-2*beta)
-        w  = (R/r)**2
-        
-        if beta >1/2:
-            t2  = beta * sc.betainc(beta+0.5,0.5,w) - sc.betainc(beta-.5,.5,w)
-
-            t3  = np.sqrt(np.pi)*(3/2 -beta)*sc.gamma(beta-1/2)/sc.gamma(beta)
-        else: 
-            a = beta+0.5
-            b = 0.5
-            betainc = ((w**(a))/a) *  sc.hyp2f1(a,1-b,a+1,w)
-            a2=beta-0.5
-            betainc2 = ((w**(a2))/a2) *  sc.hyp2f1(a2,1-b,a2+1,w)
-            t2  = beta * betainc - betainc2
-            t3  = np.sqrt(np.pi)*(3/2 -beta)*sc.gamma(beta-1/2)/sc.gamma(beta)
-        
-        out = t1*(t2+t3)
-        return out 
-    
-    @staticmethod
-    def disp_integrand(x: float,R: float,nu3: Callable,theta: np.ndarray) -> float:
-        '''
-        integrand for line-of-sight velocity dipersion at position R
-
-        Parameters
-        ----------
-        x : float
-            dummy variable in integration
-        R : float
-            lower bound of integral
-        kernel : Callable
-            kernel for stellar anisotropy model
-        Returns
-        -------
-        _type_
-            _description_
-
-        Notes
-        -------
-        TODO: ADD upperbound to integral. Either cut off stellar distribution or set upper bound of integral to be r200
-        '''
-
-        kern    = JeansOM.kernel(x,R,theta[-1])
-        nu_star = nu3(x)
-        mass_dm = JeansOM.mass(x,theta[:-1])
-        
-        return kern * nu_star*mass_dm/x**(2-2*theta[-1])
-
-    @staticmethod
-    def projected_dispersion(R:np.ndarray,nu2: Callable,nu3: Callable,theta: np.ndarray) -> np.ndarray:
-        '''
-        Project dispersion at radii R
-
-        Parameters
-        ----------
-        R : np.ndarray
-            _description_
-        nu2 : Callable
-            Projected stellar distribution
-        nu3 : Callable
-            3D stellar distribution (one of these is calculated using the abel transform)
-        theta : np.ndarray
-            [inner-slope,scale density, scale radius, stellar anisotropy]
-
-        Returns
-        -------
-        np.ndarray
-            _description_
-        
-        Notes
-        _______
-
-        TODO: Change upperbound of integral to be r_{200} for those model parameters -- Some
-        
-        '''
-        G = 4.5171031e-39 # Gravitational constant [kpc^{3} solMass^{-1}  s^{-2}]
-        coeff = 2*G/nu2(R)
-        output = np.array([quad(JeansOM.disp_integrand,i,np.inf,args=(i,nu3,theta))[0] for i in R])
-        return coeff* output
-
-
-# WORKING ON TODAY October 18: 
-    @staticmethod
-    def beta(r:float,a: float):
+    def beta(r:float,a: float,alpha = 1):
         '''
         Osipkov-Merrit stellar anisotropy
-
+        \beta = 0 as r -> 0
+        \beta = 1 as r -> infinity
+        a determines how quickly the trasition from \beta= 0 to 1 happens 
         Parameters
         ----------
         r : float
             _description_
         a : float
-            _description_
+            scale length
+            determines how quickly the trasition from \beta= 0 to 1 happens 
 
         Returns
         -------
         _type_
             0 as r -> 0
             1 as r -> infinity
+            unitless
+        Notes
+        -----
+        TODO: Need to change to include alpha parameter as a paramater to fit so that the anisotropy can be negative
+        TODO: change 2 to a parameter
+        TODO: look into the symmetrized velocity anisotropy
         '''
-        return r**2/(r**2+a**2)
+        # alpha = 1
+        return alpha*r**2/(r**2+a**2)
 
     @staticmethod
-    def f_beta(r:float,a:float):
-        return r**2+a**2
+    def f_beta(r:float,a:float,alpha = 1):
+        '''
+        f(r) = exp[2 \inta_{0}^{r}{\beta(r)/r} dr ]
+
+        Parameters
+        ----------
+        r : float
+            _description_
+        a : float
+            scale radius for stellar anisotropy
+
+        Returns
+        -------
+        _type_
+            _description_
+        
+        Notes
+        -----
+        '''
+        return (a**2 + r**2)**alpha
+
+    @staticmethod
+    def mass(r,rhos,rs,a,b,c):
+        
+        return HernquistZhao.mass(r,rhos,rs,a,b,c)
+
+    @staticmethod
+    def nu(r,ap):
+        return Plummer.density_func(r,1.0,ap)
+
+    @staticmethod
+    def projected_stars(R,ap):
+        return Plummer.projection(R,1.0,ap)
 
     @staticmethod
     def beta_func(f,r,a):
         grad = jax.grad(f)
         return r*grad(r,a)/f(r,a)
 
-    @staticmethod
-    def nu_sigma(r,r200,abeta,rhos,rs,a,b,c):
-        G    = 4.5171031e-39
-        x0=r
-        x1=r200
-        xi=(x1-x0)*0.5*x[:,None] + .5*(x1+x0)
-        wi=(x1-x0)*0.5*w[:,None]
-        term1 = JeansOM.f_beta(r,abeta)
-        term2 = jnp.sum(wi*JeansOM.f_beta(xi,abeta)*Plummer.density_func(xi,1,.25)*HernquistZhao.mass(xi,rhos,rs,a,b,c)/xi**2,axis=0)
-        return G*term2/term1
-
-    @staticmethod
-    def sigma(r,r200,abeta,rhos,rs,a,b,c):
-        G    = 4.5171031e-39
-        x0=r
-        x1=r200
-        xi=(x1-x0)*0.5*x[:,None] + .5*(x1+x0)
-        wi=(x1-x0)*0.5*w[:,None]
-        term1 = JeansOM.f_beta(r,abeta)
-        term2 = jnp.sum(wi*JeansOM.f_beta(xi,abeta)*Plummer.density_func(xi,1,.25)*HernquistZhao.mass(xi,rhos,rs,a,b,c)/xi**2,axis=0)
-        return G*term2/term1/Plummer.density_func(r,1,.25)
     
     @staticmethod
-    def dispersion(R,r200,abeta,rhos,rs,a,b,c):
-        x0=R
-        x1=r200
-        xi=(x1-x0)*0.5*x[:,None] + .5*(x1+x0)
-        wi=(x1-x0)*0.5*w[:,None]
+    def dispersion(r: float,r200: float,abeta: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
+        '''
+        velocity dispersion form a system with:
+            1. Hernquist-Zhao density profile
+            2. Asipkov-Merrit stellar anisotropy profile
+
+        see e.g: B&T
+
+        Parameters
+        ----------
+        r : float
+            _description_
+        r200 : float
+            _description_
+        abeta : float
+            _description_
+        rhos : float
+            _description_
+        rs : float
+            _description_
+        a : float
+            _description_
+        b : float
+            _description_
+        c : float
+            _description_
+
+        Returns
+        -------
+        float
+            radial velocity dispersion
+            units: [kpc**2 s**-2]
+
+        Notes
+        -----
+        Needs to be vectorize in order to accept an array of radii
+        '''
+        G  = 4.5171031e-39 # Gravitational constant
+        x0 = r    # lowerbound 
+        x1 = r200 # upperbound
         
-        term1 = xi* (1 - JeansOM.beta(xi,abeta))* R**2/xi**2
-        term2 = jnp.sqrt(xi**2 - R**2)
-        return jnp.sum(wi*2*JeansOM.nu_sigma(xi,r200,abeta,rhos,rs,a,b,c)*term1/term2,axis=0)
+        # Gauss-Legendre integration
+        xi = (x1-x0)*0.5*x + .5*(x1+x0) # scale from a = 0, b= 1 to a= r, b = r_{200}
+        wi = (x1-x0)*0.5*w              # modify weights
 
 
+        # term1 = G* JeansOM.mass(xi,rhos,rs,a,b,c)* JeansOM.f_beta(xi,abeta)*JeansOM.nu(xi,.25)/xi**2 #GM\nu *f_beta
+        # return JeansOM.mass(xi,rhos,rs,a,b,c)
+        term1  = JeansOM.mass(xi,rhos,rs,a,b,c)*JeansOM.nu(xi,1.0)*JeansOM.f_beta(xi,abeta) /xi**2
+        return G * jnp.sum(wi*term1,axis=0)/JeansOM.f_beta(r,abeta)/JeansOM.nu(r,1.0)
 
+    @staticmethod
+    def nusigma(
+        r     : float,
+        r200  : float,
+        abeta : float,
+        rhos  : float,
+        rs    : float,
+        a     : float,
+        b     : float,
+        c     : float) -> float:
+        '''
+        velocity dispersion form a system with:
+            1. Hernquist-Zhao density profile
+            2. Asipkov-Merrit stellar anisotropy profile
+
+        see e.g: B&T
+
+        Parameters
+        ----------
+        r : float
+            _description_
+        r200 : float
+            _description_
+        abeta : float
+            _description_
+        rhos : float
+            _description_
+        rs : float
+            _description_
+        a : float
+            _description_
+        b : float
+            _description_
+        c : float
+            _description_
+
+        Returns
+        -------
+        float
+            radial velocity dispersion
+            units: [kpc**2 s**-2]
+
+        Notes
+        -----
+        Needs to be vectorize in order to accept an array of radii
+        '''
+        G  = 4.5171031e-39 # Gravitational constant [kpc**3 solMass**-1 s**-2] 
+        x0 = r             # lower bound 
+        x1 = r200          # upper bound
+        
+        # Gauss-Legendre integration
+        xi = (x1-x0)*0.5*x + .5*(x1+x0) # xcale from (0,1) ->  (r,r_{200}) 
+        wi = (x1-x0)*0.5*w              # modify weights
+
+
+        # term1 = G* JeansOM.mass(xi,rhos,rs,a,b,c)* JeansOM.f_beta(xi,abeta)*JeansOM.nu(xi,.25)/xi**2 #GM\nu *f_beta
+
+        term1  = JeansOM.mass(xi,rhos,rs,a,b,c)*JeansOM.nu(xi,1.0) * JeansOM.f_beta(xi,abeta)/xi**2
+        return G* jnp.sum(wi*term1,axis=0)/JeansOM.f_beta(r,abeta)
+
+
+    @staticmethod
+    def los_dispersion(R: float,r200: float,abeta: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
+        '''
+        velocity dispersion form a system with:
+            1. Hernquist-Zhao density profile
+            2. Asipkov-Merrit stellar anisotropy profile
+
+        see e.g: B&T
+
+        Parameters
+        ----------
+        r : float
+            _description_
+        r200 : float
+            _description_
+        abeta : float
+            _description_
+        rhos : float
+            _description_
+        rs : float
+            _description_
+        a : float
+            _description_
+        b : float
+            _description_
+        c : float
+            _description_
+
+        Returns
+        -------
+        float
+            radial velocity dispersion
+            units: [kpc**2 s**-2]
+
+        Notes
+        -----
+        Needs to be vectorize in order to accept an array of radii
+        '''
+        y0 = R    # lowerbound 
+        y1 = r200 # upperbound
+        
+        # Gauss-Legendre integration
+        xj = (y1-y0)*0.5*x + .5*(y1+y0) # scale from a = 0, b= 1 to a= r, b = r_{200}
+        wj = (y1-y0)*0.5*w              # scale weights
+
+        # unit_converstion = 9.5214061e32
+        unit_converstion = 1
+        term1 = 1-JeansOM.beta(xj,abeta)*(R/xj)**2                # 1 - beta(r)* R**2 / r**2
+        
+        term2 = JeansOM.nusigma(xj,r200,abeta,rhos,rs,a,b,c)*xj/jnp.sqrt(xj**2-R**2)     #\nu(r)\sigma_{r}(r)
+
+        return 2 *unit_converstion* jnp.sum(wj*term1*term2,axis=0)/JeansOM.projected_stars(R,1.0)
+
+    @staticmethod
+    def dispersion0(r: float,r200: float,abeta: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
+        '''
+        velocity dispersion form a system with:
+            1. Hernquist-Zhao density profile
+            2. Asipkov-Merrit stellar anisotropy profile
+
+        see e.g: B&T
+
+        Parameters
+        ----------
+        r : float
+            _description_
+        r200 : float
+            _description_
+        abeta : float
+            _description_
+        rhos : float
+            _description_
+        rs : float
+            _description_
+        a : float
+            _description_
+        b : float
+            _description_
+        c : float
+            _description_
+
+        Returns
+        -------
+        float
+            radial velocity dispersion
+            units: [kpc**2 s**-2]
+
+        Notes
+        -----
+        Needs to be vectorize in order to accept an array of radii
+        '''
+        G  = 4.5171031e-39 # Gravitational constant
+        x0 = r    # lowerbound 
+        x1 = r200 # upperbound
+        
+        # Gauss-Legendre integration
+        xi = (x1-x0)*0.5*x + .5*(x1+x0) # scale from a = 0, b= 1 to a= r, b = r_{200}
+        wi = (x1-x0)*0.5*w              # modify weights
+
+        return G * jnp.sum(wi*JeansOM.mass(xi,rhos,rs,a,b,c)*JeansOM.nu(xi,1.0)/xi**2)/JeansOM.nu(r,1.0)
+
+    @staticmethod
+    def nusigma0(r: float, r200: float, abeta : float, rhos: float, rs: float, a: float, b: float, c: float) -> float:
+        '''
+        velocity dispersion form a system with:
+            1. Hernquist-Zhao density profile
+            2. Asipkov-Merrit stellar anisotropy profile
+
+        see e.g: B&T
+
+        Parameters
+        ----------
+        r : float
+            _description_
+        r200 : float
+            _description_
+        abeta : float
+            _description_
+        rhos : float
+            _description_
+        rs : float
+            _description_
+        a : float
+            _description_
+        b : float
+            _description_
+        c : float
+            _description_
+
+        Returns
+        -------
+        float
+            radial velocity dispersion
+            units: [kpc**2 s**-2]
+
+        Notes
+        -----
+        Needs to be vectorize in order to accept an array of radii
+        '''
+        G  = 4.5171031e-39 # Gravitational constant [kpc**3 solMass**-1 s**-2] 
+        x0 = r             # lower bound 
+        x1 = r200          # upper bound
+        
+        # Gauss-Legendre integration
+        xi = (x1-x0)*0.5*x + .5*(x1+x0) # xcale from (0,1) ->  (r,r_{200}) 
+        wi = (x1-x0)*0.5*w              # modify weights
+
+        return G* jnp.sum(wi*JeansOM.mass(xi,rhos,rs,a,b,c)*JeansOM.nu(xi,0.25)/xi**2,axis=0)
+
+    @staticmethod
+    def los_dispersion0(R: float,r200: float,abeta: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
+        '''
+        velocity dispersion form a system with:
+            1. Hernquist-Zhao density profile
+            2. Asipkov-Merrit stellar anisotropy profile
+
+        see e.g: B&T
+
+        Parameters
+        ----------
+        r : float
+            _description_
+        r200 : float
+            _description_
+        abeta : float
+            _description_
+        rhos : float
+            _description_
+        rs : float
+            _description_
+        a : float
+            _description_
+        b : float
+            _description_
+        c : float
+            _description_
+
+        Returns
+        -------
+        float
+            radial velocity dispersion
+            units: [kpc**2 s**-2]
+
+        Notes
+        -----
+        Needs to be vectorize in order to accept an array of radii
+        '''
+        y0 = R    # lowerbound 
+        y1 = r200 # upperbound
+        
+        # Gauss-Legendre integration
+        xj = (y1-y0)*0.5*x + .5*(y1+y0) # scale from a = 0, b= 1 to a= r, b = r_{200}
+        wj = (y1-y0)*0.5*w              # scale weights
+        
+        term2 = JeansOM.nusigma(xj,r200,abeta,rhos,rs,a,b,c)*xj/jnp.sqrt(xj**2-R**2)     #\nu(r)\sigma_{r}(r)
+
+        return 2* jnp.sum(wj*term2,axis=0)/JeansOM.projected_stars(R,1.0)
+
+
+class gOM:
+    def __init__(self,a,alpha):
+
+        self._a     = a
+        self._alpha = a
+
+    @staticmethod
+    def beta(r,a,alpha):
+
+        return alpha*r**2/(r**2+a**2)
+
+    @staticmethod
+    def g_beta(r,a,alpha):
+
+        return (r**2+a**2)**alpha

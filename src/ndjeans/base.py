@@ -17,7 +17,12 @@ class BaseModel:
 
     def get_mass(self,r):
         pass 
-
+    
+    def func(self,x):
+        rho_crit = 133.3636319527206 # critical density from astropy's WMAP9 with units [solMass/kpc**3]
+        Delta    = 200
+        return self.get_mass(x)/(4*jnp.pi*(x**3)/3) - Delta*rho_crit
+    
     def r200(self):
         '''
         Calculate r200 between 1e-2 kpc and 300 kpc
@@ -27,12 +32,19 @@ class BaseModel:
         -------
         _type_
             _description_
+
+        Notes
+        -----
+        check_bracket = False otherwise the function is not jittable
+        This might actually be more useful
+        BUG: lower=1e-20 does not work with the NFW class for some reason even though its analytical... must look into this at some point
         '''
-        rho_crit = cosmo.critical_density(0).to(u.solMass/u.kpc**3).value
+        # rho_crit = cosmo.critical_density(0).to(u.solMass/u.kpc**3).value
+        # rho_crit = 133.3636319527206 # critical density from astropy's WMAP9 with units [solMass/kpc**3]
+        # Delta    = 200
+        # func     = lambda x: self.get_mass(x)/(4*np.pi*(x**3)/3) - Delta*rho_crit
         
-        Delta    = 200
-        func     = lambda x: self.get_mass(x)/(4*np.pi*(x**3)/3) - Delta*rho_crit
-        bisec = Bisection(optimality_fun=func, lower= 1e-20, upper = 1000)
+        bisec = Bisection(optimality_fun=self.func, lower= 1e-20, upper = 300,check_bracket=False)
         
         return bisec.run().params
 
@@ -52,7 +64,3 @@ class BaseModel:
         self._r200 = scipy.optimize.bisect(func,1e-2,300)
         self._M200 = self.get_mass(self._r200)
         return self._r200
-
-
-
-
