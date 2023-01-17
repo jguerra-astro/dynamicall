@@ -28,8 +28,11 @@ from .base import BaseModel
 
 #? What other classes should be here?
 # TODO: Some of the static methods in plummer, don't need to be there so i should get rid of them?
+try:
+    x,w  = np.loadtxt('/home/jjg57/DCJL/newjeans/src/data/gausleg_100',delimiter=',')
+except:
+    x,w  = np.loadtxt('/Users/juan/phd/projects/weird-jeans/src/data/gausleg_100',delimiter=',')
 
-x,w  = np.loadtxt('/Users/juan/phd/projects/weird-jeans/src/data/gausleg_100',delimiter=',')
 x = jnp.array(x)
 w = jnp.array(w)
 

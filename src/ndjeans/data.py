@@ -137,7 +137,7 @@ class DCJLData(Data):
         #set everything to physical units
         self.halo.physical_units()
         # center on the halo
-        pynbody.analysis.self.halo.center_of_mass(self.halo)
+        pynbody.analysis.halo.center_of_mass(self.halo)
         # make sure there are stars in the halo
         print('ngas = %e, ndark = %e, nstar = %e\n'%(len(self.halo.gas),len(self.halo.dark),len(self.halo.star)))
 
@@ -152,14 +152,14 @@ class DCJLData(Data):
         self._vz = self.halo.s['vz']
 
         # Spherical
-        self._r = self.halo.s['r']   
+        self.r = self.halo.s['r']   
 
         self._vr     = self.halo.s['vr']    
         self._vtheta = self.halo.s['vtheta']
         self._vphi   = self.halo.s['vphi']  
 
         # `Projected` -- choose 'z' direction to be line-of-sight
-        self._R    = jnp.sqrt(self.halo.s['x']**2 + self.halo.s['y']**2)
+        self.R    = jnp.sqrt(self.halo.s['x']**2 + self.halo.s['y']**2)
         
         self._vlos = self.halo.s['z']
 

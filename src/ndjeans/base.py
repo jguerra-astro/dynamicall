@@ -165,12 +165,12 @@ class Data:
         '''
         if dim==3:
             try: 
-                N,bin_edges,_ = bin_method(self.R,bins =self.bin_edges)
+                N,bin_edges = bin_method(self.r,bins =self.bin_edges)
                 v_shell = (4/3)*np.pi*(bin_edges[1:]**3 - bin_edges[:-1]**3)
                 r_center = (np.roll(bin_edges,-1)+bin_edges)[:-1]/2
                 nu = N/v_shell
             except:
-                N,bin_edges,_ = bin_method(self.R,bins =bins)
+                N,bin_edges = bin_method(self.r,bins =bins)
                 v_shell = (4/3)*np.pi*(bin_edges[1:]**3 - bin_edges[:-1]**3)
                 r_center = (np.roll(bin_edges,-1)+bin_edges)[:-1]/2
                 nu = N/v_shell
@@ -285,7 +285,7 @@ class Data:
         r = np.logspace(
                 start = q.min(),
                 stop  = q.max(),
-                num   = 100,
+                num   = 6,
                 base  = np.exp(1)
                 ) # This make
         chi = np.log(r)
@@ -306,7 +306,7 @@ class Data:
         r   = np.sqrt(pos['x']**2+pos['y']**2+pos['z']**2)
 
         # (vx,vy,vz) -> (vr,v_{\theta},v_{\phi})
-        v_r     =  ( pos['x'] * vel['vx']  + pos['y'] * vel['vy'] + pos['z'] * vel['vz'] )/ r    
+        v_r     = ( pos['x'] * vel['vx']  + pos['y'] * vel['vy'] + pos['z'] * vel['vz'] )/ r    
         v_phi   = (pos['y'] * vel['vx'] - pos['x'] * vel['vy'])/ Rp
         v_theta = (pos['z'] * pos['x'] * vel['vx']/Rp  + pos['z'] * pos['y'] * vel['vy']/Rp - Rp * vel['vz'])/r
         return r, v_r,v_phi,v_theta
