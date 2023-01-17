@@ -14,6 +14,14 @@ config.update("jax_enable_x64", True)
 # import scipy.special as sc
 from scipy.integrate import quad
 from scipy.integrate import fixed_quad
+
+import numpyro
+import numpyro.distributions as dist
+from numpyro.diagnostics import summary
+
+from numpyro.infer import MCMC, NUTS
+from jax import random
+
 # project 
 from . import abel
 from .base import BaseModel
@@ -242,7 +250,11 @@ class Gaussians(BaseModel):
         self._params = params.reshape(2,N) #M_i, sigma_i pairs
     
     def get_density(self,r):
-        return Gaussians.density_i(r)
+        density= jnp.zeros(len(r))
+        for i in range(self._N):
+            density +=Gaussians.density_i(r,self._params[0,i],self._params[1,i])
+
+        return density
     
     def get_mass(self,r):
         return Gaussians.mass_j(r)
@@ -250,11 +262,33 @@ class Gaussians(BaseModel):
     @staticmethod
     @jax.jit
     def density_i(r,M: float,sigma: float):
+        '''
+        _summary_
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+        M : float
+            units: Masss
+        sigma : float
+            units: Length
+
+        Returns
+        -------
+        _type_
+            _description_
+        '''
 
         rho = M * (jnp.sqrt(2*jnp.pi) * sigma**3)**-1 # part with the units  [Mass * Length**-3] 
 
         return rho * jnp.exp(-r**2/(2*sigma**2))
 
+    @staticmethod
+    @jax.jit
+    def density(r,M: jnp.DeviceArray,sigma: jnp.DeviceArray):
+        rho_vec = jax.vmap(Gaussians.density_i, in_axes=(0,None,None))
+        return jnp.sum(rho_vec(r,M,sigma),axis=1)
 
     @staticmethod
     @jax.jit
@@ -282,8 +316,8 @@ class Gaussians(BaseModel):
         _type_
             _description_
         '''
-        _mass = jnp.sum(Gaussians.mass_j(r,M,sigma))
-        return _mass
+        m_vec = jax.vmap(Gaussians.mass_i, in_axes=(0,None,None))
+        return jnp.sum(m_vec(r,M,sigma),axis=1)
 
 class Plummer(BaseModel):
     
@@ -291,6 +325,7 @@ class Plummer(BaseModel):
         '''
         TODO: Implement sampling from a self consistent plummer
         TODO: Project into 2D
+        TODO: implement multiple components
         '''
         self._M = M 
         self._a = a
@@ -500,6 +535,53 @@ class Plummer(BaseModel):
         print('If you are fitting multiple components, this is organized as a 4xN array')
         return  
 
+class King(BaseModel):
+
+    def __init__(self,rc,rt):
+        self._rc = rc
+        self._rt = rt
+
+
+    def get_density(self, r):
+        
+        return King.density(r,self._rc,self._rt)
+
+
+    @staticmethod    
+    def projection(R,rc,rt):
+        '''                                                                                                                                                                     
+        King Profile -surface brightness King 1962)                                                                                                                             
+        '''
+        w = 1 +R**2/rc**2
+        v = 1 +rt**2/rc**2
+        term1 = np.sqrt(w)**-1
+        term2 = np.sqrt(v)**-1
+        return (term1-term2)**2
+    @staticmethod        
+    def density(r,rc,rt):
+        '''                                                                                                                          
+        King Profile - stellar density King 1962                                                                                     
+        '''
+        w = 1 +r**2/rc**2
+        v = 1 +rt**2/rc**2
+        # z     = jnp.sqrt((1+(r/rc)**2)/(1+(rt/rc)**2))
+        z     = jnp.sqrt(w/v)
+        
+        term1 = (jnp.pi*rc* v**(3/2)*z**2)**(-1)
+        
+        term2 = (jnp.arccos(z)/z) - jnp.sqrt(1 - z**2)
+        return term1*term2
+
+
+
+
+
+
+# THESE SHOULD GO INTO A DIFFERENT FILE
+
+
+
+
 
 
 class JeansOM:    
@@ -524,7 +606,7 @@ class JeansOM:
     @staticmethod
     def likelihood(data: np.ndarray,model: Callable,theta: np.ndarray) -> float:
         '''
-        _summary_
+        I'll keep this around so that it's easy to evaluate the likelihood at a value with some theta
 
         Parameters
         ----------
@@ -934,7 +1016,6 @@ class JeansOM:
 
         return 2* jnp.sum(wj*term2,axis=0)/JeansOM.projected_stars(R,1.0)
 
-
 class gOM:
     def __init__(self,a,alpha):
 
@@ -950,3 +1031,6 @@ class gOM:
     def g_beta(r,a,alpha):
 
         return (r**2+a**2)**alpha
+
+
+    

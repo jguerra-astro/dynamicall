@@ -11,8 +11,8 @@ def test_projection():
     R = np.logspace(-2,2,50) 
     
     # Analytical functions 
-    density_func = sampler.plummer.density_func
-    projection = sampler.plummer.projection
+    density_func = sampler.Plummer.density_func
+    projection = sampler.Plummer.projection
     # --------------------------------------------
     
     # Abel transform calculation
@@ -31,8 +31,8 @@ def test_deprojection():
     R = np.logspace(-2,2,50) 
 
     # Analytical functions
-    density_func = sampler.plummer.density_func
-    projection = sampler.plummer.projection
+    density_func = sampler.Plummer.density_func
+    projection = sampler.Plummer.projection
     # --------------------------------------------
     
     # Abel transform calculation

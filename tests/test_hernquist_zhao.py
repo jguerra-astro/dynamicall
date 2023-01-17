@@ -10,8 +10,8 @@ def test_vplummer():
     We can test it against the analytical profiles for a plummer and a NFW profile
     '''
     # Plummer
-    M =1
-    rs=1
+    M  = 1
+    rs = 1
     # Equivalent  Hernquist-zhao density profile
     rhos= 3*(M)/(4*np.pi *rs**3)
     a  = 0
@@ -21,6 +21,7 @@ def test_vplummer():
     rho_plummer = models.Plummer.density_func(r,M,rs)
     rho_HZ = models.HernquistZhao.density(r,rhos,rs,a,b,c)
     assert pytest.approx(rho_HZ) == rho_plummer
+
 def test_vNFW():
     # Plummer
     M =1
