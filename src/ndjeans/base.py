@@ -16,11 +16,12 @@ config.update("jax_enable_x64", True)
 import numpyro
 import numpyro.distributions as dist
 from numpyro.diagnostics import summary
-
+from typing import Callable
 from numpyro.infer import MCMC, NUTS
 from jax import random
 
 import matplotlib.pyplot as plt
+
 class BaseModel:
 
     def get_density(self,r):
@@ -94,15 +95,66 @@ class Data:
     '''
     Class for dealing with kinematic data from `spherical systems'
     '''
-    def dispersion(self,binfunc=histogram,bins='blocks'):
+    def dispersion_i(
+        self,
+        component: str,
+        binfunc  : Callable = histogram,
+        bins = 'blocks'
+    ):
         
-        self._N, self.bin_edges = binfunc(self.R.value,bins = bins)
-        self.r_center = .5*(self.bin_edges[:-1]+ self.bin_edges[1:])
-        self.meanv = jnp.mean(self.v) # Probably shouldn't assume that v_{com} = 0
-        self.mu,_,self.bin_numbers   = binned_statistic(self.R,(self.meanv- self.v.value)**2,'mean',bins=self.bin_edges)
-        # Keep bin numbers to track stars going into each bin.
-        self.s_error = self.dispersion_errors(1000)
-        return self.r_center,np.sqrt(self.mu), self.s_error/2/np.sqrt(self.mu)
+        component = component.casefold() # in case theres capitals or something
+        
+        # return self.dispersion(self.pos['component'],self.vel)
+        
+        match component:
+            case 'radial':
+                return self.dispersion(self.r,self._vr,self.d_vr,binfunc=binfunc,bins=bins)
+            case 'theta':
+                return self.dispersion(self.r,self._vtheta,self.d_vtheta,binfunc=binfunc,bins=bins)
+            case 'phi':
+                return self.dispersion(self.r,self._vphi,self.d_vphi,binfunc=binfunc,bins=bins)
+            case 'los':
+                return self.dispersion(self.R,self._vlos,self.d_vlos,binfunc=binfunc,bins=bins)
+            case 'pmr':
+                return self.dispersion(self.R,self._pmr,self.d_pmt,binfunc=binfunc,bins=bins)
+            case 'pmt':
+                return self.dispersion(self.R,self._pmt,self.d_pmr,binfunc=binfunc,bins=bins)
+            case _:
+                print('Uknown or missing component type')
+
+    
+    def dispersion(self,ri,vi,d_vi, binfunc: Callable = histogram,bins='blocks'):
+        '''
+        calculates the dispersion of velocity component, v_i at radii r
+        -- or at project radius R. Also calcualtes the 
+        error (see dispersion_error() for details)
+        Parameters
+        ----------
+        v_i : _type_
+            component of velocity you want to calculate the dispersion of 
+            e.g vx,vy,vz,vr,vtheta,vphi etc...
+        binfunc : Callable, optional 
+        binning function -- must return two values like np.histogram, by default histogram
+        bins : str, optional
+            binning scheme I guess , by default 'blocks'
+
+        Returns
+        -------
+        _type_
+            _description_
+        Notes
+        -----
+        TODO: Figure out how to make this cleaner
+        '''
+        N, bin_edges = binfunc(ri,bins = bins)
+        r_center     = .5*(bin_edges[:-1]+ bin_edges[1:]) 
+        
+        meanv = jnp.mean(vi) # Probably shouldn't assume that v_{com} = 0
+        mu,_,bin_numbers   = binned_statistic(ri,(meanv- vi.value)**2,'mean',bins=bin_edges)
+        s2_error = self.dispersion_errors(1000)
+        s_error = s2_error/2/np.sqrt(mu)
+        
+        return r_center,np.sqrt(mu), s_error
 
     def dispersion_errors(self,Nmonte:int,error=None):
         '''
@@ -257,16 +309,48 @@ class Data:
         return  0.25*np.exp(spl(chi) - 3*chi)/np.pi
     
     def spherical(self):
+        '''
+        _summary_
+        (x,y,z) -> r
+        (v_{x},v_{y},v_{z}) -> (v_{r},v_{\theta},v_{\phi}) 
+        
+        theta = arccos(z/r)
+        phi   = arctan2(y,x)  = sign(y)arcos(R/z)
+        Returns
+        -------
+        _type_
+            _description_
+        '''
         #(x,y,z) -> r
-        Rp  = np.sqrt(self.x**2+self.y**2) #for conveniences
-        r   = np.sqrt(self.x**2+self.y**2+self.z**2)
+        self._R  = np.sqrt(self._x**2+self._y**2) #for conveniences
+        self._r   = np.sqrt(self._x**2+self._y**2+self._z**2)
 
         # (vx,vy,vz) -> (vr,v_{\theta},v_{\phi})
-        self.v_r     =  ( self.x * self.vx  + self.y * self.vy + self.z * self.vz )/ r    
-        self.v_phi   = (self.y * self.vx - self.x * self.vy)/ Rp
-        self.v_theta = (self.z * self.x * self.vx/Rp  + self.z * self.y * self.vy/Rp - Rp * self.vz)/r
-        return r, self.v_r, self.v_theta,self.v_phi
+        self._vr     =  ( self._x * self._vx  + self._y * self._vy + self._z * self._vz )/ self._r    
+        self._vphi   = (self._y * self._vx - self._x * self._vy)/ self._R
+        self._vtheta = (self._z * self._x * self._vx/self._R  + self._z * self._y * self._vy/self._R - self._R * self._vz)/self._r
+        # return self._r, self._vr, self._vtheta,self._vphi
 
+    def cylindrical(self):
+        '''
+        convert velocities to cylindrical units
+        Already calculated \rho/R and z so no need to do anything for those
+        (vr,vtheta,vphi) -> (v_{\rho},v_{phi},v_{z})
+        
+        Notes
+        -----
+        I guess i should really do (vx,vy,vz) -> (v_{\rho},v_{phi},v_{z})
+        '''
+        # proper motions
+        # using theta 
+        # theta = jnp.arccos(self._z/self._r) # or jnp.arctan2(self._R,self._z) 
+        # self._pmr     = self._vr*jnp.sin(theta) + self._vtheta*jnp.cos(theta)
+        # self._vz_test = self._vr*jnp.cos(theta) - self._vtheta*jnp.sin(theta)
+
+        self._pmr     = self._vr*self._R/self._r + self._vtheta*self._z/self._r        
+        self._vz_test = self._vr*self._R/self._r + self._vtheta*self._z/self._r
+        self._pmt     = self._vphi
+        # return self._pmr,self._pmt,self._vz_test
 
     @staticmethod
     def bspline(x:np.ndarray):
@@ -293,14 +377,14 @@ class Data:
         return spl
     
     @staticmethod
-    def random_rotation(pos):
+    def random_rotation(pos: np.ndarray):
 
         angles = 360*np.random.rand(3)
-        rot = Rotation.from_euler('xyz', angles, degrees=True)
+        rot    = Rotation.from_euler('xyz', angles, degrees=True)
         return np.dot(rot.as_matrix(),pos)
     
     @staticmethod
-    def to_spherical(pos,vel):
+    def to_spherical(pos: np.ndarray,vel: np.ndarray):
         #(x,y,z) -> r
         Rp  = np.sqrt(pos['x']**2+pos['y']**2) #for conveniences
         r   = np.sqrt(pos['x']**2+pos['y']**2+pos['z']**2)

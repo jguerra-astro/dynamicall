@@ -58,9 +58,8 @@ class KeckData(Data):
         self.R  =2* jnp.tan(self.Rrad/2) * self.galaxy.distance *self.galaxy.distance.unit
         # I should be able to do this using astropy -- but for now this is fine
 
-
-        self.v  = jnp.array(table['VCORR']) * u.km/u.s
-        self.dv = jnp.array(table['EMCEE_VERR']) * u.km/u.s
+        self._vlos  = jnp.array(table['VCORR']) * u.km/u.s
+        self.d_vlos = jnp.array(table['EMCEE_VERR']) * u.km/u.s
 
         
         # self.pos    = SkyCoord(self.ra,self.dec, distance=galaxy.distance[0], frame='icrs')
@@ -123,7 +122,6 @@ class KeckData(Data):
             warnings.warn("\n Something went wrong, data set was not initialized properly.") 
             return ('Could not find name, please')
 
-
 class DCJLData(Data):
     
     def __init__(self,halo):
@@ -172,26 +170,47 @@ class DCJLData(Data):
 
 class MockData(Data):
     def __init__(self,dataSet):
+        '''
+        _summary_
+
+        Parameters
+        ----------
+        dataSet : _type_
+            _description_
+        Notes
+        -----
+        I'm not sure if i loveee the notation here, but there arent that many options
+        '''
         
         # Cartesian
-        self._x = dataSet['x']
-        self._y = dataSet['y']
-        self._z = dataSet['z']
+        self._x = jnp.array(dataSet['x'])
+        self._y = jnp.array(dataSet['y'])
+        self._z = jnp.array(dataSet['z'])
         
-        self._vx = dataSet['vx']
-        self._vy = dataSet['vy']
-        self._vz = dataSet['vz']
+        self._vx = jnp.array(dataSet['vx'])
+        self._vy = jnp.array(dataSet['vy'])
+        self._vz = jnp.array(dataSet['vz'])
 
         # Spherical
-        self._r = dataSet['r']   
-        self._vr     = dataSet['vr']    
-        self._vtheta = dataSet['vtheta']
-        self._vphi   = dataSet['vphi']  
+        try:
+            self._r      = jnp.array(dataSet['r'])   
+            self._vr     = jnp.array(dataSet['vr'])    
+            self._vtheta = jnp.array(dataSet['vtheta'])
+            self._vphi   = jnp.array(dataSet['vphi'])  
+        except:
+            self.spherical() #this will define the spherical components as above 
+            # also defines self._R
 
-        # `Projected` -- choose 'z' direction to be line-of-sight
-        self._R    = jnp.sqrt(dataSet['x']**2 + dataSet['y']**2)
+        # proper motions
+        try:
+            self._pmr     = jnp.array(dataSet['pmr'])
+            self._pmt     = jnp.array(dataSet['pmt'])
+        except:
+            self.cylindrical()
         
-        self._vlos = dataSet['z']
+        # `Projected' -- choose 'z' direction to be line-of-sight
+        self._vlos  = jnp.array(dataSet['z'])
+        self. d_vlos = jnp.array(dataSet['error'])
 
         # errors on observations
-        self._errors = dataSet['errors']
+        self._error = jnp.array(dataSet['error'])
