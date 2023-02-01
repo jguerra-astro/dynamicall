@@ -55,13 +55,13 @@ class KeckData(Data):
         self.Rrad      = np.array(self.pos.separation(galaxy).to(u.rad))
         
         # projected radi in kpc -- i'll do all the analysis in kpc
-        self.R  =2* jnp.tan(self.Rrad/2) * self.galaxy.distance *self.galaxy.distance.unit
+        self._R  =2* jnp.tan(self.Rrad/2) * self.galaxy.distance *self.galaxy.distance.unit
         # I should be able to do this using astropy -- but for now this is fine
 
-        self._vlos  = jnp.array(table['VCORR']) * u.km/u.s
-        self.d_vlos = jnp.array(table['EMCEE_VERR']) * u.km/u.s
+        self._vlos  = jnp.array(table['v']) * u.km/u.s
+        self.d_vlos = jnp.array(table['v_err']) * u.km/u.s
 
-        
+        self.bin_edges={}
         # self.pos    = SkyCoord(self.ra,self.dec, distance=galaxy.distance[0], frame='icrs')
         # self.x = self.galaxy.cartesian.x - self.pos.cartesian.x 
         # self.y = self.galaxy.cartesian.y - self.pos.cartesian.y
@@ -72,7 +72,7 @@ class KeckData(Data):
     @staticmethod
     def from_name(table,name):
         '''
-        So that I dont have to keep looking up coordinates for all the dSph's
+        So that I dont have to keep looking up coordinates for all objects
 
         Parameters
         ----------
@@ -91,36 +91,38 @@ class KeckData(Data):
         Some of the names have "NAME" in front of them e.g. Draco: NAME Dra dSph
         The naming comvention is all over the place so I guess I should deala with that
         '''
-        galaxies = Table.read('data/simbad.xml')
+
+        galaxies = Table.read('/Users/juan/phd/projects/weird-jeans/src/data/simbad.xml')
         df = galaxies['MAIN_ID','RA_d','DEC_d','Distance_distance','Distance_unit'].to_pandas()
+        # first try to see if the galaxy name is cached in a pre-prepared file
         try: 
             temp = df.loc[df['MAIN_ID'] ==name]
             ra   = np.float64(temp['RA_d'] ) * u.deg
             dec  = np.float64(temp['DEC_d']) * u.deg
-            D    = np.float64(temp['Distance_distance']) * u.Mpc
+            D    = np.float64(temp['Distance_distance']) * u.Unit(temp['Distance_unit'])
             galaxy = SkyCoord(ra,dec,distance=D.to(u.kpc), frame='icrs')
             return KeckData(table,galaxy)
         except:
-            warnings.warn("\n Something went wrong, the Name provided wasd not in our database") 
-
+            warnings.warn("\n Something went wrong, the Name provided was not in our database,",stacklevel=2)
+        
+        # Try Adding "Name" to the beginning of name.. cause that works sometimes
         try: 
             temp = df.loc[df['MAIN_ID'] =='Name '+name]
             ra   = np.float64(temp['RA_d'] ) * u.deg
             dec  = np.float64(temp['DEC_d']) * u.deg
-            D    = np.float64(temp['Distance_distance']) * u.Mpc
+            D    = np.float64(temp['Distance_distance']) * u.Unit(temp['Distance_unit'])
             galaxy = SkyCoord(ra,dec,distance=D.to(u.kpc), frame='icrs')
             return KeckData(table,galaxy)
         except:
-            warnings.warn("\n We tried changing the name -- Last attempt will try to use simbad.query_object to search for object") 
-
-        
+            warnings.warn("\n We tried changing the name -- Last attempt will try to use simbad.query_object to search for object",stacklevel=2)
+        # Last attempt: check to see if you can use simbad to find the object
         try: 
             temp= Simbad.query_object(name)
-            galaxy = SkyCoord(temp['RA'][0],temp['DEC'][0],unit=(u.hourangle,u.deg),distance=(temp['Distance_distance']*u.Mpc).to(u.kpc))
+            galaxy = SkyCoord(temp['RA'][0],temp['DEC'][0],unit=(u.hourangle,u.deg),distance=(temp['Distance_distance']* u.Unit(temp['Distance_unit'][0])).to(u.kpc))
+            print('success using simbad!')
             return KeckData(table,galaxy)
         except:
-            warnings.warn("\n Something went wrong, data set was not initialized properly.") 
-            return ('Could not find name, please')
+            warnings.warn("\n Something went wrong, data set was not initialized properly.",stacklevel=2)
 
 class DCJLData(Data):
     
@@ -190,6 +192,7 @@ class MockData(Data):
         self._vx = jnp.array(dataSet['vx'])
         self._vy = jnp.array(dataSet['vy'])
         self._vz = jnp.array(dataSet['vz'])
+        self.N_star = len(self._x)
 
         # Spherical
         try:

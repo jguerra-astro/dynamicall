@@ -21,13 +21,49 @@ from numpyro.infer import MCMC, NUTS
 from jax import random
 
 import matplotlib.pyplot as plt
+import corner
+import arviz as az
+from functools import partial
+
+def gaussian(data,error,rhalf=None):
+    '''
+    simple model function for finding the mean velocity of stars
+    $P(v|\mu,\sigma) = (\sqrt{2\pi}\sigma)^{-1}exp{\frac{1/2}{}}$
+
+    Parameters
+    ----------
+    data : _type_
+        presumably velocities
+    error : _type_
+        error on velocities 
+    rhalf : _type_, optional
+        If you want to calculate the Wolf mass, you can supply an r_{1/2}, by default None
+    NOTES
+    -----
+    Where do  the r_{1/2}'s come from
+    It'd be nice if i could use r_{1/2}'s with an error
+    e.g. 
+        rh       = numpyro.sample('rhalf',dist.Normal(rhalf,drhalf)) 
+        mwolf    = numpyro.deterministic('mwolf',(4*rh*sigma**2)/(3*G))
+    should add a with numpyro plate
+    '''
+    G     =  4.30091731e-6 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
+    mu    = numpyro.sample('mu'   ,dist.Uniform(jnp.min(data),jnp.max(data)))
+    sigma = numpyro.sample('sigma',dist.Uniform(.01,100))
+    
+    if rhalf != None:
+        mwolf    = numpyro.deterministic('mwolf',(4*rhalf*sigma**2)/(3*G))
+
+    s = jnp.sqrt(sigma**2+error**2)
+    numpyro.sample("obs", dist.Normal(mu,s), obs=data)
+
 
 class BaseModel:
 
-    def get_density(self,r):
+    def density(self,r):
         pass
 
-    def get_mass(self,r):
+    def mass(self,r):
         pass 
     
     def func(self,x: float):
@@ -91,6 +127,63 @@ class BaseModel:
         self._M200 = self.get_mass(self._r200)
         return self._r200
 
+    def potential(self,r):
+        pass
+    
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def radial_action_integrand(cls,r, x0, v0, logMass, r_s) -> float:
+        '''
+        paper eq. 3 -- subject to change
+
+        '''
+        L      = jnp.linalg.norm(jnp.cross(x0,v0),axis=0) # angular momentum |L| 
+        r0    = jnp.linalg.norm(x0,axis=0)
+        
+        T      = 0.5* jnp.dot(v0,v0)     # kinetic energy 
+        energy = T + cls.potential(r0)  # total energy
+
+        pot    = cls.potential(r)       # potential at interation variable r 
+        term1  = 2.0*(energy - pot)
+        term2  = L**2/r**2
+        return jnp.sqrt(term1 - term2)/jnp.pi
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def centre(cls,r, x0, v0,M,b) -> float:
+        '''
+        paper eq. 4 -- subject to change
+
+        '''
+        L      = jnp.cross(x0,v0)                   # angular momentum
+        T      = jnp.dot(v0,v0)/2                   # kinetic energy 
+        r0     = jnp.linalg.norm(x0,axis=0)
+        energy =  T + cls._potential(r0,M,b) # total energy
+        
+        return 2*r**2 *(energy - cls._potential(r,M,b)) - jnp.dot(L,L) 
+
+
+
+    @staticmethod
+    def action_theta(x,v):
+        '''
+        Equation 3.
+        Doesn't depend on the potential
+        '''
+        L_vector = np.cross(x,v)
+        L_phi    = L_vector[2]
+        L        = np.sqrt(np.dot(L_vector,L_vector))
+        return (L - L_phi)
+    
+    @staticmethod
+    def action_phi(x,v):
+        '''
+        Equation 2.
+        Doesn't depend on the potential
+        '''
+        L_phi = x[0]*v[1] - x[1]*v[0]
+        return L_phi
+
 class Data:
     '''
     Class for dealing with kinematic data from `spherical systems'
@@ -108,22 +201,21 @@ class Data:
         
         match component:
             case 'radial':
-                return self.dispersion(self.r,self._vr,self.d_vr,binfunc=binfunc,bins=bins)
+                return self.dispersion(self._r,self._vr,self.d_vr,component,binfunc=binfunc,bins=bins)
             case 'theta':
-                return self.dispersion(self.r,self._vtheta,self.d_vtheta,binfunc=binfunc,bins=bins)
+                return self.dispersion(self._r,self._vtheta,self.d_vtheta,component,binfunc=binfunc,bins=bins)
             case 'phi':
-                return self.dispersion(self.r,self._vphi,self.d_vphi,binfunc=binfunc,bins=bins)
+                return self.dispersion(self._r,self._vphi,self.d_vphi,component,binfunc=binfunc,bins=bins)
             case 'los':
-                return self.dispersion(self.R,self._vlos,self.d_vlos,binfunc=binfunc,bins=bins)
+                return self.dispersion(self._R,self._vlos,self.d_vlos,component,binfunc=binfunc,bins=bins)
             case 'pmr':
-                return self.dispersion(self.R,self._pmr,self.d_pmt,binfunc=binfunc,bins=bins)
+                return self.dispersion(self._R,self._pmr,self.d_pmt,component,binfunc=binfunc,bins=bins)
             case 'pmt':
-                return self.dispersion(self.R,self._pmt,self.d_pmr,binfunc=binfunc,bins=bins)
+                return self.dispersion(self._R,self._pmt,self.d_pmr,component,binfunc=binfunc,bins=bins)
             case _:
                 print('Uknown or missing component type')
-
     
-    def dispersion(self,ri,vi,d_vi, binfunc: Callable = histogram,bins='blocks'):
+    def dispersion(self,ri,vi,d_vi,component, binfunc: Callable = histogram,bins='blocks'):
         '''
         calculates the dispersion of velocity component, v_i at radii r
         -- or at project radius R. Also calcualtes the 
@@ -146,17 +238,17 @@ class Data:
         -----
         TODO: Figure out how to make this cleaner
         '''
-        N, bin_edges = binfunc(ri,bins = bins)
+        N, bin_edges = binfunc(ri.value,bins = bins)
         r_center     = .5*(bin_edges[:-1]+ bin_edges[1:]) 
-        
+        self.bin_edges[component] = bin_edges
         meanv = jnp.mean(vi) # Probably shouldn't assume that v_{com} = 0
-        mu,_,bin_numbers   = binned_statistic(ri,(meanv- vi.value)**2,'mean',bins=bin_edges)
-        s2_error = self.dispersion_errors(1000)
+        mu,_,bin_numbers   = binned_statistic(ri.value,(meanv- vi)**2,'mean',bins=self.bin_edges[component])
+        s2_error = self.dispersion_errors(ri,vi,component,1000,N,error=d_vi)
         s_error = s2_error/2/np.sqrt(mu)
         
         return r_center,np.sqrt(mu), s_error
 
-    def dispersion_errors(self,Nmonte:int,error=None):
+    def dispersion_errors(self,ri,vi,component,Nmonte:int,Nbins,error=None):
         '''
         Very Basic Error calculation for dispersion
 
@@ -177,22 +269,37 @@ class Data:
         '''
         if error==None: error= 2 # gotta change that 2 but need real errors first
         N = self.N_star
-        stemp = np.zeros((Nmonte,len(self._N)))
-        
+        stemp = np.zeros((Nmonte,len(Nbins)))
+        meanv = jnp.mean(vi) # Probably shouldn't assume that v_{com} = 0
         for i in range(Nmonte):
             #Draw new velocities by sampling a gaussian distribution 
             # centered at the measured velocity with a sigma = observational error
-            vlos_new = self.v.value + error*np.random.normal(size=N)
-            
+            vlos_new = vi + error*np.random.normal(size=N)
             #next calculate the dispersion of the new velocities
-            mu,_,_   = binned_statistic(self.R.value,vlos_new**2,'mean',bins=self.bin_edges)
+            mu,_,_   = binned_statistic(ri,(meanv-vlos_new)**2,'mean',bins=self.bin_edges[component])
             stemp[i] = mu
+        
+        meanv = jnp.mean(vi) # Probably shouldn't assume that v_{com} = 0
+        mu,_,bin_numbers   = binned_statistic(ri.value,(meanv- vi)**2,'mean',bins=self.bin_edges[component])
+        N,_,bin_numbers   = binned_statistic(ri.value,ri.value,'count',bins=self.bin_edges[component])
+
         # Get standard deviation of the Nmonte iterations
-        self.mError = np.std(stemp,axis=0)
+        mError = np.std(stemp,axis=0)
         # Add Poisson error
-        self.s_error = np.sqrt(self.mError**2 + self.mu**2/self._N)
+        self.s_error = np.sqrt(mError**2 + mu**2/N)
         return self.s_error
     
+    def fourth_moment(self,ri,vi,d_vi,binfunc: Callable = histogram, bins ='blocks'):
+        
+        N, bin_edges = binfunc(ri,bins = bins)
+        r_center     = .5*(bin_edges[:-1]+ bin_edges[1:]) 
+        meanv = jnp.mean(vi) # Probably shouldn't assume that v_{com} = 0
+        mu,_,bin_numbers   = binned_statistic(ri,(meanv- vi.value)**4,'mean',bins=bin_edges)
+        s4_error = self.dispersion_errors(1000)
+        # s_error = s4_error/2/np.sqrt(mu)
+        
+        return r_center,mu, s4_error
+
     def spatial_par(self, bin_method= histogram, bins = 'blocks',dim =2):
         '''
         Given a set of N stars with either 2D (default) or 3D(set dim=3),
@@ -352,6 +459,19 @@ class Data:
         self._pmt     = self._vphi
         # return self._pmr,self._pmt,self._vz_test
 
+    def fit_gaussian(self,v_i,error_i,rhalf=None):
+        rng_key = random.PRNGKey(0)
+        rng_key, rng_key_ = random.split(rng_key)
+        # Run NUTS.
+        kernel = NUTS(gaussian)
+        num_samples = 3000
+        mcmc = MCMC(kernel, num_warmup=1000, num_samples=num_samples)
+        mcmc.run(rng_key_,data=v_i,error=error_i,rhalf=rhalf)
+        mcmc.print_summary()
+        samples_1 = mcmc.get_samples()
+        # corner.corner(samples_1,var_names=['mu','sigma','mwolf'],quantiles=[0.16, 0.5, 0.84],show_titles=True,labels=[r'$\mu$',r'$\sigma$',r'$M_{\rm wolf}$'],title_fmt='2.f');
+        return samples_1
+
     @staticmethod
     def bspline(x:np.ndarray):
         '''
@@ -395,43 +515,81 @@ class Data:
         v_theta = (pos['z'] * pos['x'] * vel['vx']/Rp  + pos['z'] * pos['y'] * vel['vy']/Rp - Rp * vel['vz'])/r
         return r, v_r,v_phi,v_theta
 
-class Fit:
 
-    def __init__(self,data,priors:dict):
-        '''
-        _summary_
+# class Fit:
 
-        Parameters
-        ----------
-        data : _type_
-            data['pos']: positions
-            data['vel']: velocities
-            data['dv]  : error on velocities
-        priors : dict
-            dictionary of priors for parameters
-            Depends on which model we're trying to use to fit the data
-        '''
-        self.data   = data
-        self.priors = priors
+#     def __init__(self,data,priors:dict):
+#         '''
+#         _summary_
 
-    def model(self,priors,data):
-        # set up priors on parameters
-        # m_beta = numpyro.sample("beta"   , priors['beta']) # stellar anisotropy
-        m_a    = numpyro.sample("gamma"  , priors['gamma'])  # inner-slope
-        m_rs   = numpyro.sample("lnrs"   , priors['lnrs'])   # ln{scale density} -- dont want negatives 
-        m_rhos = numpyro.sample("lnrhos" , priors['lnrhos']) # ln{scale density} -- dont want negatives 
-        m_v    = numpyro.sample("v_mean" , priors['v_mean'])
-
-        q     = data['pos']
-        obs   = data['vel']
-        error = data['dv']
-
-        # with numpyro.plate("data", len(data[1,:])):
-            # sigma2 = jnp.sqrt(Jeans.vec_dispb(data[0,:],m,b,m_a,1,3))
-            # numpyro.sample("y", dist.Normal(sigma,error), obs=obs)
+#         Parameters
+#         ----------
+#         data : _type_
+#             data['pos']: positions
+#             data['vel']: velocities
+#             data['dv]  : error on velocities
+#         priors : dict
+#             dictionary of priors for parameters
+#             Depends on which model we're trying to use to fit the data
+#         '''
+#         self.data   = data
+#         self.priors = priors
 
 
-    def run_inference(self, model, num_warmup=1000, num_samples=1000):
+
+#     @jax.jit
+#     @staticmethod
+#     def gaussian(data,error,rhalf=None):
+#         '''
+#         simple model function for finding the mean velocity of stars
+#         $P(v|\mu,\sigma) = (\sqrt{2\pi}\sigma)^{-1}exp{\frac{1/2}{}}$
+
+#         Parameters
+#         ----------
+#         data : _type_
+#             presumably velocities
+#         error : _type_
+#             error on velocities 
+#         rhalf : _type_, optional
+#             If you want to calculate the Wolf mass, you can supply an r_{1/2}, by default None
+#         NOTES
+#         -----
+#         Where do  the r_{1/2}'s come from
+#         It'd be nice if i could use r_{1/2}'s with an error
+#         e.g. 
+#             rh       = numpyro.sample('rhalf',dist.Normal(rhalf,drhalf)) 
+#             mwolf    = numpyro.deterministic('mwolf',(4*rh*sigma**2)/(3*G))
+#         should add a with numpyro plate
+#         '''
+        
+#         G     =  4.30091731e-6 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
+#         mu    = numpyro.sample('mu'   ,dist.Uniform(jnp.min(data),jnp.max(data)))
+#         sigma = numpyro.sample('sigma',dist.Uniform(.01,100))
+        
+#         if rhalf != None:
+#             mwolf    = numpyro.deterministic('mwolf',(4*rhalf*sigma**2)/(3*G))
+
+#         s = jnp.sqrt(sigma**2+error**2)
+#         numpyro.sample("obs", dist.Normal(mu,s), obs=data)
+
+#         def model(self,priors,data):
+#             # set up priors on parameters
+#             # m_beta = numpyro.sample("beta"   , priors['beta']) # stellar anisotropy
+#             m_a    = numpyro.sample("gamma"  , priors['gamma'])  # inner-slope
+#             m_rs   = numpyro.sample("lnrs"   , priors['lnrs'])   # ln{scale density} -- dont want negatives 
+#             m_rhos = numpyro.sample("lnrhos" , priors['lnrhos']) # ln{scale density} -- dont want negatives 
+#             m_v    = numpyro.sample("v_mean" , priors['v_mean'])
+
+#             q     = data['pos']
+#             obs   = data['vel']
+#             error = data['dv']
+
+#             # with numpyro.plate("data", len(data[1,:])):
+#                 # sigma2 = jnp.sqrt(Jeans.vec_dispb(data[0,:],m,b,m_a,1,3))
+#                 # numpyro.sample("y", dist.Normal(sigma,error), obs=obs)
+
+
+#     def run_inference(self, model, num_warmup=1000, num_samples=1000):
 
         kernel = NUTS(model)
         mcmc = MCMC(

@@ -3,12 +3,13 @@ from typing import Callable
 
 import jax
 import jax.numpy as jnp
+from jaxopt import Bisection
 import numpy as np
 import astropy.units as u
 import scipy.special as sc
 from scipy.integrate import quad
 from jax._src.config import config
-
+from functools import partial
 config.update("jax_enable_x64", True)
 # import astropy.units as u
 # import scipy.special as sc
@@ -28,6 +29,7 @@ from .base import BaseModel
 
 #? What other classes should be here?
 # TODO: Some of the static methods in plummer, don't need to be there so i should get rid of them?
+# TODO: Gross gotta clean thise up...
 try:
     x,w  = np.loadtxt('/home/jjg57/DCJL/newjeans/src/data/gausleg_100',delimiter=',')
 except:
@@ -236,8 +238,6 @@ class NFW(BaseModel):
             _description_
         NOTES
         -----
-        BUG: Finding r200 doesnt work well when bounds for Bisection has very small lower bounds,
-            Maybe this function isnt behaving well at those very small values
         '''
         # q = rs/(rs+r)
         # mNFW = 4*jnp.pi*rhos*rs**3 * (q - jnp.log(q) -1) # Analytical NFW mass profile
@@ -246,20 +246,184 @@ class NFW(BaseModel):
         mNFW = 4*jnp.pi*rhos*rs**3 * (jnp.log(q) + 1/q - 1) # Analytical NFW mass profile
         return mNFW
 
+class Isochrone(BaseModel):
+
+    def __init__(self,M:float,b:float)-> None:
+        '''
+        _summary_
+
+        Parameters
+        ----------
+        M : float
+            total Mass in solar Masses
+        b : float
+            scale radius
+        '''
+        self.G  =  4.30091731e-6 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]        
+        self._M = M 
+        self._b = b
+
+    def v_spherical(self,r:float) -> float:
+        '''
+        circular speed at radius r B&T Eq 2.49
+
+        Parameters
+        ----------
+        r : float
+            _description_
+
+        Returns
+        -------
+        float
+            _description_
+        '''        
+        
+        G = self.G
+        M = self._M
+        b = self._b
+        a = jnp.sqrt(b**2 + r**2)
+        return jnp.sqrt(G*M*r**2/a/(b+a)**2)
+
+    def potential(self,r):
+        return Isochrone._potential(r,self._M,self._b)
+
+    def total_energy(self,x,v):
+        T      = jnp.dot(v,v)/2                   # kinetic energy 
+        r     = jnp.linalg.norm(x,axis=0)
+        return T +self.potential(r)
+
+    def density(self,r):
+        return Isochrone._density(r,self._M,self._b)
+
+    def action_r(self,x,v):
+        '''
+        Isochrone Potential has an analytical J_r -- This will be useful for testing
+
+        Parameters
+        ----------
+        x : _type_
+            _description_
+        v : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        '''
+        G   =  4.30091731e-6 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
+        L   = jnp.linalg.norm(jnp.cross(x,v))
+        T   = 0.5* jnp.dot(v,v) 
+        r   = jnp.linalg.norm(x,axis=0)
+        energy = T + self.potential(r)  # total energy
+        term1 = G*self._M/jnp.sqrt(-2*energy)
+        term2 = .5*(L + jnp.sqrt(L**2 + 4*G*self._M*self._b))
+        return term1 - term2
+
+    def actions(self,x,v):
+        return self.action_r(x,v),self.action_theta(x,v),self.action_phi(x,v)
+
+    # @partial(jax.jit, static_argnums=(0,))
+    @staticmethod
+    @jax.jit
+    def peri(x0,v0,M,b):
+        r0     = jnp.linalg.norm(x0,axis=0)
+        bisec  = Bisection(optimality_fun= centre, lower=1e-12, upper=r0,check_bracket=False)
+        r_peri = bisec.run(x0=x0,v0=v0,M=M,b=b).params
+        return r_peri
+
+    # @partial(jax.jit, static_argnums=(0,))
+    @staticmethod
+    @jax.jit
+    def apo(x0,v0,M,b):
+
+        #
+        r0    = jnp.linalg.norm(x0,axis=0)
+        bisec2 = Bisection(optimality_fun= centre, lower= r0, upper = 500,check_bracket=False)
+        r_apo = bisec2.run(x0=x0,v0=v0,M=M,b=b).params
+        return r_apo
+
+    @staticmethod
+    @jax.jit
+    def _potential(r: float,M: float,b: float) -> float:
+        '''
+        _summary_
+
+        Parameters
+        ----------
+        r : float
+            [kpc]
+        M : float
+            [M_{\odot}] (solar mass )
+        b : float
+            [kpc]
+
+        Returns
+        -------
+        float
+            potential energy [km^2 s^{-2}]
+        '''        
+        G     =  4.30091731e-6 # u.kpc*u.km**2*u.solMass**-1 *u.s**-2# Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
+        # print(b.unit,M.unit,r.unit)
+        # print(jnp.sqrt(b**2+r**2))
+        return -G*M/(b+ jnp.sqrt(b**2+r**2))
+
+    @staticmethod
+    def _density(r: float,M: float,b: float) -> float:
+        '''
+        B&T Eq 2.49
+
+        Parameters
+        ----------
+        r : float
+            _description_
+        M : float
+            _description_
+        b : float
+            _description_
+
+        Returns
+        -------
+        float
+            _description_
+        '''        
+        a = jnp.sqrt(b**2 + r**2)
+        
+        num = 3*(b+a)*a**2 - r**2*(b+3*a)
+        den = 4*jnp.pi*(b+a)**3*a**3 
+        return M*num/den
+    
+
+def centre(r: float, x0, v0,M,b) -> float:
+    '''
+    paper eq. 4 -- subject to change
+
+    '''
+    L      = jnp.cross(x0,v0)                   # angular momentum
+    T      = jnp.dot(v0,v0)/2                   # kinetic energy 
+    r0     = jnp.linalg.norm(x0,axis=0)
+    energy =  T + Isochrone._potential(r0,M,b) # total energy
+    
+    return 2*r**2 *(energy - Isochrone._potential(r,M,b)) - jnp.dot(L,L) 
+
 class Gaussians(BaseModel):
 
     def __init__(self,params, N:int):
         self._N = N
         self._params = params.reshape(2,N) #M_i, sigma_i pairs
     
-    def get_density(self,r):
+    def density(self,r):
+        '''
+        BUG: not the right method
+        '''
         density= jnp.zeros(len(r))
         for i in range(self._N):
             density +=Gaussians.density_i(r,self._params[0,i],self._params[1,i])
 
         return density
     
-    def get_mass(self,r):
+    def mass(self,r):
+        # BUG: only calling one component
         return Gaussians.mass_j(r)
 
     @staticmethod
@@ -283,13 +447,13 @@ class Gaussians(BaseModel):
             _description_
         '''
 
-        rho = M * (jnp.sqrt(2*jnp.pi) * sigma**3)**-1 # part with the units  [Mass * Length**-3] 
+        rho = M * (jnp.sqrt(2*jnp.pi) * sigma**3)**(-1) # part with the units  [Mass * Length**-3] 
 
-        return rho * jnp.exp(-r**2/(2*sigma**2))
+        return rho * jnp.exp(- 1*r**2/(2*sigma**2))
 
     @staticmethod
     @jax.jit
-    def density(r,M: jnp.DeviceArray,sigma: jnp.DeviceArray):
+    def _density(r,M: jnp.DeviceArray,sigma: jnp.DeviceArray,N=4):
         rho_vec = jax.vmap(Gaussians.density_i, in_axes=(0,None,None))
         return jnp.sum(rho_vec(r,M,sigma),axis=1)
 
@@ -301,7 +465,7 @@ class Gaussians(BaseModel):
 
     @staticmethod
     @jax.jit
-    def mass(r: float,M:jnp.DeviceArray,sigma: jnp.DeviceArray):
+    def _mass(r: float,M:jnp.DeviceArray,sigma: jnp.DeviceArray):
         '''
         _summary_
 
@@ -576,16 +740,7 @@ class King(BaseModel):
         return term1*term2
 
 
-
-
-
-
 # THESE SHOULD GO INTO A DIFFERENT FILE
-
-
-
-
-
 
 class JeansOM:    
 
