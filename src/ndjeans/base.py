@@ -59,7 +59,7 @@ def gaussian(data,error,rhalf=None):
 
 
 class BaseModel:
-
+    param_names = {}
     def density(self,r):
         pass
 
@@ -129,28 +129,94 @@ class BaseModel:
 
     def potential(self,r):
         pass
-    
-    @classmethod
-    @partial(jax.jit, static_argnums=(0,))
-    def radial_action_integrand(cls,r, x0, v0, logMass, r_s) -> float:
-        '''
-        paper eq. 3 -- subject to change
 
+    def total_energy(self,x,v):
         '''
-        L      = jnp.linalg.norm(jnp.cross(x0,v0),axis=0) # angular momentum |L| 
-        r0    = jnp.linalg.norm(x0,axis=0)
+        Calculates the total energy per unit mass
         
-        T      = 0.5* jnp.dot(v0,v0)     # kinetic energy 
-        energy = T + cls.potential(r0)  # total energy
+        Parameters
+        ----------
+        x : _type_
+            _description_
+        v : _type_
+            _description_
 
-        pot    = cls.potential(r)       # potential at interation variable r 
-        term1  = 2.0*(energy - pot)
-        term2  = L**2/r**2
-        return jnp.sqrt(term1 - term2)/jnp.pi
+        Returns
+        -------
+        float
+            total energy per unit mass | [km^{2}~s^{-2}] 
+        '''
+        T = 0.5* jnp.dot(v,v)         # kinetic energy 
+        r = jnp.linalg.norm(x,axis=0)
+    
+        return T +self.potential(r)
+
 
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
-    def centre(cls,r, x0, v0,M,b) -> float:
+    def unpack_pars(cls, p_arr):
+        """
+        This function takes a parameter array and unpacks it into a dictionary
+        with the parameter names as keys.
+        """
+        p_dict = {}
+        j = 0
+        for name, size in cls.param_names.items():
+            # print(name,size)
+            p_dict[name] = jnp.squeeze(p_arr[j : j + size])
+            j += size
+        return p_dict
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def pack_pars(cls, p_dict):
+        """
+        This function takes a parameter dictionary and packs it into a JAX array
+        where the order is set by the parameter name list defined on the class.
+        """
+        p_arrs = []
+        for name in cls.param_names.keys():
+            p_arrs.append(jnp.atleast_1d(p_dict[name]))
+        return jnp.concatenate(p_arrs)
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _peri(cls,pars,*args):
+        r0     = jnp.linalg.norm(args[0],axis=0)
+        bisec  = Bisection(optimality_fun= cls._centre, lower=1e-12, upper=r0,check_bracket=False)
+        r_peri = bisec.run(x0=args[0],v0 = args[1],pars = pars).params
+        return r_peri
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _apo(cls,pars,*args):
+        r0     = jnp.linalg.norm(args[0],axis=0)
+        bisec2 = Bisection(optimality_fun= cls._centre, lower= r0, upper = 500,check_bracket=False)
+        r_apo = bisec2.run(x0=args[0],v0 = args[1],pars = pars).params
+        return r_apo
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _centre(cls,r,x0,v0,pars) -> float:
+        '''
+        paper eq. 4 -- subject to change
+
+        '''
+        # print(cls)
+        # print(x0,v0)
+        # print(pars)
+        L      = jnp.cross(x0,v0)                   # angular momentum
+        T      = 0.5* jnp.dot(v0,v0)                   # kinetic energy 
+        r0     = jnp.linalg.norm(x0,axis=0)
+        # print(r0)s
+        energy =  T + cls._potential(*pars,r=r0) # total energy
+        
+        return 2*r**2 *(energy - cls._potential(*pars,r=r)) - jnp.dot(L,L) 
+
+
+
+    # @partial(jax.jit, static_argnums=(0,))
+    # def centre(self,r, x0, v0) -> float:
         '''
         paper eq. 4 -- subject to change
 
@@ -158,11 +224,9 @@ class BaseModel:
         L      = jnp.cross(x0,v0)                   # angular momentum
         T      = jnp.dot(v0,v0)/2                   # kinetic energy 
         r0     = jnp.linalg.norm(x0,axis=0)
-        energy =  T + cls._potential(r0,M,b) # total energy
+        energy =  T + self._potential(self._M,self._b,r0) # total energy
         
-        return 2*r**2 *(energy - cls._potential(r,M,b)) - jnp.dot(L,L) 
-
-
+        return 2*r**2 *(energy - self._potential(self._M,self._b,r)) - jnp.dot(L,L) 
 
     @staticmethod
     def action_theta(x,v):

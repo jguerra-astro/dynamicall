@@ -247,7 +247,10 @@ class NFW(BaseModel):
         return mNFW
 
 class Isochrone(BaseModel):
-
+    param_names = {
+        "M": 1,  # the log number density
+        'b':1
+        }
     def __init__(self,M:float,b:float)-> None:
         '''
         _summary_
@@ -262,6 +265,14 @@ class Isochrone(BaseModel):
         self.G  =  4.30091731e-6 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]        
         self._M = M 
         self._b = b
+
+    def density(self,r):
+        
+        return Isochrone._density(self._M,self._b,r)
+
+    def potential(self,r):
+        
+        return Isochrone._potential(self._M,self._b,r)
 
     def v_spherical(self,r:float) -> float:
         '''
@@ -284,17 +295,6 @@ class Isochrone(BaseModel):
         a = jnp.sqrt(b**2 + r**2)
         return jnp.sqrt(G*M*r**2/a/(b+a)**2)
 
-    def potential(self,r):
-        return Isochrone._potential(r,self._M,self._b)
-
-    def total_energy(self,x,v):
-        T      = jnp.dot(v,v)/2                   # kinetic energy 
-        r     = jnp.linalg.norm(x,axis=0)
-        return T +self.potential(r)
-
-    def density(self,r):
-        return Isochrone._density(r,self._M,self._b)
-
     def action_r(self,x,v):
         '''
         Isochrone Potential has an analytical J_r -- This will be useful for testing
@@ -311,43 +311,36 @@ class Isochrone(BaseModel):
         _type_
             _description_
         '''
-        G   =  4.30091731e-6 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
-        L   = jnp.linalg.norm(jnp.cross(x,v))
-        T   = 0.5* jnp.dot(v,v) 
-        r   = jnp.linalg.norm(x,axis=0)
-        energy = T + self.potential(r)  # total energy
-        term1 = G*self._M/jnp.sqrt(-2*energy)
+        G   =  4.30091731e-6                  # Gravitational constant | [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
+        L   = jnp.linalg.norm(jnp.cross(x,v)) # magnitude of angular momentum |
+        T   = 0.5* jnp.dot(v,v)               # kinetic energy
+        r   = jnp.linalg.norm(x,axis=0)       # radius from position vector 
+        energy = T + self.potential(r)        # total energy
+        term1 = G*self._M/jnp.sqrt(-2*energy)    
         term2 = .5*(L + jnp.sqrt(L**2 + 4*G*self._M*self._b))
         return term1 - term2
 
     def actions(self,x,v):
         return self.action_r(x,v),self.action_theta(x,v),self.action_phi(x,v)
 
-    # @partial(jax.jit, static_argnums=(0,))
-    @staticmethod
-    @jax.jit
-    def peri(x0,v0,M,b):
+    def peri(self,x0,v0):
         r0     = jnp.linalg.norm(x0,axis=0)
-        bisec  = Bisection(optimality_fun= centre, lower=1e-12, upper=r0,check_bracket=False)
-        r_peri = bisec.run(x0=x0,v0=v0,M=M,b=b).params
+        bisec  = Bisection(optimality_fun= centre, lower=1e-12, upper=r0,check_bracket=True)
+
+        r_peri = bisec.run(x0=x0,v0=v0,M=self._M,b=self._b).params
         return r_peri
 
-    # @partial(jax.jit, static_argnums=(0,))
-    @staticmethod
-    @jax.jit
-    def apo(x0,v0,M,b):
-
-        #
+    def apo(self,x0,v0):
         r0    = jnp.linalg.norm(x0,axis=0)
-        bisec2 = Bisection(optimality_fun= centre, lower= r0, upper = 500,check_bracket=False)
-        r_apo = bisec2.run(x0=x0,v0=v0,M=M,b=b).params
+        bisec2 = Bisection(optimality_fun= centre, lower= r0, upper = 500,check_bracket=True)
+        r_apo = bisec2.run(x0=x0,v0=v0,M=self._M,b=self._b).params
         return r_apo
 
     @staticmethod
     @jax.jit
-    def _potential(r: float,M: float,b: float) -> float:
+    def _potential(M: float,b: float,r: float) -> float:
         '''
-        _summary_
+        B&T2 Eq 2.49
 
         Parameters
         ----------
@@ -369,9 +362,9 @@ class Isochrone(BaseModel):
         return -G*M/(b+ jnp.sqrt(b**2+r**2))
 
     @staticmethod
-    def _density(r: float,M: float,b: float) -> float:
+    def _density(M: float,b: float,r: float) -> float:
         '''
-        B&T Eq 2.49
+        B&T2 Eq 2.49
 
         Parameters
         ----------
@@ -393,18 +386,17 @@ class Isochrone(BaseModel):
         den = 4*jnp.pi*(b+a)**3*a**3 
         return M*num/den
     
-
-def centre(r: float, x0, v0,M,b) -> float:
+def centre(r,x0,v0,M,b) -> float:
     '''
     paper eq. 4 -- subject to change
 
     '''
     L      = jnp.cross(x0,v0)                   # angular momentum
-    T      = jnp.dot(v0,v0)/2                   # kinetic energy 
+    T      = 0.5*jnp.dot(v0,v0)                 # kinetic energy 
     r0     = jnp.linalg.norm(x0,axis=0)
-    energy =  T + Isochrone._potential(r0,M,b) # total energy
+    energy =  T + Isochrone._potential(M,b,r0) # total energy
     
-    return 2*r**2 *(energy - Isochrone._potential(r,M,b)) - jnp.dot(L,L) 
+    return 2*r**2 *(energy - Isochrone._potential(M,b,r)) - jnp.dot(L,L) 
 
 class Gaussians(BaseModel):
 
