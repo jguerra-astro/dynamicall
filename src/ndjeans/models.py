@@ -25,7 +25,7 @@ from jax import random
 
 # project 
 from . import abel
-from .base import BaseModel
+from .base import Pot
 
 #? What other classes should be here?
 # TODO: Some of the static methods in plummer, don't need to be there so i should get rid of them?
@@ -38,8 +38,26 @@ except:
 x = jnp.array(x)
 w = jnp.array(w)
 
-class HernquistZhao(BaseModel):
+def centre(r,x0,v0,M,b) -> float:
+    '''
+    paper eq. 4 -- subject to change
+    TODO: delete
+    '''
+    L      = jnp.cross(x0,v0)                   # angular momentum
+    T      = 0.5*jnp.dot(v0,v0)                 # kinetic energy 
+    r0     = jnp.linalg.norm(x0,axis=0)
+    energy =  T + Isochrone._potential(M,b,r0) # total energy
     
+    return 2*r**2 *(energy - Isochrone._potential(M,b,r)) - jnp.dot(L,L) 
+
+class HernquistZhao(Pot):
+    param_names = {
+        'rhos': 1,
+        'rs': 1,
+        'a': 1,
+        'b': 1,
+        'c': 1,
+    }
     def __init__(self,rhos: float,rs: float,a: float,b: float,c: float):
         '''
         _summary_
@@ -71,13 +89,13 @@ class HernquistZhao(BaseModel):
         self._b    = b
         self._c    = c
 
-    def get_density(self,r):
+    def density(self,r):
 
-        return HernquistZhao.density(r,self._rhos,self._rs, self._a, self._b, self._c)
+        return HernquistZhao._density(r,self._rhos,self._rs, self._a, self._b, self._c)
 
-    def get_mass(self,r):
+    def mass(self,r):
 
-        return HernquistZhao.mass(r,self._rhos,self._rs, self._a, self._b, self._c)  
+        return HernquistZhao._mass(r,self._rhos,self._rs, self._a, self._b, self._c)  
 
     def potential(self,r):
         '''
@@ -86,6 +104,7 @@ class HernquistZhao(BaseModel):
         phi_out = integral_{r}^{\infty} \rho(r) r dr -- calculated using a slightly different hypergeometric function -- evaluated at r and a very large number
 
         shouldn't this just be r to r200?? 
+        TODO: need a jax implementation of this
         '''
         G =  4.5171031e-39
         # for readability
@@ -106,10 +125,25 @@ class HernquistZhao(BaseModel):
         
         return phi_in+phi_out
 
+    def projection(self,R):
+        '''
+        TODO: What the hell is this doing here???
+
+        Parameters
+        ----------
+        func : _type_
+            _description_
+        R : _type_
+            _description_
+        params : _type_
+            _description_
+        '''
+
+        return abel.project(self.density,R,(self._rhos,self._rs,self._a,self._b,self._c))
 
     @staticmethod
     @jax.jit
-    def density(r,rhos : float,rs : float, a : float, b : float, c : float):
+    def _density(r,rhos : float,rs : float, a : float, b : float, c : float):
         '''
         Hernquist-zhao density profile.. at least thats what i call it
         Useful for both dark matter and stellar distributions
@@ -143,22 +177,6 @@ class HernquistZhao(BaseModel):
         nu = (a-c)/b
         return rhos * q**-a * (1+q**b)**(nu)
 
-    def projection(self,R):
-        '''
-        _summary_
-
-        Parameters
-        ----------
-        func : _type_
-            _description_
-        R : _type_
-            _description_
-        params : _type_
-            _description_
-        '''
-
-        return abel.project(self.density,R,(self._rhos,self._rs,self._a,self._b,self._c))
-
     @staticmethod    
     def mass_scipy(r,rhos: float,rs: float,a: float,b: float,c: float):
         '''
@@ -177,7 +195,7 @@ class HernquistZhao(BaseModel):
 
     @staticmethod
     @jax.jit
-    def mass(r: float,rhos: float,rs: float,a: float,b: float,c: float):
+    def _mass(r: float,rhos: float,rs: float,a: float,b: float,c: float):
         q  = r/rs
         xk = 0.5*q*x + 0.5*q
         wk = 0.5*q*w
@@ -185,8 +203,11 @@ class HernquistZhao(BaseModel):
         
         return units* jnp.sum(wk*xk**2 *HernquistZhao.density(xk,1.0,1.0,a,b,c),axis=0)
 
-class NFW(BaseModel):
-
+class NFW(Pot):
+    param_names ={
+        'rhos': 1,
+        'rs:' : 1
+    }
     def __init__(self,rhos: float,rs: float):
         '''
         Navarro-Frenk-White model
@@ -203,23 +224,23 @@ class NFW(BaseModel):
         self._rs     = rs
         self._params = [self._rhos,self._rs]
     
-    def get_density(self,r):
+    def density(self,r):
         
-        return NFW.density(r,*self._params)
+        return NFW.density(*self._params,r=r)
 
-    def get_mass(self,r): 
+    def mass(self,r): 
 
         return NFW.mass(r,self._rhos,self._rs)
 
     @staticmethod 
     @jax.jit
-    def density(r,rhos: float ,rs: float):
+    def _density(rhos: float ,rs: float,r):
         q= r/rs
         return rhos * q**(-1) * (1+q)**(-2)
 
     @staticmethod
     @jax.jit
-    def mass(r,rhos: float,rs: float):
+    def _mass(r,rhos: float,rs: float):
         '''
         _summary_
 
@@ -246,11 +267,12 @@ class NFW(BaseModel):
         mNFW = 4*jnp.pi*rhos*rs**3 * (jnp.log(q) + 1/q - 1) # Analytical NFW mass profile
         return mNFW
 
-class Isochrone(BaseModel):
+class Isochrone(Pot):
     param_names = {
         "M": 1,  # the log number density
         'b':1
         }
+    
     def __init__(self,M:float,b:float)-> None:
         '''
         _summary_
@@ -297,7 +319,8 @@ class Isochrone(BaseModel):
 
     def action_r(self,x,v):
         '''
-        Isochrone Potential has an analytical J_r -- This will be useful for testing
+        Analytical radial action for Ischrone Potential
+        Useful for testing numerical schemes
 
         Parameters
         ----------
@@ -386,19 +409,7 @@ class Isochrone(BaseModel):
         den = 4*jnp.pi*(b+a)**3*a**3 
         return M*num/den
     
-def centre(r,x0,v0,M,b) -> float:
-    '''
-    paper eq. 4 -- subject to change
-
-    '''
-    L      = jnp.cross(x0,v0)                   # angular momentum
-    T      = 0.5*jnp.dot(v0,v0)                 # kinetic energy 
-    r0     = jnp.linalg.norm(x0,axis=0)
-    energy =  T + Isochrone._potential(M,b,r0) # total energy
-    
-    return 2*r**2 *(energy - Isochrone._potential(M,b,r)) - jnp.dot(L,L) 
-
-class Gaussians(BaseModel):
+class Gaussians(Pot):
 
     def __init__(self,params, N:int):
         self._N = N
@@ -478,7 +489,7 @@ class Gaussians(BaseModel):
         m_vec = jax.vmap(Gaussians.mass_i, in_axes=(0,None,None))
         return jnp.sum(m_vec(r,M,sigma),axis=1)
 
-class Plummer(BaseModel):
+class Plummer(Pot):
     
     def __init__(self,M,a):
         '''
@@ -493,28 +504,10 @@ class Plummer(BaseModel):
     
     def density(self,r:np.ndarray)->np.ndarray:
         
-        return Plummer.density_func(r,self._M,self._a)
+        return Plummer._density(self._M,self._a,r)
 
     def mass(self,r:np.ndarray)-> np.ndarray:
-        '''
-        three-dimensional mass profile for a Plummer sphere
-
-        Parameters
-        ----------
-        r : np.ndarray
-            radii [Length]
-
-        Returns
-        -------
-        np.ndarray
-            mass enclosed withing r [Mass]
-        '''
-        a   = self._a
-        M = self._M
-        term1 = M *r**3
-        term2 = (r**2 + a**2)**(3/2)
-        
-        return term1/term2
+        return Plummer._mass(self._M,self._a,r)
     
     def projected_density(self,R: np.ndarray) -> np.ndarray:
         '''
@@ -598,7 +591,7 @@ class Plummer(BaseModel):
         return Plummer(M,a) 
 
     @staticmethod
-    def mass_func(x:np.ndarray,M:float,a:float) -> np.ndarray:
+    def _mass(M:float,a:float,x:np.ndarray) -> np.ndarray:
         '''
         Making these static methods for fitting purposes
         
@@ -621,7 +614,7 @@ class Plummer(BaseModel):
         return term1/term2
 
     @staticmethod
-    def density_func(r: np.ndarray,M: float,a: float) -> np.ndarray:
+    def _density(r: np.ndarray,M: float,a: float) -> np.ndarray:
         '''
         Making these static methods for fitting purposes
 
@@ -694,17 +687,17 @@ class Plummer(BaseModel):
         print('If you are fitting multiple components, this is organized as a 4xN array')
         return  
 
-class King(BaseModel):
-
+class King(Pot):
+    param_names ={
+        'rc': 1,
+        'rt': 1,
+    }
     def __init__(self,rc,rt):
         self._rc = rc
         self._rt = rt
-
-
-    def get_density(self, r):
+    def density(self, r):
         
         return King.density(r,self._rc,self._rt)
-
 
     @staticmethod    
     def projection(R,rc,rt):
@@ -717,7 +710,7 @@ class King(BaseModel):
         term2 = np.sqrt(v)**-1
         return (term1-term2)**2
     @staticmethod        
-    def density(r,rc,rt):
+    def _density(r,rc,rt):
         '''                                                                                                                          
         King Profile - stellar density King 1962                                                                                     
         '''
@@ -730,7 +723,6 @@ class King(BaseModel):
         
         term2 = (jnp.arccos(z)/z) - jnp.sqrt(1 - z**2)
         return term1*term2
-
 
 # THESE SHOULD GO INTO A DIFFERENT FILE
 

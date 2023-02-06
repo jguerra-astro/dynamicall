@@ -25,6 +25,8 @@ import corner
 import arviz as az
 from functools import partial
 
+from abc import ABC, abstractmethod
+
 def gaussian(data,error,rhalf=None):
     '''
     simple model function for finding the mean velocity of stars
@@ -57,10 +59,20 @@ def gaussian(data,error,rhalf=None):
     s = jnp.sqrt(sigma**2+error**2)
     numpyro.sample("obs", dist.Normal(mu,s), obs=data)
 
+xmass,wmass  = np.loadtxt('/Users/juan/phd/projects/weird-jeans/src/data/gausleg_100',delimiter=',')
 
-class BaseModel:
+xmass = jnp.array(xmass)
+wmass = jnp.array(wmass)
+
+class Pot(ABC):
     param_names = {}
+    
+    @abstractmethod
     def density(self,r):
+        pass
+    
+    @abstractmethod
+    def potential(self,r):
         pass
 
     def mass(self,r):
@@ -80,6 +92,9 @@ class BaseModel:
         -------
         float
             average density - 200\rho_{crit}
+        Notes
+        -----
+        This doesnt really belong here -- at least not in this structure
         '''
         rho_crit = 133.3636319527206 # critical density from astropy's WMAP9 with units [solMass/kpc**3]
         Delta    = 200
@@ -151,48 +166,20 @@ class BaseModel:
     
         return T +self.potential(r)
 
-
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
-    def unpack_pars(cls, p_arr):
-        """
-        This function takes a parameter array and unpacks it into a dictionary
-        with the parameter names as keys.
-        """
-        p_dict = {}
-        j = 0
-        for name, size in cls.param_names.items():
-            # print(name,size)
-            p_dict[name] = jnp.squeeze(p_arr[j : j + size])
-            j += size
-        return p_dict
-
-    @classmethod
-    @partial(jax.jit, static_argnums=(0,))
-    def pack_pars(cls, p_dict):
-        """
-        This function takes a parameter dictionary and packs it into a JAX array
-        where the order is set by the parameter name list defined on the class.
-        """
-        p_arrs = []
-        for name in cls.param_names.keys():
-            p_arrs.append(jnp.atleast_1d(p_dict[name]))
-        return jnp.concatenate(p_arrs)
-
-    @classmethod
-    @partial(jax.jit, static_argnums=(0,))
-    def _peri(cls,pars,*args):
-        r0     = jnp.linalg.norm(args[0],axis=0)
+    def _peri(cls,pars,x0,v0):
+        r0     = jnp.linalg.norm(x0,axis=0)
         bisec  = Bisection(optimality_fun= cls._centre, lower=1e-12, upper=r0,check_bracket=False)
-        r_peri = bisec.run(x0=args[0],v0 = args[1],pars = pars).params
+        r_peri = bisec.run(x0=x0,v0 = v0,pars = pars).params
         return r_peri
 
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
-    def _apo(cls,pars,*args):
-        r0     = jnp.linalg.norm(args[0],axis=0)
+    def _apo(cls,pars,x0,v0):
+        r0     = jnp.linalg.norm(x0,axis=0)
         bisec2 = Bisection(optimality_fun= cls._centre, lower= r0, upper = 500,check_bracket=False)
-        r_apo = bisec2.run(x0=args[0],v0 = args[1],pars = pars).params
+        r_apo = bisec2.run(x0=x0,v0 = v0,pars = pars).params
         return r_apo
 
     @classmethod
@@ -213,22 +200,57 @@ class BaseModel:
         
         return 2*r**2 *(energy - cls._potential(*pars,r=r)) - jnp.dot(L,L) 
 
-
-
-    # @partial(jax.jit, static_argnums=(0,))
-    # def centre(self,r, x0, v0) -> float:
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def func_test(cls,params,x:jnp.DeviceArray,v:jnp.DeviceArray,) -> float:
         '''
-        paper eq. 4 -- subject to change
+        Integrand for radial action (B-T 2nd Ed. - eq. 3.224) 
 
-        '''
-        L      = jnp.cross(x0,v0)                   # angular momentum
-        T      = jnp.dot(v0,v0)/2                   # kinetic energy 
-        r0     = jnp.linalg.norm(x0,axis=0)
-        energy =  T + self._potential(self._M,self._b,r0) # total energy
+        Notes
+        -----
+        DONE: get rid of gala -- needed it for testing, but need to get rid of it for numpyro 
+        DONE: get rid of quad -- same reason as above
+        TODO: move this to BaseModel
         
-        return 2*r**2 *(energy - self._potential(self._M,self._b,r)) - jnp.dot(L,L) 
+        Parameters
+        ----------
+        x : jnp.DeviceArray
+            position vector | [kpc]
+        v : jnp.DeviceArray
+            velocity vector | [km s^{-1}]
+
+        Returns
+        -------
+        float
+            radial action | [kpc km s^{-1}]
+        '''    
+        # r_peri,r_apo = isoPot.rlims(x,v,M,b) 
+        # x0 = r_peri
+        # x1 = r_apo
+
+        x0 = cls._peri(params,x,v)
+        x1 = cls._apo(params,x,v) #BUG: this should be a static function
+        # x0 = r_peri
+        # x1 = r_apo
+
+        # Gauss-Legendre integration
+        xi = 0.5*(x1-x0)*xmass + .5*(x1+x0) # scale from (r,r_{200}) -> (-1,1)
+        wi = 0.5*(x1-x0)*wmass
+        
+        L     = jnp.linalg.norm(jnp.cross(x,v),axis=0) # abs(Angular momentum)
+        T     = .5*jnp.dot(v,v)
+        r0     = jnp.linalg.norm(x,axis=0)
+        
+        energy =  T + cls._potential(*params,r=r0) # total energy
+        term2  =  cls._potential(*params,r=xi)
+        
+        term1  = 2*(energy - term2)
+        term3  = L**2/xi**2      # takes out the kpc units leaves it as km**2/s**2 
+        out    = jnp.sqrt(term1 - term3)/jnp.pi
+        return jnp.sum(wi*out)
 
     @staticmethod
+    @jax.jit
     def action_theta(x,v):
         '''
         Equation 3.
@@ -240,6 +262,7 @@ class BaseModel:
         return (L - L_phi)
     
     @staticmethod
+    @jax.jit
     def action_phi(x,v):
         '''
         Equation 2.
@@ -248,7 +271,45 @@ class BaseModel:
         L_phi = x[0]*v[1] - x[1]*v[0]
         return L_phi
 
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def unpack_pars(cls, p_arr):
+        """
+        STOLEN FROM APW
+        This function takes a parameter array and unpacks it into a dictionary
+        with the parameter names as keys.
+        """
+        p_dict = {}
+        j = 0
+        for name, size in cls.param_names.items():
+            # print(name,size)
+            p_dict[name] = jnp.squeeze(p_arr[j : j + size])
+            j += size
+        return p_dict
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def pack_pars(cls, p_dict):
+        """
+        STOLEN FROM APW
+        This function takes a parameter dictionary and packs it into a JAX array
+        where the order is set by the parameter name list defined on the class.
+        """
+        p_arrs = []
+        for name in cls.param_names.keys():
+            p_arrs.append(jnp.atleast_1d(p_dict[name]))
+        return jnp.concatenate(p_arrs)
+
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def model(cls):
+
+        return -1
+
+
 class Data:
+
     '''
     Class for dealing with kinematic data from `spherical systems'
     '''
