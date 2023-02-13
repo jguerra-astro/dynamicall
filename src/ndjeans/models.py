@@ -39,10 +39,6 @@ x = jnp.array(x)
 w = jnp.array(w)
 
 def centre(r,x0,v0,M,b) -> float:
-    '''
-    paper eq. 4 -- subject to change
-    TODO: delete
-    '''
     L      = jnp.cross(x0,v0)                   # angular momentum
     T      = 0.5*jnp.dot(v0,v0)                 # kinetic energy 
     r0     = jnp.linalg.norm(x0,axis=0)
@@ -74,6 +70,7 @@ class HernquistZhao(Pot):
             characterizes width of transition between inner slope and outer slope
         c : float
             outer slope -- for r/r_s >> 1 rho_star ~ r^{-c}
+        
         Notes
         -----
         #!for c > 3 mass diverges r -> infinity
@@ -82,6 +79,7 @@ class HernquistZhao(Pot):
             An & Zhao 2012 : http://dx.doi.org/10.1093/mnras/sts175
             Zhao 1996      : http://dx.doi.org/10.1093/mnras/278.2.488
         TODO: Can i get away with only using M(r:float)? 
+        
         '''
         self._rhos = rhos
         self._rs   = rs
@@ -105,6 +103,7 @@ class HernquistZhao(Pot):
 
         shouldn't this just be r to r200?? 
         TODO: need a jax implementation of this
+        
         '''
         G =  4.5171031e-39
         # for readability
@@ -137,6 +136,7 @@ class HernquistZhao(Pot):
             _description_
         params : _type_
             _description_
+        
         '''
 
         return abel.project(self.density,R,(self._rhos,self._rs,self._a,self._b,self._c))
@@ -172,6 +172,7 @@ class HernquistZhao(Pot):
         -----
         Im writing these as static functions for a couple of reasons, but mainly because i want to be able to use them
         as fitting functions
+        
         '''
         q = r/rs
         nu = (a-c)/b
@@ -181,10 +182,13 @@ class HernquistZhao(Pot):
     def mass_scipy(r,rhos: float,rs: float,a: float,b: float,c: float):
         '''
         Mass profile using Gauss's Hypergeometric function
+        
         Notes
-            See mass_error- too see comparision with calculating the mass by integrating the desity profile -- no errors until r/rs > 1e8
-            #? Coeff calculation throws a warning at some point -- but doesnt when I try individual values?
-            #! treatment of units is very clunky
+        -----
+        See mass_error- too see comparision with calculating the mass by integrating the desity profile -- no errors until r/rs > 1e8
+        #? Coeff calculation throws a warning at some point -- but doesnt when I try individual values?
+        #! treatment of units is very clunky
+    
         '''        
         q      = r/rs
         coeff  = 4*np.pi*q**(-a)/(3-a) 
@@ -219,6 +223,7 @@ class NFW(Pot):
             scale density
         rs : float
             scale radius
+        
         '''
         self._rhos   = rhos
         self._rs     = rs
@@ -257,8 +262,10 @@ class NFW(Pot):
         -------
         _type_
             _description_
+        
         NOTES
         -----
+        
         '''
         # q = rs/(rs+r)
         # mNFW = 4*jnp.pi*rhos*rs**3 * (q - jnp.log(q) -1) # Analytical NFW mass profile
@@ -283,6 +290,7 @@ class Isochrone(Pot):
             total Mass in solar Masses
         b : float
             scale radius
+        
         '''
         self.G  =  4.30091731e-6 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]        
         self._M = M 
@@ -309,6 +317,7 @@ class Isochrone(Pot):
         -------
         float
             _description_
+        
         '''        
         
         G = self.G
@@ -412,13 +421,12 @@ class Isochrone(Pot):
 class Gaussians(Pot):
 
     def __init__(self,params, N:int):
+
         self._N = N
         self._params = params.reshape(2,N) #M_i, sigma_i pairs
     
     def density(self,r):
-        '''
-        BUG: not the right method
-        '''
+
         density= jnp.zeros(len(r))
         for i in range(self._N):
             density +=Gaussians.density_i(r,self._params[0,i],self._params[1,i])
@@ -432,23 +440,6 @@ class Gaussians(Pot):
     @staticmethod
     @jax.jit
     def density_i(r,M: float,sigma: float):
-        '''
-        _summary_
-
-        Parameters
-        ----------
-        r : _type_
-            _description_
-        M : float
-            units: Masss
-        sigma : float
-            units: Length
-
-        Returns
-        -------
-        _type_
-            _description_
-        '''
 
         rho = M * (jnp.sqrt(2*jnp.pi) * sigma**3)**(-1) # part with the units  [Mass * Length**-3] 
 
@@ -469,23 +460,7 @@ class Gaussians(Pot):
     @staticmethod
     @jax.jit
     def _mass(r: float,M:jnp.DeviceArray,sigma: jnp.DeviceArray):
-        '''
-        _summary_
 
-        Parameters
-        ----------
-        r : float
-            _description_
-        M : jnp.DeviceArray
-            _description_
-        sigma : jnp.DeviceArray
-            _description_
-
-        Returns
-        -------
-        _type_
-            _description_
-        '''
         m_vec = jax.vmap(Gaussians.mass_i, in_axes=(0,None,None))
         return jnp.sum(m_vec(r,M,sigma),axis=1)
 
@@ -496,6 +471,7 @@ class Plummer(Pot):
         TODO: Implement sampling from a self consistent plummer
         TODO: Project into 2D
         TODO: implement multiple components
+        
         '''
         self._M = M 
         self._a = a
@@ -778,11 +754,12 @@ class JeansOM:
 
     @staticmethod
     def beta(r:float,a: float,alpha = 1):
-        '''
+        r'''
         Osipkov-Merrit stellar anisotropy
         \beta = 0 as r -> 0
         \beta = 1 as r -> infinity
         a determines how quickly the trasition from \beta= 0 to 1 happens 
+        
         Parameters
         ----------
         r : float
@@ -797,18 +774,20 @@ class JeansOM:
             0 as r -> 0
             1 as r -> infinity
             unitless
+        
         Notes
         -----
         TODO: Need to change to include alpha parameter as a paramater to fit so that the anisotropy can be negative
         TODO: change 2 to a parameter
         TODO: look into the symmetrized velocity anisotropy
+        
         '''
         # alpha = 1
         return alpha*r**2/(r**2+a**2)
 
     @staticmethod
     def f_beta(r:float,a:float,alpha = 1):
-        '''
+        r'''
         f(r) = exp[2 \inta_{0}^{r}{\beta(r)/r} dr ]
 
         Parameters
@@ -851,8 +830,8 @@ class JeansOM:
     def dispersion(r: float,r200: float,abeta: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
         '''
         velocity dispersion form a system with:
-            1. Hernquist-Zhao density profile
-            2. Asipkov-Merrit stellar anisotropy profile
+        1. Hernquist-Zhao density profile
+        2. Asipkov-Merrit stellar anisotropy profile
 
         see e.g: B&T
 
@@ -1017,8 +996,8 @@ class JeansOM:
     def dispersion0(r: float,r200: float,abeta: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
         '''
         velocity dispersion form a system with:
-            1. Hernquist-Zhao density profile
-            2. Asipkov-Merrit stellar anisotropy profile
+        1. Hernquist-Zhao density profile
+        2. Asipkov-Merrit stellar anisotropy profile
 
         see e.g: B&T
 
@@ -1065,8 +1044,8 @@ class JeansOM:
     def nusigma0(r: float, r200: float, abeta : float, rhos: float, rs: float, a: float, b: float, c: float) -> float:
         '''
         velocity dispersion form a system with:
-            1. Hernquist-Zhao density profile
-            2. Asipkov-Merrit stellar anisotropy profile
+        1. Hernquist-Zhao density profile
+        2. Asipkov-Merrit stellar anisotropy profile
 
         see e.g: B&T
 
@@ -1146,6 +1125,7 @@ class JeansOM:
         Notes
         -----
         Needs to be vectorize in order to accept an array of radii
+        
         '''
         y0 = R    # lowerbound 
         y1 = r200 # upperbound

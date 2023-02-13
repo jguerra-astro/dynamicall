@@ -8,15 +8,19 @@ config.update("jax_enable_x64", True)
 
 
 def project(func: Callable,R: np.ndarray,params) -> np.ndarray:
-    '''
-    project: F( R(x,y) ) -> f( r(x,y,z) ) using the abel transform
+    r'''
+    Forward Abel transform : Project an optically thin, spherically symmetric function onto a plane.
+    :math:`f(r(x,y,z))\rightarrow F(R(x,y))`
+    
+    .. math::
+        F(R)=2 \int_R^{\infty} \frac{f(r) r}{\sqrt{r^2-R^2}} d r
 
     Parameters
     ----------
     func : Callable
         function of projected (on-sky) radii, R
     R : jnp.ndarray
-        Projected distance (R = x**2 +y**2)
+        Projected distance :math:`(R = \sqrt{x^2 +y^2})`
     
     params : 
         parameters for func
@@ -34,21 +38,26 @@ def project(func: Callable,R: np.ndarray,params) -> np.ndarray:
     used in the fitting functions, but they could in principle so
     I should try to make them as fast as possible.
 
+    TODO: Get rid of quad in both functions
+
     '''
     f_abel = lambda x,R: 2*func(x,*params)*x/np.sqrt(x**2-R**2)
     out= np.array([integrate.quad(f_abel,i,np.inf,args=(i,),limit=1000,epsrel=1e-12,epsabs=1.49e-11)[0] for i in R])   
     return out
 
-def deproject(func: Callable,R: np.ndarray,params) -> np.ndarray:
-    '''
-    f( r(x,y,z) ) -> F(R(x,y))
+def deproject(func: Callable,R: jnp.ndarray,params) -> np.ndarray:
+    r'''
+    inverse Abel transform is used to calculate the emission function given a projection, i.e. 
+    :math:`F(R(x,y)) \rightarrow f( r(x,y,z) )`
+    
+    .. math::
+        f(r)=-\frac{1}{\pi} \int_r^{\infty} \frac{d F}{d y} \frac{d y}{\sqrt{y^2-r^2}}
 
-    Project 
 
     Parameters
     ----------
     func : Callable
-        _description_
+        function of :math:`r = \sqrt{x^2+y^2+z^2}.` This must be written in a jax friendly way
     R : np.ndarray
         _description_
     params : _type_

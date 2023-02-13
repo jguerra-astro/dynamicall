@@ -53,7 +53,7 @@ class Pot(ABC):
         pass 
     
     def func(self,x: float):
-        '''
+        r'''
         helper function for calculating r_{200} for a given density/mass profile.
 
         Parameters
@@ -66,6 +66,7 @@ class Pot(ABC):
         -------
         float
             average density - 200\rho_{crit}
+        
         Notes
         -----
         This doesnt really belong here -- at least not in this structure
@@ -283,9 +284,6 @@ class Pot(ABC):
 
 class Data:
 
-    '''
-    Class for dealing with kinematic data from `spherical systems'
-    '''
     def dispersion_i(
         self,
         component: str,
@@ -318,6 +316,7 @@ class Data:
         calculates the dispersion of velocity component, v_i at radii r
         -- or at project radius R. Also calcualtes the 
         error (see dispersion_error() for details)
+        
         Parameters
         ----------
         v_i : _type_
@@ -332,9 +331,11 @@ class Data:
         -------
         _type_
             _description_
+        
         Notes
         -----
         TODO: Figure out how to make this cleaner
+
         '''
         N, bin_edges = binfunc(ri.value,bins = bins)
         r_center     = .5*(bin_edges[:-1]+ bin_edges[1:]) 
@@ -537,14 +538,15 @@ class Data:
         # return self._r, self._vr, self._vtheta,self._vphi
 
     def cylindrical(self):
-        '''
-        convert velocities to cylindrical units
-        Already calculated \rho/R and z so no need to do anything for those
-        (vr,vtheta,vphi) -> (v_{\rho},v_{phi},v_{z})
+        r'''
+        convert cartesian velocities to cylindrical units
+        
+        .. math::
+            (v_x,v_y,v_z) \rightarrow (v_{\rho},v_{\phi},v_{z})     
         
         Notes
         -----
-        I guess i should really do (vx,vy,vz) -> (v_{\rho},v_{phi},v_{z})
+
         '''
         # proper motions
         # using theta 
@@ -574,6 +576,7 @@ class Data:
     def bspline(x:np.ndarray):
         '''
         See e.g. Rehemtulla 2022 
+
         Returns
         -------
         _type_
@@ -582,6 +585,7 @@ class Data:
         Notes
         -----
         TODO: must make tuning paramaters be an input to this function
+
         '''
         q= np.log(x) # Definining this for convenience
         r = np.logspace(
@@ -615,9 +619,11 @@ class Data:
 
     @staticmethod
     def gaussian(data,error,rhalf=None):
-        '''
-        simple model function for finding the mean velocity of stars
-        $P(v|\mu,\sigma) = (\sqrt{2\pi}\sigma)^{-1}exp{\frac{1/2}{}}$
+        r'''
+        simple numpyro model function for finding the mean velocity of stars
+        
+        .. math::
+            P(v|\mu,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}e^{\frac{(v-\mu)^{2}}{2\sigma^{2}}}
 
         Parameters
         ----------
@@ -627,14 +633,16 @@ class Data:
             error on velocities 
         rhalf : _type_, optional
             If you want to calculate the Wolf mass, you can supply an r_{1/2}, by default None
+        
         NOTES
-        -----
+        -----f
         Where do  the r_{1/2}'s come from
         It'd be nice if i could use r_{1/2}'s with an error
         e.g. 
-            rh       = numpyro.sample('rhalf',dist.Normal(rhalf,drhalf)) 
-            mwolf    = numpyro.deterministic('mwolf',(4*rh*sigma**2)/(3*G))
+        rh       = numpyro.sample('rhalf',dist.Normal(rhalf,drhalf)) 
+        mwolf    = numpyro.deterministic('mwolf',(4*rh*sigma**2)/(3*G))
         should add a with numpyro plate
+        
         '''
         G     =  4.30091731e-6 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
         mu    = numpyro.sample('mu'   ,dist.Uniform(jnp.min(data),jnp.max(data)))
