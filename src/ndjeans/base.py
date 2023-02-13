@@ -24,45 +24,19 @@ import matplotlib.pyplot as plt
 import corner
 import arviz as az
 from functools import partial
-
+from numpyro.distributions import Distribution
+from numpyro.distributions import constraints
 from abc import ABC, abstractmethod
-
-def gaussian(data,error,rhalf=None):
-    '''
-    simple model function for finding the mean velocity of stars
-    $P(v|\mu,\sigma) = (\sqrt{2\pi}\sigma)^{-1}exp{\frac{1/2}{}}$
-
-    Parameters
-    ----------
-    data : _type_
-        presumably velocities
-    error : _type_
-        error on velocities 
-    rhalf : _type_, optional
-        If you want to calculate the Wolf mass, you can supply an r_{1/2}, by default None
-    NOTES
-    -----
-    Where do  the r_{1/2}'s come from
-    It'd be nice if i could use r_{1/2}'s with an error
-    e.g. 
-        rh       = numpyro.sample('rhalf',dist.Normal(rhalf,drhalf)) 
-        mwolf    = numpyro.deterministic('mwolf',(4*rh*sigma**2)/(3*G))
-    should add a with numpyro plate
-    '''
-    G     =  4.30091731e-6 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
-    mu    = numpyro.sample('mu'   ,dist.Uniform(jnp.min(data),jnp.max(data)))
-    sigma = numpyro.sample('sigma',dist.Uniform(.01,100))
-    
-    if rhalf != None:
-        mwolf    = numpyro.deterministic('mwolf',(4*rhalf*sigma**2)/(3*G))
-
-    s = jnp.sqrt(sigma**2+error**2)
-    numpyro.sample("obs", dist.Normal(mu,s), obs=data)
+from jax import lax, vmap
+from jax.lax import scan
+from jax import random
 
 xmass,wmass  = np.loadtxt('/Users/juan/phd/projects/weird-jeans/src/data/gausleg_100',delimiter=',')
 
 xmass = jnp.array(xmass)
 wmass = jnp.array(wmass)
+
+
 
 class Pot(ABC):
     param_names = {}
@@ -189,9 +163,6 @@ class Pot(ABC):
         paper eq. 4 -- subject to change
 
         '''
-        # print(cls)
-        # print(x0,v0)
-        # print(pars)
         L      = jnp.cross(x0,v0)                   # angular momentum
         T      = 0.5* jnp.dot(v0,v0)                   # kinetic energy 
         r0     = jnp.linalg.norm(x0,axis=0)
@@ -202,7 +173,7 @@ class Pot(ABC):
 
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
-    def func_test(cls,params,x:jnp.DeviceArray,v:jnp.DeviceArray,) -> float:
+    def _action_r(cls,params,x:jnp.DeviceArray,v:jnp.DeviceArray,) -> float:
         '''
         Integrand for radial action (B-T 2nd Ed. - eq. 3.224) 
 
@@ -224,14 +195,8 @@ class Pot(ABC):
         float
             radial action | [kpc km s^{-1}]
         '''    
-        # r_peri,r_apo = isoPot.rlims(x,v,M,b) 
-        # x0 = r_peri
-        # x1 = r_apo
-
         x0 = cls._peri(params,x,v)
-        x1 = cls._apo(params,x,v) #BUG: this should be a static function
-        # x0 = r_peri
-        # x1 = r_apo
+        x1 = cls._apo(params,x,v)
 
         # Gauss-Legendre integration
         xi = 0.5*(x1-x0)*xmass + .5*(x1+x0) # scale from (r,r_{200}) -> (-1,1)
@@ -256,9 +221,9 @@ class Pot(ABC):
         Equation 3.
         Doesn't depend on the potential
         '''
-        L_vector = np.cross(x,v)
+        L_vector = jnp.cross(x,v)
         L_phi    = L_vector[2]
-        L        = np.sqrt(np.dot(L_vector,L_vector))
+        L        = jnp.sqrt(jnp.dot(L_vector,L_vector))
         return (L - L_phi)
     
     @staticmethod
@@ -302,11 +267,19 @@ class Pot(ABC):
 
 
     @classmethod
-    @partial(jax.jit, static_argnums=(0,))
-    def model(cls):
+    def infer(cls,model,data,errors):
+        rng_key = random.PRNGKey(0)
+        rng_key, rng_key_ = random.split(rng_key)
+
+        # Run NUTS.
+        kernel = NUTS(model)
+        num_samples = 5000
+        mcmc = MCMC(kernel, num_warmup=1000,  num_samples=num_samples)
+        mcmc.run(rng_key_,data= data,error=errors)
+        mcmc.print_summary()
+        samples_1 = mcmc.get_samples()
 
         return -1
-
 
 class Data:
 
@@ -588,7 +561,7 @@ class Data:
         rng_key = random.PRNGKey(0)
         rng_key, rng_key_ = random.split(rng_key)
         # Run NUTS.
-        kernel = NUTS(gaussian)
+        kernel = NUTS(Data.gaussian)
         num_samples = 3000
         mcmc = MCMC(kernel, num_warmup=1000, num_samples=num_samples)
         mcmc.run(rng_key_,data=v_i,error=error_i,rhalf=rhalf)
@@ -640,6 +613,38 @@ class Data:
         v_theta = (pos['z'] * pos['x'] * vel['vx']/Rp  + pos['z'] * pos['y'] * vel['vy']/Rp - Rp * vel['vz'])/r
         return r, v_r,v_phi,v_theta
 
+    @staticmethod
+    def gaussian(data,error,rhalf=None):
+        '''
+        simple model function for finding the mean velocity of stars
+        $P(v|\mu,\sigma) = (\sqrt{2\pi}\sigma)^{-1}exp{\frac{1/2}{}}$
+
+        Parameters
+        ----------
+        data : _type_
+            presumably velocities
+        error : _type_
+            error on velocities 
+        rhalf : _type_, optional
+            If you want to calculate the Wolf mass, you can supply an r_{1/2}, by default None
+        NOTES
+        -----
+        Where do  the r_{1/2}'s come from
+        It'd be nice if i could use r_{1/2}'s with an error
+        e.g. 
+            rh       = numpyro.sample('rhalf',dist.Normal(rhalf,drhalf)) 
+            mwolf    = numpyro.deterministic('mwolf',(4*rh*sigma**2)/(3*G))
+        should add a with numpyro plate
+        '''
+        G     =  4.30091731e-6 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
+        mu    = numpyro.sample('mu'   ,dist.Uniform(jnp.min(data),jnp.max(data)))
+        sigma = numpyro.sample('sigma',dist.Uniform(.01,100))
+        
+        if rhalf != None:
+            mwolf    = numpyro.deterministic('mwolf',(4*rhalf*sigma**2)/(3*G))
+
+        s = jnp.sqrt(sigma**2+error**2)
+        numpyro.sample("obs", dist.Normal(mu,s), obs=data)
 
 # class Fit:
 
@@ -714,15 +719,15 @@ class Data:
 #                 # numpyro.sample("y", dist.Normal(sigma,error), obs=obs)
 
 
-#     def run_inference(self, model, num_warmup=1000, num_samples=1000):
+def run_inference(self, model, num_warmup=1000, num_samples=1000):
 
-        kernel = NUTS(model)
-        mcmc = MCMC(
-            kernel,
-            num_warmup = num_warmup,
-            num_samples= num_samples,
-            num_chains = 1,
-            progress_bar =True
-        )
-        mcmc.run(random.PRNGKey(0))
-        summary_dict = summary(mcmc.get_samples(), group_by_chain=False)
+    kernel = NUTS(model)
+    mcmc = MCMC(
+        kernel,
+        num_warmup = num_warmup,
+        num_samples= num_samples,
+        num_chains = 1,
+        progress_bar =True
+    )
+    mcmc.run(random.PRNGKey(0))
+    summary_dict = summary(mcmc.get_samples(), group_by_chain=False)
