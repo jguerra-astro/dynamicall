@@ -18,8 +18,8 @@ def test_vplummer():
     b  = 2
     c  = 5
     r = np.logspace(-2,2,50)
-    rho_plummer = models.Plummer.density_func(r,M,rs)
-    rho_HZ = models.HernquistZhao.density(r,rhos,rs,a,b,c)
+    rho_plummer = models.Plummer._density(r,M,rs)
+    rho_HZ = models.HernquistZhao._density(r,rhos,rs,a,b,c)
     assert pytest.approx(rho_HZ) == rho_plummer
 
 def test_vNFW():
@@ -33,9 +33,6 @@ def test_vNFW():
     b  = 1
     c  = 3
     r = np.logspace(-2,2,50)
-    rho_nfw = models.NFW.density(r,rhos,rs)
-    rho_HZ = models.HernquistZhao.density(r,rhos,rs,a,b,c)
+    rho_nfw = models.NFW._density(rhos,rs,r)
+    rho_HZ = models.HernquistZhao._density(r,rhos,rs,a,b,c)
     assert pytest.approx(rho_HZ) == rho_nfw
-
-
-    

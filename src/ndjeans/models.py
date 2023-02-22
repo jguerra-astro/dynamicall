@@ -25,7 +25,7 @@ from jax import random
 
 # project 
 from . import abel
-from .base import Pot
+from .base import JaxPotential
 
 #? What other classes should be here?
 # TODO: Some of the static methods in plummer, don't need to be there so i should get rid of them?
@@ -38,15 +38,15 @@ except:
 x = jnp.array(x)
 w = jnp.array(w)
 
-def centre(r,x0,v0,M,b) -> float:
-    L      = jnp.cross(x0,v0)                   # angular momentum
-    T      = 0.5*jnp.dot(v0,v0)                 # kinetic energy 
-    r0     = jnp.linalg.norm(x0,axis=0)
-    energy =  T + Isochrone._potential(M,b,r0) # total energy
+def centre(r:float,x0:jnp.ndarray,v0:jnp.ndarray,M:float,b:float) -> float:
     
+    L      = jnp.cross(x0,v0)                   # Angular momentum
+    T      = 0.5*jnp.dot(v0,v0)                 # Kinetic energy 
+    r0     = jnp.linalg.norm(x0,axis=0)
+    energy =  T + Isochrone._potential(M,b,r0)  # total energy
     return 2*r**2 *(energy - Isochrone._potential(M,b,r)) - jnp.dot(L,L) 
 
-class HernquistZhao(Pot):
+class HernquistZhao(JaxPotential):
     param_names = {
         'rhos': 1,
         'rs': 1,
@@ -74,10 +74,13 @@ class HernquistZhao(Pot):
         Notes
         -----
         #!for c > 3 mass diverges r -> infinity
-        References:
-            Baes 2021      : http://dx.doi.org/10.1093/mnras/stab634
-            An & Zhao 2012 : http://dx.doi.org/10.1093/mnras/sts175
-            Zhao 1996      : http://dx.doi.org/10.1093/mnras/278.2.488
+        
+        References
+        ----------
+        Baes 2021      : http://dx.doi.org/10.1093/mnras/stab634
+        An & Zhao 2012 : http://dx.doi.org/10.1093/mnras/sts175
+        Zhao 1996      : http://dx.doi.org/10.1093/mnras/278.2.488
+        
         TODO: Can i get away with only using M(r:float)? 
         
         '''
@@ -96,14 +99,22 @@ class HernquistZhao(Pot):
         return HernquistZhao._mass(r,self._rhos,self._rs, self._a, self._b, self._c)  
 
     def potential(self,r):
-        '''
-        Potential for Hernquist density:
+        r'''
+        Potential for Hernquist density
         phi_in = -GM/r  term -- see mass()
         phi_out = integral_{r}^{\infty} \rho(r) r dr -- calculated using a slightly different hypergeometric function -- evaluated at r and a very large number
-
         shouldn't this just be r to r200?? 
         TODO: need a jax implementation of this
-        
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
         '''
         G =  4.5171031e-39
         # for readability
@@ -199,42 +210,94 @@ class HernquistZhao(Pot):
 
     @staticmethod
     @jax.jit
-    def _mass(r: float,rhos: float,rs: float,a: float,b: float,c: float):
-        q  = r/rs
-        xk = 0.5*q*x + 0.5*q
-        wk = 0.5*q*w
-        units = 4*jnp.pi*rhos*rs**3
-        
-        return units* jnp.sum(wk*xk**2 *HernquistZhao.density(xk,1.0,1.0,a,b,c),axis=0)
-
-class NFW(Pot):
-    param_names ={
-        'rhos': 1,
-        'rs:' : 1
-    }
-    def __init__(self,rhos: float,rs: float):
+    def _mass(r: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
         '''
-        Navarro-Frenk-White model
-        This will be useful for testing purposes. I dont think i'll actually use this for any science
+        _summary_
 
         Parameters
         ----------
+        r : float
+            _description_
         rhos : float
-            scale density
+            _description_
         rs : float
-            scale radius
-        
+            _description_
+        a : float
+            _description_
+        b : float
+            _description_
+        c : float
+            _description_
+
+        Returns
+        -------
+        float
+            _description_
         '''
+        q     = r/rs
+        xk    = 0.5*q*x + 0.5*q
+        wk    = 0.5*q*w
+        units = 4*jnp.pi*rhos*rs**3
+        return units* jnp.sum(wk*xk**2 *HernquistZhao._density(xk,1.0,1.0,a,b,c),axis=0)
+
+
+
+class NFW(JaxPotential):
+    r'''
+    NFW(rhos: float,rs: float)
+
+
+    Spherical Navarro-Frenk-White model
+    This will be useful for testing purposes.
+
+    Parameters
+    ----------
+    rhos : float
+        scale density :math:`\rho_{s}`
+    rs   : float
+        scale radius :math:`r_{s}`
+    
+    '''
+    param_names ={
+        'rhos': 1,
+        'rs' : 1
+    }
+    def __init__(self,rhos: float,rs: float):
         self._rhos   = rhos
         self._rs     = rs
         self._params = [self._rhos,self._rs]
     
     def density(self,r):
-        
+        r'''
+        .. math::
+            \rho(r) = \frac{\rho_s}{\frac{r}{r_s}(1+\frac{r}{r_s})^2}
+
+        Parameters
+        ----------
+        r : _type_
+            radius [Length]
+
+        Returns
+        -------
+        _type_
+            _description_
+        '''
         return NFW.density(*self._params,r=r)
 
     def mass(self,r): 
+        '''
+        Mass Profile for Spherical NFW profile
 
+        Parameters
+        ----------
+        r : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        '''
         return NFW.mass(r,self._rhos,self._rs)
 
     @staticmethod 
@@ -274,7 +337,7 @@ class NFW(Pot):
         mNFW = 4*jnp.pi*rhos*rs**3 * (jnp.log(q) + 1/q - 1) # Analytical NFW mass profile
         return mNFW
 
-class Isochrone(Pot):
+class Isochrone(JaxPotential):
     param_names = {
         "M": 1,  # the log number density
         'b':1
@@ -282,7 +345,8 @@ class Isochrone(Pot):
     
     def __init__(self,M:float,b:float)-> None:
         '''
-        _summary_
+        _summary_ 
+        G = 4.30091731e-6 # Gravitational constant units :math:`[$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]`
 
         Parameters
         ----------
@@ -316,14 +380,15 @@ class Isochrone(Pot):
         Returns
         -------
         float
-            _description_
+            v_{circular}| [km/s]
         
         '''        
-        
+        # unnecessary redefining of variables
         G = self.G
         M = self._M
         b = self._b
         a = jnp.sqrt(b**2 + r**2)
+        
         return jnp.sqrt(G*M*r**2/a/(b+a)**2)
 
     def action_r(self,x,v):
@@ -418,7 +483,7 @@ class Isochrone(Pot):
         den = 4*jnp.pi*(b+a)**3*a**3 
         return M*num/den
     
-class Gaussians(Pot):
+class Gaussians(JaxPotential):
 
     def __init__(self,params, N:int):
 
@@ -464,7 +529,7 @@ class Gaussians(Pot):
         m_vec = jax.vmap(Gaussians.mass_i, in_axes=(0,None,None))
         return jnp.sum(m_vec(r,M,sigma),axis=1)
 
-class Plummer(Pot):
+class Plummer(JaxPotential):
     
     def __init__(self,M,a):
         '''
@@ -663,7 +728,7 @@ class Plummer(Pot):
         print('If you are fitting multiple components, this is organized as a 4xN array')
         return  
 
-class King(Pot):
+class King(JaxPotential):
     param_names ={
         'rc': 1,
         'rt': 1,

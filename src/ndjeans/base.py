@@ -38,17 +38,28 @@ wmass = jnp.array(wmass)
 
 
 
-class Pot(ABC):
+class JaxPotential(ABC):
+    '''
+    Base class for Potentials.
+    All Subclasses are implemented using jax.numpy.
+    This allows us to leverage the use of GPUs and automatic differentiation.
+
+    Parameters
+    ----------
+    ABC : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    '''
     param_names = {}
     
     @abstractmethod
     def density(self,r):
         pass
     
-    @abstractmethod
-    def potential(self,r):
-        pass
-
     def mass(self,r):
         pass 
     
@@ -653,6 +664,105 @@ class Data:
 
         s = jnp.sqrt(sigma**2+error**2)
         numpyro.sample("obs", dist.Normal(mu,s), obs=data)
+
+    @staticmethod
+    def dynamical_mass(system,q_eval,l_grav = 87*u.kpc):
+        r'''
+        Calculate the mass profile of a system using the spherical Jeans equation:
+
+        .. math:: 
+            M(<r)=-\frac{r \overline{v_r^2}}{G}\left(\frac{\mathrm{d} \ln \rho}{\mathrm{d} \ln r} + \frac{\mathrm{d} \ln \overline{v_r^2}}{\mathrm{~d} \ln r}+2 \beta\right)
+
+        All terms in the Equation above are calculated using B-splines
+
+        Parameters
+        ----------
+        system : Data
+            Should be either a KeckData, DCJLData or MockData object (subclasses of Data clas)
+        q_eval : ndarray
+            radii at which to evaluate the mass | units: [kpc]
+
+        Returns 
+        -------
+        ndarray
+            Mass evaluated at q_eval | units: :math:`[\rm M_{\odot}]`
+
+        Notes
+        -----
+        TODO: Currently only works for the specific DCJL simulated Dwarf's 
+        TODO: Need a better way to do this so that I dont have to calculate every term everytime i call this
+        TODO: Get rid of Agama and instead use a Jax implementation of of these functions.
+
+        References
+        ----------
+        `Rehemtulla et al. 2022 <https://ui.adsabs.harvard.edu/abs/2022MNRAS.511.5536R/abstract>`_
+
+        '''
+        
+        # get all stellar positions and velocities
+        radii      = system.r            # [kpc]
+        vr_sq      = system._vr**2       # [km^{2}~s^{-2}]
+        vtheta_sq  = system._vtheta**2   # [km^{2}~s^{-2}]
+        vphi_sq    = system._vphi**2     # [km^{2}~s^{-2}]
+        
+        #calculate knots (i.e Where to evaluate B-splines)
+        #NOTE: NEED to change this, but its ok for know since i'm only using it on the simulated dwarfs
+        q = np.log(radii)
+        lBound = np.log(4*l_grav.to(u.kpc).value) # only trust the velocity values after 4 l_grav's
+        uBound = q.max()
+        
+        rknot = np.logspace(
+            start = lBound,    # only trust the velocity values after 4 l_grav's
+            stop  = uBound,
+            num   = 6,         # TODO: this should be a parameter -- but i'm still unsure of how many I should use
+            base  = np.exp(1)
+            ) # There's definitely a better way of doing this
+        
+        knots= np.log(rknot) # mostly use log(rknots so)
+
+        vr_bspline     = agama.splineApprox(knots,q, vr_sq)
+        vtheta_bspline = agama.splineApprox(knots,q, vtheta_sq)
+        vphi_bspline   = agama.splineApprox(knots,q, vphi_sq)
+        
+        
+        logq_eval = np.log(q_eval)
+        vr_fit     = vr_bspline(logq_eval)
+        vtheta_fit = vtheta_bspline(logq_eval)
+        vphi_fit   = vphi_bspline(logq_eval)
+
+        beta = 1 - ( (vtheta_fit + vphi_fit) / (2*vr_fit) )
+        G = 4.3e-6 # kpc km2 Msun-1 s-2
+        dvr = vr_bspline(logq_eval, der=1)
+        S = agama.splineLogDensity(knots, x=np.log(radii), w=np.ones(len(radii)))
+        rho = rho_eval(S, q_eval) # This has units of N_{\star}/kpc^3
+        dlnrho_dlnr = dlnrho_dlnr_eval(S, q_eval) #unitless
+        
+        # Split Spherical Jeans Eq (e.g. Eq. 1 in Rehemtulla et al. 2022) into three terms
+        a = -dlnrho_dlnr
+        b = -dvr/vr_fit
+        c = -2*beta
+        M_jeans = (np.array(vr_fit) * q_eval / G) * (np.array(a) + np.array(b) + np.array(c))
+        return q_eval,np.array(M_jeans)
+
+
+
+
+def rho_eval(S, r):
+    r'''
+    Calculates rho(r)
+    S(log r) is log of tracer count (intended to be used with agama.splineLogDensity and weights=1)
+    r is point or array of points where rho should be evaluated
+    '''
+    return np.exp(S(np.log(r))) / (4.0 * np.pi * (r**3))
+
+def dlnrho_dlnr_eval(S, r):
+    r'''
+    Calcualtes dlnrho / dlnr
+    S(log r) is log of tracer count (intended to be used with agama.splineLogDensity and weights=1)
+    r is point or array of points where rho should be evaluated
+    '''
+    return (S(np.log(r), der=1) - 3)
+
 
 # class Fit:
 

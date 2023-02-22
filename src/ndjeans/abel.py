@@ -47,13 +47,12 @@ def project(func: Callable,R: np.ndarray,params) -> np.ndarray:
 
 def deproject(func: Callable,R: jnp.ndarray,params) -> np.ndarray:
     r'''
-    inverse Abel transform is used to calculate the emission function given a projection, i.e. 
+    Inverse Abel transform is used to calculate the emission function given a projection, i.e. 
     :math:`F(R(x,y)) \rightarrow f( r(x,y,z) )`
     
     .. math::
         f(r)=-\frac{1}{\pi} \int_r^{\infty} \frac{d F}{d y} \frac{d y}{\sqrt{y^2-r^2}}
-
-
+    
     Parameters
     ----------
     func : Callable

@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="weird-Jeans",
-    # packages=find_packages(where="src"),
     packages= ["ndjeans"],
-    package_dir={"": "src"},
-)
+    package_data = ['src/data'],
+    package_dir={"": "ndjeans"},
+)d

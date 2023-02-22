@@ -11,7 +11,7 @@ Simbad.add_votable_fields('plx', 'distance')
 from jax._src.config import config
 config.update("jax_enable_x64", True)  
 import warnings
-
+from sklearn.mixture import GaussianMixture as GMM
 import pynbody
 from .base import Data
 
@@ -125,9 +125,13 @@ class KeckData(Data):
             warnings.warn("\n Something went wrong, data set was not initialized properly.",stacklevel=2)
 
 class DCJLData(Data):
+    '''
+    Class for data from DCJL simulations
+    '''
     
     def __init__(self,halo):
         '''
+        
         Notes
         -----
         TODO: add a function to test virial theorem
@@ -169,6 +173,52 @@ class DCJLData(Data):
         
     def mass_bspline(self):
         return -1
+
+    def random_rotation(self):
+
+        self.halo.rotate_x(np.random.uniform(-90,90))
+        self.halo.rotate_y(np.random.uniform(-90,90))
+        self.halo.rotate_z(np.random.uniform(-90,90))
+
+    def split_feh(self,nComponents: int ,fehCutOff:float = -4):
+        '''
+        split sample of stars into multiple populations using a Gaussian Mixture Model
+        using the metallicity of each star particle in the snapshot
+
+        Parameters
+        ----------
+        nComponents : int
+        number of gaussians to fit to data
+        fehCutOff : float, optional
+            cut off metallicities at some point, by default -4
+
+        Returns
+        -------
+        _type_
+            _description_
+        '''
+        if fehCutOff != -np.inf:
+            nGarbage = len(self._data.s['feh'][self._data.s['feh'] <= fehCutOff])
+            warnings.warn(f"\nMetallicity cut off is removing {nGarbage} stars from data set")
+        
+        feh    = self._data.s['feh'][self._data.s['feh'] > fehCutOff]
+
+        clf    = GMM(n_components=nComponents).fit(np.array([feh]).T)
+        out = clf.predict(np.array([feh]).T)
+        means = clf.means_
+        where_0 = np.where(out == 0)
+        where_1 = np.where(out == 1)
+
+        if means[0,0] > means[1,0]:
+            # out = 1 - out # this is more clever but only works for two samples.
+            out[where_0] = 1
+            out[where_1] = 0
+        self._labels['feh'] = out
+        # out = 1 - out
+        
+        return self._labels['feh']
+
+
 
 class MockData(Data):
     def __init__(self,dataSet):
