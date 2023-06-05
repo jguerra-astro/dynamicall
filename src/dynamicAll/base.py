@@ -30,11 +30,16 @@ from abc import ABC, abstractmethod
 from jax import lax, vmap
 from jax.lax import scan
 from jax import random
+from typing import Callable
 
-xmass,wmass  = np.loadtxt('/Users/juan/phd/projects/weird-jeans/src/data/gausleg_100',delimiter=',')
-
+# xmass,wmass  = np.loadtxt('/Users/juan/phd/projects/dynamicAll/src/data/gausleg_100',delimiter=',')
+xmass,wmass = np.polynomial.legendre.leggauss(100)
 xmass = jnp.array(xmass)
 wmass = jnp.array(wmass)
+
+x,w = np.polynomial.legendre.leggauss(100) # are these tabulated -- does it take a long time to calculate?
+
+x,w = jnp.array(x),jnp.array(w)
 
 
 
@@ -54,7 +59,6 @@ class JaxPotential(ABC):
     _type_
         _description_
     '''
-    param_names = {}
     
     @abstractmethod
     def density(self,r):
@@ -62,7 +66,79 @@ class JaxPotential(ABC):
     
     def mass(self,r):
         pass 
+
+    def potential(self,r):
+        r'''
+        Calculates the potential at a given radius r numerically        
+        
+        .. math::
+            \phi(r) = -4\pi G\left[\frac{M}{r}+ \int_{r}^{\infty} \rho(r) r dr \right]
+
+        Parameters
+        ----------
+        r : _type_
+            float
+
+        Returns
+        -------
+        float
+            potential at a given radius r | [kpc^{2}~s^{-2}]
+            
+        '''
+        G =  4.517103049894965e-39 # G in kpc**3/Msun/s**2
+
+        phi_in  = self.mass(r)/r  # M/r | [Msun kpc**-1]  
+        #! HERE mass must be a vectorized. This works for the Hernquist_zhao formula, but may be an issue for other classes
+
+        x0 = 0.0
+        x1 = jnp.pi/2
+        
+        xk = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
+        wk = 0.5*(x1-x0)*w
+        phi_out = jnp.sum(wk*self.density(r/jnp.sin(xk))*(r/jnp.sin(xk))*r*jnp.cos(xk)/jnp.sin(xk)**2,axis=0)
+        return -G*(phi_in+ 4*jnp.pi*phi_out)
+
+    def total_energy(self,x,v):
+        '''
+        Calculates the total energy per unit mass
+        
+        Parameters
+        ----------
+        x : _type_
+            _description_
+        v : _type_
+            _description_
+
+        Returns
+        -------
+        float
+            total energy per unit mass | [km^{2}~s^{-2}] 
+        '''
+        T = 0.5* jnp.dot(v,v)         # kinetic energy 
+        r = jnp.linalg.norm(x,axis=0)
     
+        return T +self.potential(r)
+
+    def gamma(self,r):
+        r'''
+        log-slope of density profile.
+
+        .. math:
+            \gamma = -\frac{d\log(\rho)}{d\log(r)}`
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        '''
+        grad = jax.grad(self.density)
+        return -r*grad(r)/self.density(r)
+
     def func(self,x: float):
         r'''
         helper function for calculating r_{200} for a given density/mass profile.
@@ -83,8 +159,8 @@ class JaxPotential(ABC):
         This doesnt really belong here -- at least not in this structure
         '''
         rho_crit = 133.3636319527206 # critical density from astropy's WMAP9 with units [solMass/kpc**3]
-        Delta    = 200
-        return self.get_mass(x)/(4*jnp.pi*(x**3)/3) - Delta*rho_crit
+        Delta    = 200.0
+        return self.mass(x)/(4*jnp.pi*(x**3)/3) - Delta*rho_crit
     
     def r200(self):
         '''
@@ -128,30 +204,78 @@ class JaxPotential(ABC):
         self._M200 = self.get_mass(self._r200)
         return self._r200
 
-    def potential(self,r):
-        pass
+    @partial(jax.jit, static_argnums=(0,))
+    def project(self,R):
+        r'''
+        Forward Abel transform : Project an optically thin, spherically symmetric function onto a plane.
+        :math:`f(r(x,y,z))\rightarrow F(R(x,y))`
+        
+        .. math::
+            F(R)=2 \int_R^{\infty} \frac{f(r) r}{\sqrt{r^2-R^2}} d r
 
-    def total_energy(self,x,v):
+        Parameters
+        ----------
+        func : Callable
+            function of projected (on-sky) radii, R
+        R : jnp.ndarray
+            Projected distance :math:`(R = \sqrt{x^2 +y^2})`
+        
+        params : 
+            parameters for func
+
+        Returns
+        -------
+        jnp.ndarray
+            projected positions
         '''
-        Calculates the total energy per unit mass
+        
+        f_abel = lambda x,q: 2*self.density(x)*x/jnp.sqrt(x**2-R**2)
+        # integral goes from R to infinity
+        # use u-sub wit u = R csc(theta) -> du = -R cos(theta)/sin^2(theta) dtheta
+        x0 = 0
+        x1 = jnp.pi/2
+        # x,w = np.polynomial.legendre.leggauss(100) # are these tabulated -- does it take a long time to calculate?
+        
+        xk = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
+        wk = 0.5*(x1-x0)*w
+        return np.sum(wk*f_abel(R/jnp.sin(xk),R)*R*jnp.cos(xk)/jnp.sin(xk)**2,axis=0)
+    @partial(jax.jit, static_argnums=(0,))
+    def deproject(self,r):
+        r'''
+        Inverse Abel transform is used to calculate the emission function given a projection, i.e. 
+        :math:`F(R(x,y)) \rightarrow f( r(x,y,z) )`
+        
+        .. math::
+            f(r)=-\frac{1}{\pi} \int_r^{\infty} \frac{d F}{d y} \frac{d y}{\sqrt{y^2-r^2}}
         
         Parameters
         ----------
-        x : _type_
+        func : Callable
+            function of :math:`r = \sqrt{x^2+y^2+z^2}.` This must be written in a jax friendly way so that it can be differentiated
+        R : np.ndarray
             _description_
-        v : _type_
+        params : _type_
             _description_
 
         Returns
         -------
-        float
-            total energy per unit mass | [km^{2}~s^{-2}] 
-        '''
-        T = 0.5* jnp.dot(v,v)         # kinetic energy 
-        r = jnp.linalg.norm(x,axis=0)
+        np.ndarray
+            _description_
+        '''        
+        # write everything out for clarity
+        x0 = 0
+        x1 = jnp.pi/2
+        
+        xk = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
+        wk = 0.5*(x1-x0)*w
+        
+        dfunc = jax.vmap(jax.grad(self.project,argnums=0))
+        # dfunc = jax.vmap(jax.grad(self.projected_density,argnums=0))
+        # return dfunc(r)
+        f_abel = lambda y,q: -1*dfunc(y)/jnp.sqrt(y**2-q**2)/jnp.pi
+        
+        return np.sum(wk*f_abel(r/jnp.sin(xk),r)*r*jnp.cos(xk)/jnp.sin(xk)**2,axis=0)
     
-        return T +self.potential(r)
-
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
     def _peri(cls,pars,x0,v0):
@@ -228,7 +352,7 @@ class JaxPotential(ABC):
 
     @staticmethod
     @jax.jit
-    def action_theta(x,v):
+    def action_theta(x: jnp.ndarray, v: jnp.ndarray) -> jnp.ndarray:
         '''
         Equation 3.
         Doesn't depend on the potential
@@ -277,7 +401,6 @@ class JaxPotential(ABC):
             p_arrs.append(jnp.atleast_1d(p_dict[name]))
         return jnp.concatenate(p_arrs)
 
-
     @classmethod
     def infer(cls,model,data,errors):
         rng_key = random.PRNGKey(0)
@@ -299,8 +422,7 @@ class Data:
         self,
         component: str,
         binfunc  : Callable = histogram,
-        bins = 'blocks'
-    ):
+        bins = 'blocks'):
         
         component = component.casefold() # in case theres capitals or something
         
@@ -410,22 +532,25 @@ class Data:
         
         return r_center,mu, s4_error
 
-    def spatial_par(self, bin_method= histogram, bins = 'blocks',dim =2):
+    def spatial_density(self,
+                bin_method: Callable = histogram,
+                bins                 = 'blocks',
+                dim:int              = 2
+                ):
         '''
         Given a set of N stars with either 2D (default) or 3D(set dim=3),
         compute a spatial density
 
         Parameters
         ----------
-        bin_method : _type_, optional
+        bin_method : Callable, optional
             binning function (e.g. np.histogram)
             must return just two things so dont use plt.hist
             by default histogram (astropy's histogram)
-        bins : str, optional
+        bins : str or ndarray, optional, default is 'blocks'
             bin edges -- 'blocks' only works with astropy's histogram method
-            by default 'blocks'
         dim : int, optional
-            _description_, by default 2
+            Either Calculate, by default 2
 
         Returns
         -------
@@ -743,9 +868,6 @@ class Data:
         c = -2*beta
         M_jeans = (np.array(vr_fit) * q_eval / G) * (np.array(a) + np.array(b) + np.array(c))
         return q_eval,np.array(M_jeans)
-
-
-
 
 def rho_eval(S, r):
     r'''

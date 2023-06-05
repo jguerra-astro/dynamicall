@@ -6,6 +6,9 @@ import numpy as np
 from jax._src.config import config
 config.update("jax_enable_x64", True)
 
+# DEPRECATED -- Don't need these anymroe
+
+
 
 def project(func: Callable,R: np.ndarray,params) -> np.ndarray:
     r'''
@@ -44,6 +47,9 @@ def project(func: Callable,R: np.ndarray,params) -> np.ndarray:
     f_abel = lambda x,R: 2*func(x,*params)*x/np.sqrt(x**2-R**2)
     out= np.array([integrate.quad(f_abel,i,np.inf,args=(i,),limit=1000,epsrel=1e-12,epsabs=1.49e-11)[0] for i in R])   
     return out
+
+
+
 
 def deproject(func: Callable,R: jnp.ndarray,params) -> np.ndarray:
     r'''

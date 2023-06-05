@@ -14,19 +14,19 @@ import warnings
 from sklearn.mixture import GaussianMixture as GMM
 import pynbody
 from .base import Data
+import matplotlib.pyplot as plt
 
 class KeckData(Data):
-    def __init__(self,table,galaxy:SkyCoord,unit=[u.deg,u.deg]):
-        '''
-        Subclass of Data class used to handle observations from Keck
-        I dont know how too read data so i'll leave that to the user and require that
-        the data be given to this function in a simple key-value style format
+    def __init__(self,table,galaxy:SkyCoord=None,unit=[u.deg,u.deg]):
+        r'''
+        Subclass of Data class used to handle observations from Keck-DEIMOS
 
         Parameters
         ----------
         table : 
             any table where i can access things by name
             e.g table['RA'],table['DEC'] etc.
+            Currently I am using the naming convention from Marla's latest schema
         galaxy : SkyCoord
             SkyCoord object must have a distance.
             See from_name method for initializing the class using astroquery
@@ -41,33 +41,101 @@ class KeckData(Data):
         TODO: I should make sure the units are idiot (me) proof somehow
         TODO: Ask Marla about names and what not
         '''
+        ###### from Marla's latest schema #########
+        self.table    = table                           # Don't think we actually need this, but i'll keep i around for now
+        self._prob_m  = table['Pmem_pure']              # membership probabilities
+        
+        self.member     = np.where(self._prob_m  ==1)[0]        # use probabilities to get rid of everything that is not a member
+        self.non_member = np.where(self._prob_m  !=1)[0]
+
+        self._mag     = table['gmag_o'][self.member]    # g-band magnitude
+        self._R       = table['rproj_kpc'][self.member] # projected radii in kpc
+        self._vlos    = table['v'][self.member]         # line of sight velocities in km/s
+        self.d_vlos   = table['v_err'][self.member]     # line of sight velocity errors in km/s
+
+
+        # proper motions: originally in mas/yr, but I'm converting to km/s
+        self._pmra    = table['gaia_pmra'][self.member]  * 4.74  # mas/yr to km/s
+        self._pmdec   = table['gaia_pmdec'][self.member] * 4.74 # mas/yr to km/s
+
         # Get Data we need from the data table
         self.table  = table                    # Don't think we actually need this, but i'll keep i around for now
-        self.ra     = table['RA']  *unit[0]    # RA of all stars 
-        self.dec    = table['DEC'] *unit[1]    # DEC of all stars 
+        self.ra     = table['RA'][self.member]  *unit[0]    # RA of all stars 
+        self.dec    = table['DEC'][self.member] *unit[1]    # DEC of all stars 
         self.N_star = len(self.ra)
 
+
+        ###########################################
+
+
         # I'm assuming that the galaxy is already a SkyCoord object, but maybe I should do a check?
-        self.galaxy = galaxy
+        # self.galaxy = galaxy
 
-        self.pos    = SkyCoord(self.ra,self.dec, frame='icrs')
-        # project radii in radians
-        self.Rrad      = np.array(self.pos.separation(galaxy).to(u.rad))
+        # self.pos    = SkyCoord(self.ra,self.dec, frame='icrs')
+        # # project radii in radians
+        # self.Rrad      = np.array(self.pos.separation(galaxy).to(u.rad))
         
-        # projected radi in kpc -- i'll do all the analysis in kpc
-        self._R  =2* jnp.tan(self.Rrad/2) * self.galaxy.distance *self.galaxy.distance.unit
-        # I should be able to do this using astropy -- but for now this is fine
+        # # projected radi in kpc -- i'll do all the analysis in kpc
+        # self._R  =2* jnp.tan(self.Rrad/2) * self.galaxy.distance *self.galaxy.distance.unit
+        # # I should be able to do this using astropy -- but for now this is fine
 
-        self._vlos  = jnp.array(table['v']) * u.km/u.s
-        self.d_vlos = jnp.array(table['v_err']) * u.km/u.s
+        # self._vlos  = jnp.array(table['v']) * u.km/u.s
+        # self.d_vlos = jnp.array(table['v_err']) * u.km/u.s
 
-        self.bin_edges={}
-        # self.pos    = SkyCoord(self.ra,self.dec, distance=galaxy.distance[0], frame='icrs')
-        # self.x = self.galaxy.cartesian.x - self.pos.cartesian.x 
-        # self.y = self.galaxy.cartesian.y - self.pos.cartesian.y
-        # self.z = self.galaxy.cartesian.z - self.pos.cartesian.z
-        # self.pos_cartesian = self.pos.cartesian
-        # # self.r      = self.pos.separation_3d(galaxy)
+        # self.bin_edges={}
+        # # self.pos    = SkyCoord(self.ra,self.dec, distance=galaxy.distance[0], frame='icrs')
+        # # self.x = self.galaxy.cartesian.x - self.pos.cartesian.x 
+        # # self.y = self.galaxy.cartesian.y - self.pos.cartesian.y
+        # # self.z = self.galaxy.cartesian.z - self.pos.cartesian.z
+        # # self.pos_cartesian = self.pos.cartesian
+        # # # self.r      = self.pos.separation_3d(galaxy)
+
+    def plot_pos(self,plot_all=True):
+        r'''
+        Plot the positions (RA and DEC) of the stars in the data set
+
+        Parameters
+        ----------
+        plot_all : bool, optional
+            If True, plot all stars in the data set, and label members and non members. By default True
+        
+        Returns
+        -------
+        fig,ax : matplotlib.pyplot.figure, matplotlib.pyplot.axis
+            figure and axis objects in case you want to do more with the plot
+        '''
+        fig,ax = plt.subplots(figsize=(10,8))
+        if plot_all:
+            ax.scatter(self.table['RA'],self.table['DEC'], # first plot all objects in table
+                    marker='s',
+                    alpha=1.0,
+                    color='black',
+                    label='all',
+                    facecolor='none',
+            )
+            ax.scatter(self.ra,self.dec, # plot members 
+                    alpha=0.8,
+                    marker='+',
+                    label='members',
+            )
+            ax.scatter(self.table['RA'][self.non_member],self.table['DEC'][self.non_member],
+                    marker='.',
+                    # alpha=1,
+                    # facecolor='none',
+                    label='non-members',
+            )
+        else:
+            ax.scatter(self.ra,self.dec, # plot members 
+            alpha=0.8,
+            label='members',
+            )
+
+        ax.set(
+            xlabel='RA',
+            ylabel='DEC'
+        )
+        ax.legend()
+        return fig,ax 
 
     @staticmethod
     def from_name(table,name):
@@ -92,8 +160,8 @@ class KeckData(Data):
         The naming comvention is all over the place so I guess I should deala with that
         '''
 
-        galaxies = Table.read('/Users/juan/phd/projects/weird-jeans/src/data/simbad.xml')
-        df = galaxies['MAIN_ID','RA_d','DEC_d','Distance_distance','Distance_unit'].to_pandas()
+        galaxies = Table.read('/Users/juan/phd/projects/dynamicAll/src/data/simbad.xml')
+        df       = galaxies['MAIN_ID','RA_d','DEC_d','Distance_distance','Distance_unit'].to_pandas()
         # first try to see if the galaxy name is cached in a pre-prepared file
         try: 
             temp = df.loc[df['MAIN_ID'] ==name]
@@ -139,11 +207,11 @@ class DCJLData(Data):
         self.halo = halo
         
         #set everything to physical units
-        self.halo.physical_units()
+        # self.halo.physical_units()
         # center on the halo
-        pynbody.analysis.halo.center_of_mass(self.halo)
+        # pynbody.analysis.halo.center_of_mass(self.halo)
         # make sure there are stars in the halo
-        print('ngas = %e, ndark = %e, nstar = %e\n'%(len(self.halo.gas),len(self.halo.dark),len(self.halo.star)))
+        # print('ngas = %e, ndark = %e, nstar = %e\n'%(len(self.halo.gas),len(self.halo.dark),len(self.halo.star)))
 
         # sort all data from halo that I need
         # Cartesian
@@ -156,11 +224,11 @@ class DCJLData(Data):
         self._vz = self.halo.s['vz']
 
         # Spherical
-        self.r = self.halo.s['r']   
-
-        self._vr     = self.halo.s['vr']    
-        self._vtheta = self.halo.s['vtheta']
-        self._vphi   = self.halo.s['vphi']  
+        # self.r = self.halo.s['r']   
+# 
+        # self._vr     = self.halo.s['vr']    
+        # self._vtheta = self.halo.s['vtheta']
+        # self._vphi   = self.halo.s['vphi']  
 
         # `Projected` -- choose 'z' direction to be line-of-sight
         self.R    = jnp.sqrt(self.halo.s['x']**2 + self.halo.s['y']**2)
@@ -184,6 +252,9 @@ class DCJLData(Data):
         '''
         split sample of stars into multiple populations using a Gaussian Mixture Model
         using the metallicity of each star particle in the snapshot
+
+
+        This really only works for 2 components.
 
         Parameters
         ----------
@@ -217,6 +288,13 @@ class DCJLData(Data):
         # out = 1 - out
         
         return self._labels['feh']
+
+    def Lum(sim,band='v'):
+        sun_abs_mag = {'u':5.56,'b':5.45,'v':4.8,'r':4.46,'i':4.1,'j':3.66,
+                        'h':3.32,'k':3.28}[band]
+        return 10.0 ** ((sun_abs_mag - sim.star[band + '_mag']) / 2.5)
+
+
 
 
 
@@ -267,3 +345,5 @@ class MockData(Data):
 
         # errors on observations
         self._error = jnp.array(dataSet['error'])
+
+

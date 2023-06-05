@@ -1,5 +1,6 @@
-from ndjeans import abel,models
+from dynamicAll import abel,models
 import sampler
+import jax.numpy as jnp
 import numpy as np
 import pytest
 
@@ -8,10 +9,14 @@ def test_vplummer():
     '''
     Hernquist - Zhao density
     We can test it against the analytical profiles for a plummer and a NFW profile
+
+    Notes
+    -----
+    Dont use 1 cause errors might go unnoticed
     '''
     # Plummer
-    M  = 1
-    rs = 1
+    M  = 3.1e7
+    rs = 1.2
     # Equivalent  Hernquist-zhao density profile
     rhos= 3*(M)/(4*np.pi *rs**3)
     a  = 0

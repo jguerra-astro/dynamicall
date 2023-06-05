@@ -17,12 +17,12 @@ from numpyro.infer import MCMC, NUTS
 #temporary
 G  = 4.5171031e-39 # Gravitational constant [kpc**3 solMass**-1 s**-2] 
 #need different accuracy for each integral
-xmass,wmass  = np.loadtxt('/Users/juan/phd/projects/weird-jeans/src/data/gausleg_10',delimiter=',')
+xmass,wmass  = np.loadtxt('/Users/juan/phd/projects/dynamicAll/src/data/gausleg_10',delimiter=',')
 
 xmass = jnp.array(xmass)
 wmass = jnp.array(wmass)
 
-xdisp,wdisp  = np.loadtxt('/Users/juan/phd/projects/weird-jeans/src/data/gausleg_100',delimiter=',')
+xdisp,wdisp  = np.loadtxt('/Users/juan/phd/projects/dynamicAll/src/data/gausleg_100',delimiter=',')
 
 xdisp = jnp.array(xdisp)
 wdisp = jnp.array(wdisp)
