@@ -1,6 +1,5 @@
-#third-party
+#third-party imports
 from typing import Callable
-
 import jax
 import jax.numpy as jnp
 from jaxopt import Bisection
@@ -11,8 +10,8 @@ from scipy.integrate import quad
 from jax._src.config import config
 from functools import partial
 config.update("jax_enable_x64", True)
-# import astropy.units as u
-# import scipy.special as sc
+
+
 from scipy.integrate import quad
 from scipy.integrate import fixed_quad
 import arviz as az
@@ -23,19 +22,22 @@ from numpyro.diagnostics import summary
 from numpyro.infer import MCMC, NUTS
 from jax import random
 import corner
+
+from typing import Union
 # project 
 from . import abel
 from .base import JaxPotential
-
 from . import distributions as jdists
 
-from typing import Union
+# TODO: Removed these
+from scipy.integrate import quad
+from scipy.integrate import fixed_quad
 
 #? What other classes should be here?
 # TODO: Some of the static methods in plummer, don't need to be there so i should get rid of them?
 # TODO: Gross gotta clean thise up...
 
-x, w = np.polynomial.legendre.leggauss(128) #TODO: Find a better way to set this.
+x, w = np.polynomial.legendre.leggauss(256) #TODO: Find a better way to set this.
 
 x = jnp.array(x)
 w = jnp.array(w)
@@ -83,6 +85,7 @@ class HernquistZhao(JaxPotential):
     '''
 
     def __init__(self,rhos: float,rs: float,a: float,b: float,c: float):
+        
         self._rhos = rhos
         self._rs   = rs
         self._a    = a
@@ -123,7 +126,7 @@ class HernquistZhao(JaxPotential):
         calculated using a slightly different hypergeometric function -- evaluated at r and a very large number
         shouldn't this just be r to r200?? 
         
-        TODO: need a jax implementation of this
+        TODO: need a jax implementation of this - DONE
         TODO: write a test for this
 
         Parameters
@@ -146,60 +149,100 @@ class HernquistZhao(JaxPotential):
 
         q = r/rs
 
-        func = lambda r:    -r**2 *(q)**(-a) * \
-                            sc.hyp2f1((2 - a)/b, -(a - c)/b, 1 + (2 - a)/b, -q**b)/(-2 + a)
+        func = lambda r:    -r**2 *(q)**(-a) *sc.hyp2f1((2 - a)/b, -(a - c)/b, 1 + (2 - a)/b, -q**b)/(-2 + a)
         
-        phi_in  = -G*self.mass(r)/r 
+        phi_in  = -G*self.mass_scipy(r, 1.0, rs, a, b, c)/r 
         
         phi_out =  -(4*np.pi*G*rhos*(func(1e20)-func(r)))
         return phi_in+phi_out
 
     def potential(self,r):
         r'''
-        Potential for Hernquist density
-
-        Must be calculated numerically
+        Potential for Hernquist-Zhao density profile
         
         .. math::
             \phi(r) = -4\pi G\left[\frac{M}{r}+ \int_{r}^{\infty} \rho(r) r dr \right]
-        
-        calculated using a slightly different hypergeometric function -- evaluated at r and a very large number
-        shouldn't this just be r to r200?? 
-        
-        TODO: need a jax implementation of this #DONE
-        TODO: write a test for this        
+
+        Must be calculated numerically.
 
         Parameters
         ----------
-        r : _type_
-            _description_
+        r : float | array
+            array of radii | units: [L]
 
         Returns
         -------
-        _type_
-            _description_
+        float| array
+            potential | units: :math:`km^{2} s^{-2}`
+            
         '''
-        G =  4.517103049894965e-39 # G in kpc**3/Msun/s^2
+        G =  4.300917270036279e-06 # Gravitational constant in kpc*km**2/Msun/s^2
         # for readability
-        a     = self._a
-        b     = self._b
-        c     = self._c
-        rs   = self._rs
-        rhos = self._rhos
+        a       = self._a
+        b       = self._b
+        c       = self._c
+        rs      = self._rs   # kpc 
+        rhos    = self._rhos # Msun/kpc^3
+        
+        q       = r/rs # always convenient to make all integrals dimensionless
+        phi_in  = rs*self._mass(q,1.0,1.0,a,b,c)/r  # M/r
 
-        phi_in  = self._mass(r,rhos,rs,a,b,c)/r  # M/r
-
-        # return -G*phi_in
+        # integration points and weights for Gauss-Legendre quadrature + trig substitution
         x0 = 0.0
         x1 = jnp.pi/2
+        xk = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
+        wk = 0.5*(x1-x0)*w
         
+        def less_than_rs():
+            '''
+            for r << rs, (\frac{r}{r_{s}} < 1e-5, depending on the order of the integration) the trig substitution usually used leads to numerical issues.
+            Instead just use regular Gauss-Legendre quadrature from r to rs. then use the trig substitution to
+            '''
+            x0 = r
+            x1 = 1.0          
+            xi = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
+            wi = 0.5*(x1-x0)*w
+
+            t1 = jnp.sum(wi*HernquistZhao._density(xi,1.0,1.0,a,b,c)*xi,axis=0) # integrate from r to rs
+            t2 = rs*jnp.sum(wk*HernquistZhao._density(rs/jnp.sin(xk),1.0,1.0,a,b,c)*rs*jnp.cos(xk)/jnp.sin(xk)**3,axis=0) # integrate from rs to infinity
+            return t1+t2
+
+        def greater_than_rs():
+            '''
+            fro r > rs, the trig substitution behaves well and transforms the infinity integral into a finite one
+            '''
+            phi_out = q*jnp.sum(wk*HernquistZhao._density(q/jnp.sin(xk),1.0,1.0,a,b,c)*q*jnp.cos(xk)/jnp.sin(xk)**3,axis=0)
+            return phi_out
+
+        phi_out = jax.lax.cond(r <= rs, less_than_rs, greater_than_rs)
+        
+        return -G*rhos*rs**2 *(0 -(phi_in+ 4*jnp.pi*phi_out)) 
+
+    def potential_old(self,r):
+        # # return -G*phi_in
+        # x0 = 0.0
+        # x1 = jnp.pi/2
+        
+        # xk = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
+        # wk = 0.5*(x1-x0)*w
+        # phi_out = q*jnp.sum(wk*self._density(q/jnp.sin(xk),1.0,1.0,a,b,c)*q*jnp.cos(xk)/jnp.sin(xk)**3,axis=0)
+
+
+        x0 = jnp.arcsin(r/rs)             # lower bound of integral])
+        x1 = jnp.pi/2.0                   # upper bound of integral
+
+        xi = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
+        wi = 0.5*(x1-x0)*w
+
+        t1 = r*jnp.sum(wi*self._density(r/jnp.sin(xi),1.0,1.0,a,b,c)*r*jnp.cos(xi)/jnp.sin(xi)**3,axis=0)
+        x0 = 0.0
+        x1 = jnp.pi/2
         xk = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
         wk = 0.5*(x1-x0)*w
 
-
-        phi_out = jnp.sum(wk*self._density(r/jnp.sin(xk),rhos,rs,a,b,c)*(r/jnp.sin(xk))*r*jnp.cos(xk)/jnp.sin(xk)**2,axis=0)
-        
-        return -G*(phi_in+ 4*jnp.pi*phi_out)
+        t2 = rs*jnp.sum(wk*self._density(rs/jnp.sin(xk),1.0,1.0,a,b,c)*rs*jnp.cos(xk)/jnp.sin(xk)**3,axis=0)
+        phi_out=(t1+t2)
+        return -G*rhos*rs**2 *(0 -(phi_in+ 4*jnp.pi*phi_out)) 
 
     def projection(self,R):
         '''
@@ -304,7 +347,7 @@ class HernquistZhao(JaxPotential):
         wk    = 0.5*q*w
         units = 4*jnp.pi*rhos*rs**3
         return units* jnp.sum(wk*xk**2 *HernquistZhao._density(xk,1.0,1.0,a,b,c),axis=0)
-
+    @staticmethod
     def _mass_test(r: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
         r'''
         update: use branches to calculate mass for r < rs and r > rs.
@@ -541,10 +584,6 @@ class NFW(JaxPotential):
         return mNFW
 
 class Isochrone(JaxPotential):
-    param_names = {
-        "M": 1,  # the log number density
-        'b':1
-        }
     
     def __init__(self,M:float,b:float)-> None:
         '''
@@ -559,7 +598,8 @@ class Isochrone(JaxPotential):
             scale radius
         
         '''
-        self.G  =  4.30091731e-6 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]        
+        self.G  =  4.300917270036279e-06 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
+        # G =  4.517103049894965e-39 # G in kpc3/Msun/s^2        
         self._M = M 
         self._b = b
 
@@ -656,9 +696,7 @@ class Isochrone(JaxPotential):
         float
             potential energy [km^2 s^{-2}]
         '''        
-        G     =  4.30091731e-6 # u.kpc*u.km**2*u.solMass**-1 *u.s**-2# Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
-        # print(b.unit,M.unit,r.unit)
-        # print(jnp.sqrt(b**2+r**2))
+        G     =  4.300917270036279e-06 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]s
         return -G*M/(b+ jnp.sqrt(b**2+r**2))
 
     @staticmethod
@@ -685,7 +723,49 @@ class Isochrone(JaxPotential):
         num = 3*(b+a)*a**2 - r**2*(b+3*a)
         den = 4*jnp.pi*(b+a)**3*a**3 
         return M*num/den
-    
+
+    @staticmethod
+    def _DF(x,v,M,b):
+        '''
+        Distribution function for the Isochrone potential
+
+        Parameters
+        ----------
+        x : jnp.array
+            position vector
+        v : jnp.array
+            velocity vector
+        M : float
+            total mass
+        b : float
+            scale radius
+
+        Returns
+        -------
+        float
+            distribution function
+        '''
+        Energy = 0.5 * jnp.dot(v,v) + Isochrone._potential(M,b,jnp.linalg.norm(x))
+        E = -Energy
+
+        def E_gt_zero():
+            return -jnp.inf
+
+        def E_lt_zero():
+            tE = -E * a / (G * M)
+            denominator = jnp.sqrt(2) * (2 * jnp.pi) ** 3 * (G * M * b) ** (3 / 2)
+            numerator = jnp.sqrt(E) / ((2 * (1 - tE)) ** 4)
+        
+            term1 = 27 - 66 * tE + 320 * tE ** 2 - 240 * tE ** 3 + 64 * tE ** 4
+            term2 = 3 * (16 * tE ** 2 + 28 * tE - 9)
+        
+            f_I = numerator * term1 + numerator * term2 * jnp.arcsin(jnp.sqrt(E)) / jnp.sqrt(tE * (1 - tE))
+            return f_I
+        
+        f_I = jax.lax.cond(Energy > 0, E_gt_zero, E_lt_zero)
+
+        return f_I
+
 class Gaussians(JaxPotential):
     r'''
     Class for a desribing the density profile as a sum of Gaussians
@@ -758,7 +838,7 @@ class Plummer(JaxPotential):
     a : float
         scale length
     '''
-    def __init__(self,M,a):
+    def __init__(self,M,a,Xlim=None,Vlim=None):
         '''
         TODO: Implement sampling from a self consistent plummer pos+velocities
         TODO: Project into 2D
@@ -768,6 +848,15 @@ class Plummer(JaxPotential):
         self._a = a
         #calculate density
         self._rho = 3*self._M/(4*np.pi*self._a**3)
+        
+        
+        # For sampling purposes
+        self.nX = 3
+        self.nV = 3
+        self.Xlim = [0, 5*abs(self._a)] # kpc # shouldnt be negative
+        self.Vlim = [0, 19.2]             # km/s
+        self.G    = 4.300917270036279e-06 #kpc km^2 s^-2 Msun^-1
+        self.sampler_input = [self.nX, self.nV, self.Xlim, self.Vlim]
     
     def density(self,r:np.ndarray)->np.ndarray:
         
@@ -776,6 +865,29 @@ class Plummer(JaxPotential):
     def mass(self,r:np.ndarray)-> np.ndarray:
         return Plummer._mass(self._M,self._a,r)
     
+    def potential(self,r:jnp.ndarray)->jnp.ndarray:
+        return Plummer._potential(r,self._M,self._a)
+
+    def DF(self,X,V):
+        x,y,z    = X
+        vx,vy,vz = V
+
+        r = np.sqrt(x**2+y**2+z**2)
+
+        
+        E = .5*(vx**2+vy**2+vz**2) + self.potential(r)
+        coeff = (24*np.sqrt(2) / (7 * (np.pi**3))) * (self.N * (self._a**2) / ((self.G**5) * (self._M**5))) 
+        try: 
+            if len(E)>0: 
+                E[np.where(E>0)]= 0
+                p  =  coeff*(-E)**(7/2) # check that units are 1/kpc^3/(km/s)^3
+        except:
+            if E<0:
+                p  =  coeff*(-E)**(7/2)
+            else:
+                p= 0  # check that units are 1/kpc^3/(km/s)^3
+        return p
+
     def projected_density(self,R: np.ndarray) -> np.ndarray:
         '''
         2D projection of plummer model
@@ -815,8 +927,8 @@ class Plummer(JaxPotential):
         theta = np.arccos( 1 - 2 *temp)
 
         xyz[0] = r * np.cos(phi) * np.sin(theta)
-        xyz[1] = r * np.sin(theta)*np.cos(theta)
-        xyz[2] = r * np.cos(theta) #* Check the angle conventions again! 
+        xyz[1] = r * np.sin(phi) * np.sin(theta)
+        xyz[2] = r * np.cos(theta)
 
         return xyz
 
@@ -844,6 +956,62 @@ class Plummer(JaxPotential):
         xyz[2] = r * np.sin(theta) #* Check the angle conventions again! 
         return np.sqrt(xyz[0]**2+xyz[1]**2)
 
+    def sample_w(self,N:int, evolve=False,save=False,fileName='./out.txt') -> np.ndarray:
+        # first sample from r
+        x,y,z= self.sample_xyz(N)
+
+        r     = jnp.sqrt(x**2+y**2+z**2)
+        vesc = self.v_esc(r)
+    
+        # then sample from v
+        def g_q(q):
+            return q**2*(1-q**2)**(7/2)* (512/(7*np.pi))
+
+        out = []
+        while len(out) < N:
+            x1 = np.random.uniform(0,1)
+            x2 = np.random.uniform(0,50176*np.sqrt(7)/19683 *np.pi) 
+            if x2 < g_q(x1):
+                out.append(x1)
+        
+        out = jnp.array(out)*vesc
+        phi   = np.random.uniform(0, 2 * np.pi, size=N)
+        temp  = np.random.uniform(size=N)
+        theta = np.arccos( 1 - 2 *temp)
+        
+        vx = out * np.cos(phi) * np.sin(theta)
+        vy = out * np.sin(phi) * np.sin(theta)
+        vz = out * np.cos(theta)
+
+        v = np.sqrt(vx**2+vy**2+vz**2)
+        if evolve:
+            import astropy.units as u
+            w0 = gd.PhaseSpacePosition(pos=pos, vel=vel)
+            pos = [x, y, z] * u.kpc
+            vel = [vx, vy, vz] * u.km / u.s
+            M = self._M * u.Msun
+            b = self._a * u.kpc
+
+            potential = gp.PlummerPotential(m=M, b=b, units=galactic)
+            Hamiltonian = gp.Hamiltonian(potential)
+
+            orbits = Hamiltonian.integrate_orbit(
+                w0, t=np.linspace(0, 1, 100) * u.Gyr, Integrator=gi.DOPRI853Integrator
+            )
+            r = orbits.spherical.distance
+            r, r_unit = r.value, r.unit
+            v_xyz= orbits.v_xyz
+            vx,vy,vx = v_xyz.to(u.km/u.s).value
+            v_new = jnp.sqrt(vx[-1]**2+vy[-1]**2+vz[-1]**2)
+        if save:
+            try:
+                np.savetxt(fileName, np.c_[x,y,z,vx,vy,vz], delimiter=',')
+              
+            except:
+                print('Error saving file, use abosulte path in fileName')
+        return r,v
+
+
     def probability(self, x: np.ndarray) -> np.ndarray:
         '''
         '''
@@ -853,6 +1021,19 @@ class Plummer(JaxPotential):
         '''
         '''
         return 2*np.pi*x * self.projection(x,1,self._a)
+
+    def DF(self,E):
+        '''
+        Distribution function for a Plummer shere
+
+        .. math::
+            f(E) =
+            \frac{24\sqrt{2}}{7\pi^3}
+            \frac{a^2}{G^5 M^4}(-E)^{7/2}
+        '''
+        G = 4.302e-6 #kpc km^2 s^-2 Msun^-1
+        # return 24*np.sqrt(2)/(7*np.pi**3) * self._a**2 / (G**5 * self._M**4) * (-E)**(7/2)
+        return (-E)**(7/2)
 
     @staticmethod
     def from_scale_density_radius(rho: float, a:float):
@@ -909,6 +1090,25 @@ class Plummer(JaxPotential):
         coeff = 3*M/(4*np.pi*a**3)
         
         return coeff * (1+q**2)**(-5/2)
+    
+    @staticmethod
+    def _potential(r: jnp.ndarray,M: float, a: float) -> jnp.ndarray:
+        '''
+        Analitycal potential for plummer sphere
+
+        Parameters
+        ----------
+        r : jnp.ndarray
+            _description_
+
+        Returns
+        -------
+        jnp.ndarray
+            Potential at r | units [G] = #kpc km^2 s^-2 Msun^-1
+        '''
+        G = 4.300917270036279e-06 #kpc km^2 s^-2 Msun^-1
+        q= r/a
+        return -G*M/a/jnp.sqrt(1+q**2)
 
     @staticmethod
     def projection(R: np.ndarray, M: float, a: float) -> np.ndarray:
@@ -1075,8 +1275,8 @@ class gEinasto(JaxPotential):
         q = r/rs
         return rhos*(r/rs)**(-gamma) * np.exp(-(2/alpha) * (q**alpha - 1))
 
-# THESE SHOULD GO INTO A DIFFERENT FILE
 
+# THESE SHOULD GO INTO A DIFFERENT FILE
 class JeansOM:    
 
     def __init__(self,data: np.ndarray,model_dm,model_tr,model_beta):
@@ -1529,5 +1729,36 @@ class gOM:
 
         return (r**2+a**2)**alpha
 
+class Anisotropy:
 
-    
+    def beta(self):
+        pass
+    def f_beta(self):
+        pass
+
+class OsipkovMerrit(Anisotropy):
+    r'''
+    Osipkov-Merrit anisotropy profile
+
+    .. math::
+        \beta(r) = \frac{r^2}{r^2+a^2}
+
+
+    Parameters
+    ----------
+    a : float
+        _description_
+    beta0 : float
+        _description_
+    '''
+    def __init__(self,ra):
+        self._ra    = ra
+
+    @staticmethod
+    def beta(r,a,beta):
+        return beta/(1+(r/a)**2)
+
+    @staticmethod
+    def f_beta(r,a,beta):
+        return (1+(r/a)**2)**beta
+

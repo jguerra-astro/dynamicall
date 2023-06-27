@@ -225,7 +225,6 @@ class DCJLData(Data):
 
         # Spherical
         # self.r = self.halo.s['r']   
-# 
         # self._vr     = self.halo.s['vr']    
         # self._vtheta = self.halo.s['vtheta']
         # self._vphi   = self.halo.s['vphi']  

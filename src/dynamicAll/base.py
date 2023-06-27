@@ -58,8 +58,7 @@ class JaxPotential(ABC):
     -------
     _type_
         _description_
-    '''
-    
+    '''    
     @abstractmethod
     def density(self,r):
         pass
@@ -97,6 +96,20 @@ class JaxPotential(ABC):
         wk = 0.5*(x1-x0)*w
         phi_out = jnp.sum(wk*self.density(r/jnp.sin(xk))*(r/jnp.sin(xk))*r*jnp.cos(xk)/jnp.sin(xk)**2,axis=0)
         return -G*(phi_in+ 4*jnp.pi*phi_out)
+
+    def v_esc(self,r):
+        '''
+        Calculates the escape velocity at a given radius r
+
+        .. math::
+            v_{esc} = \sqrt{-2\phi(r)}
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+        '''
+        return jnp.sqrt(-2*self.potential(r))
 
     def total_energy(self,x,v):
         '''
@@ -183,7 +196,7 @@ class JaxPotential(ABC):
         # Delta    = 200
         # func     = lambda x: self.get_mass(x)/(4*np.pi*(x**3)/3) - Delta*rho_crit
         
-        bisec = Bisection(optimality_fun=self.func, lower= 1e-20, upper = 300,check_bracket=False)
+        bisec = Bisection(optimality_fun=self.func, lower= 1e-10, upper = 300,check_bracket=False)
         
         return bisec.run().params
 
@@ -203,6 +216,19 @@ class JaxPotential(ABC):
         self._r200 = scipy.optimize.bisect(func,1e-2,300)
         self._M200 = self.get_mass(self._r200)
         return self._r200
+
+
+    def spherical_to_cartesian(self,quantity):
+        N= len(quantity)
+        xyz = np.zeros((3,N))
+        phi   = np.random.uniform(0, 2 * np.pi, size=N)
+        temp  = np.random.uniform(size=N)
+        theta = np.arccos( 1 - 2 *temp)
+
+        xyz[0] = quantity * np.cos(phi) * np.sin(theta)
+        xyz[1] = quantity * np.sin(phi) * np.sin(theta)
+        xyz[2] = quantity * np.cos(theta)
+        return xyz
 
     @partial(jax.jit, static_argnums=(0,))
     def project(self,R):
@@ -373,35 +399,6 @@ class JaxPotential(ABC):
         return L_phi
 
     @classmethod
-    @partial(jax.jit, static_argnums=(0,))
-    def unpack_pars(cls, p_arr):
-        """
-        STOLEN FROM APW
-        This function takes a parameter array and unpacks it into a dictionary
-        with the parameter names as keys.
-        """
-        p_dict = {}
-        j = 0
-        for name, size in cls.param_names.items():
-            # print(name,size)
-            p_dict[name] = jnp.squeeze(p_arr[j : j + size])
-            j += size
-        return p_dict
-
-    @classmethod
-    @partial(jax.jit, static_argnums=(0,))
-    def pack_pars(cls, p_dict):
-        """
-        STOLEN FROM APW
-        This function takes a parameter dictionary and packs it into a JAX array
-        where the order is set by the parameter name list defined on the class.
-        """
-        p_arrs = []
-        for name in cls.param_names.keys():
-            p_arrs.append(jnp.atleast_1d(p_dict[name]))
-        return jnp.concatenate(p_arrs)
-
-    @classmethod
     def infer(cls,model,data,errors):
         rng_key = random.PRNGKey(0)
         rng_key, rng_key_ = random.split(rng_key)
@@ -415,6 +412,8 @@ class JaxPotential(ABC):
         samples_1 = mcmc.get_samples()
 
         return -1
+
+
 
 class Data:
 
@@ -651,20 +650,24 @@ class Data:
         return  0.25*np.exp(spl(chi) - 3*chi)/np.pi
     
     def spherical(self):
-        '''
-        _summary_
-        (x,y,z) -> r
-        (v_{x},v_{y},v_{z}) -> (v_{r},v_{\theta},v_{\phi}) 
+        r'''
+        Convert cartesian coordinates :math:`(x,y,z,vx,vy,vz)` to spherical coordinates :math:`(r,\theta,\phi,v_{r},v_{\theta},v_{\phi})`
+
+        This is done by the following transformations:
+        - :math:`r = \sqrt{x^2+y^2+z^2}`
+        - :math:`\theta = arccos(z/r)`
+        - :math: `\phi  = arctan2(y,x)  = sign(y)arcos(R/z)
+        - :math:`v_{r} = \frac{xv_{x}+yv_{y}+zv_{z}}{r}`
+        - :math:`v_{\phi}= \frac{yv_{x}-xv_{y}}{R}`
+        - :math:`v_{\theta] =\frac{\frac{zxv_{x}}[R] + \frac{zyv_{y}}{R} - Rv_{z}}{r}
         
-        theta = arccos(z/r)
-        phi   = arctan2(y,x)  = sign(y)arcos(R/z)
         Returns
         -------
         _type_
             _description_
         '''
         #(x,y,z) -> r
-        self._R  = np.sqrt(self._x**2+self._y**2) #for conveniences
+        self._R   = np.sqrt(self._x**2+self._y**2) #for conveniences
         self._r   = np.sqrt(self._x**2+self._y**2+self._z**2)
 
         # (vx,vy,vz) -> (vr,v_{\theta},v_{\phi})
@@ -884,79 +887,6 @@ def dlnrho_dlnr_eval(S, r):
     r is point or array of points where rho should be evaluated
     '''
     return (S(np.log(r), der=1) - 3)
-
-
-# class Fit:
-
-#     def __init__(self,data,priors:dict):
-#         '''
-#         _summary_
-
-#         Parameters
-#         ----------
-#         data : _type_
-#             data['pos']: positions
-#             data['vel']: velocities
-#             data['dv]  : error on velocities
-#         priors : dict
-#             dictionary of priors for parameters
-#             Depends on which model we're trying to use to fit the data
-#         '''
-#         self.data   = data
-#         self.priors = priors
-
-
-
-#     @jax.jit
-#     @staticmethod
-#     def gaussian(data,error,rhalf=None):
-#         '''
-#         simple model function for finding the mean velocity of stars
-#         $P(v|\mu,\sigma) = (\sqrt{2\pi}\sigma)^{-1}exp{\frac{1/2}{}}$
-
-#         Parameters
-#         ----------
-#         data : _type_
-#             presumably velocities
-#         error : _type_
-#             error on velocities 
-#         rhalf : _type_, optional
-#             If you want to calculate the Wolf mass, you can supply an r_{1/2}, by default None
-#         NOTES
-#         -----
-#         Where do  the r_{1/2}'s come from
-#         It'd be nice if i could use r_{1/2}'s with an error
-#         e.g. 
-#             rh       = numpyro.sample('rhalf',dist.Normal(rhalf,drhalf)) 
-#             mwolf    = numpyro.deterministic('mwolf',(4*rh*sigma**2)/(3*G))
-#         should add a with numpyro plate
-#         '''
-        
-#         G     =  4.30091731e-6 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
-#         mu    = numpyro.sample('mu'   ,dist.Uniform(jnp.min(data),jnp.max(data)))
-#         sigma = numpyro.sample('sigma',dist.Uniform(.01,100))
-        
-#         if rhalf != None:
-#             mwolf    = numpyro.deterministic('mwolf',(4*rhalf*sigma**2)/(3*G))
-
-#         s = jnp.sqrt(sigma**2+error**2)
-#         numpyro.sample("obs", dist.Normal(mu,s), obs=data)
-
-#         def model(self,priors,data):
-#             # set up priors on parameters
-#             # m_beta = numpyro.sample("beta"   , priors['beta']) # stellar anisotropy
-#             m_a    = numpyro.sample("gamma"  , priors['gamma'])  # inner-slope
-#             m_rs   = numpyro.sample("lnrs"   , priors['lnrs'])   # ln{scale density} -- dont want negatives 
-#             m_rhos = numpyro.sample("lnrhos" , priors['lnrhos']) # ln{scale density} -- dont want negatives 
-#             m_v    = numpyro.sample("v_mean" , priors['v_mean'])
-
-#             q     = data['pos']
-#             obs   = data['vel']
-#             error = data['dv']
-
-#             # with numpyro.plate("data", len(data[1,:])):
-#                 # sigma2 = jnp.sqrt(Jeans.vec_dispb(data[0,:],m,b,m_a,1,3))
-#                 # numpyro.sample("y", dist.Normal(sigma,error), obs=obs)
 
 
 def run_inference(self, model, num_warmup=1000, num_samples=1000):

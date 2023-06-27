@@ -11,38 +11,77 @@ from jaxopt import Bisection
 from scipy.integrate import quad
 config.update("jax_enable_x64", True)
 from jax import random
-from scipy.integrate import fixed_quad, quad # I should get rid of these
 
 # project 
 from . import abel
 from .base import JaxPotential
 from .models import *
-try:
-    x,w  = np.loadtxt('/home/jjg57/DCJL/newjeans/src/data/gausleg_100',delimiter=',')
-except:
-    x,w  = np.loadtxt('/Users/juan/phd/projects/dynamicAll/src/data/gausleg_100',delimiter=',')
+
+x, w = np.polynomial.legendre.leggauss(128) #TODO: Find a better way to set this.
 
 x = jnp.array(x)
 w = jnp.array(w)
 
-def integral(x,M,a):
+#TODO: Write a sampler using jax to speed up calculations.
 
-    return jax.grad(Plummer._density(x,M,a))/jnp.sqrt(x - Plummer._potential(x,M,a))
 
-def eddington(y: float,params):
-    r'''
-    .. math::
-    f(\mathcal{E})
-    =\frac{1}{\sqrt{8} \pi^2} \frac{\mathrm{d}}{\mathrm{d} \mathcal{E}} \int_0^{\mathcal{E}} \frac{\mathrm{d} \Psi}{\sqrt{\mathcal{E}-\Psi}} \frac{\mathrm{d} \nu}{\mathrm{d} \Psi} .
 
-    Parameters
-    ----------
-    y : float
-        relative energy: :math:`\mathcal{E} \equiv-H+\Phi_0=\Psi-\frac{1}{2} v^2`
-    '''
-    dnu = jax.grad(jax.potential.Plummer())
+class ConditionalSampler:
 
-    coeff = jnp.sqrt(8)*jnp.pi**2
+    def __init__(self,
+                dm_component,
+                stellar_component,
+                anisotropy_model,
+                evolve=False):
+        self.dm_component      = dm_component
+        self.stellar_component = stellar_component
+        self.anisotropy_model  = anisotropy_model
 
-    return jax.grad(jnp.sum(w*integral(x,*params)))/coeff
 
+        # first find drho/dphi
+
+        r = jnp.logspace(-10,5,10_000)
+        rho = self.dm_component.density(r)
+        phi = self.dm_component.potential(r)
+
+    def sample(self,N:int):
+
+        # First sample from stellar component
+        x,y,z = self.stellar_component.sample_xyz(N)
+        r =  jnp.sqrt(x**2 + y**2 + z**2)
+
+        # The sample velocities from conditional distribution
+
+
+def sample_from_DF(model,N: int,method = 'rejection'):
+    """
+    Sample from the distribution function of a given model.
+    """
+    DF = model.DF
+
+
+
+def rejection_sample(model_class, samplesize, r_vr_vt=False, r_v=False, filename=None, brute=True):
+    
+    nX, nV, Xlim, Vlim, = model_class.sampler_input
+    nA = 0
+
+    if nX+nV > 6:
+        print ('We only support a maximum of 6 variables')
+        return
+    if (r_vr_vt and r_v)==True:
+        print ('You cannot have both r_vr_vt AND r_v set to True')
+        return
+    if (Xlim[1] <= Xlim[0] or Vlim[1] <= Vlim[0]):
+        print ('ERROR: rmax <= rmin or vmax<=vmin, please double check the sample limits')
+
+    ans = rejectsample(model_class.DF, Xlim, Vlim, nX, nV, nA,
+                [], [], samplesize, r_vr_vt, r_v, z_vr_vt=False)
+
+    if filename != None:
+        if (r_vr_vt or r_v ):
+            np.savetxt(filename, np.c_[ans])
+        else:
+            np.savetxt(filename, np.c_[np.transpose(ans)])
+
+    return ans
