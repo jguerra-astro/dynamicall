@@ -31,6 +31,7 @@ from jax import lax, vmap
 from jax.lax import scan
 from jax import random
 from typing import Callable
+import emcee
 
 # xmass,wmass  = np.loadtxt('/Users/juan/phd/projects/dynamicAll/src/data/gausleg_100',delimiter=',')
 xmass,wmass = np.polynomial.legendre.leggauss(100)
@@ -217,6 +218,66 @@ class JaxPotential(ABC):
         self._M200 = self.get_mass(self._r200)
         return self._r200
 
+    def sample_w(
+                self,N:int,
+                r_range=[0,np.inf],
+                v_range = [0,None],
+                nwalkers:int =32,
+                N_burn:int = 5000
+                ) -> np.ndarray:
+        '''
+        Use emcee to generate samples of :math:`vec{w} = (\vec{x},\vec{v}) from the distribution function f(vec{w}) = f(E)`
+
+        Parameters
+        ----------
+        N : int
+            _description_
+
+        Returns
+        -------
+        np.ndarray
+            _description_
+        '''
+        df = self.DF
+
+        def log_prior(w):
+            x = w[:3]
+            v = w[3:]
+            r = np.linalg.norm(x)
+
+            Energy = self.potential(r) + 0.5*np.dot(v,v)
+
+            if (Energy < 0) and (r < np.inf):
+                # TODO: must change r < 70 to something like r < r_200, also include v_esc?s
+                return 0
+            return -np.inf
+
+
+        def log_probability(w):
+            lp = log_prior(w)
+            if not np.isfinite(lp):
+                return -np.inf
+            return lp + df(w)
+
+        ndim = 6
+        p0 = np.random.rand(nwalkers, ndim) # need to make p0 better
+        
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability)
+        state = sampler.run_mcmc(p0, N_burn)
+        sampler.reset()
+        sampler.run_mcmc(state,N)
+        samples = sampler.get_chain(flat=True)
+        print(
+            "Mean acceptance fraction: {0:.3f}".format(
+                np.mean(sampler.acceptance_fraction)
+            )
+        )
+        print(
+            "Mean autocorrelation time: {0:.3f} steps".format(
+                np.mean(sampler.get_autocorr_time())
+            )
+        )
+        return samples
 
     def spherical_to_cartesian(self,quantity):
         N= len(quantity)

@@ -808,7 +808,6 @@ class Isochrone(JaxPotential):
         
         return jnp.log(f_I)
         
-
 class Gaussians(JaxPotential):
     r'''
     Class for a desribing the density profile as a sum of Gaussians
@@ -877,29 +876,19 @@ class Plummer(JaxPotential):
     Parameters
     ----------
     M : float
-        'Mass' of system -- could just be total number of objects though
+        'Mass' of system | :math:`[Msun]`
     a : float
-        scale length
+        scale length | [kpc]
     '''
-    def __init__(self,M,a,Xlim=None,Vlim=None):
+    def __init__(self,M,a):
         '''
-        TODO: Implement sampling from a self consistent plummer pos+velocities
-        TODO: Project into 2D
         TODO: implement multiple components
         '''
         self._M = M 
         self._a = a
         #calculate density
         self._rho = 3*self._M/(4*np.pi*self._a**3)
-        
-        
-        # For sampling purposes
-        self.nX = 3
-        self.nV = 3
-        self.Xlim = [0, 5*abs(self._a)] # kpc # shouldnt be negative
-        self.Vlim = [0, 19.2]             # km/s
         self.G    = 4.300917270036279e-06 #kpc km^2 s^-2 Msun^-1
-        self.sampler_input = [self.nX, self.nV, self.Xlim, self.Vlim]
     
     def density(self,r:np.ndarray)->np.ndarray:
         
@@ -910,26 +899,6 @@ class Plummer(JaxPotential):
     
     def potential(self,r:jnp.ndarray)->jnp.ndarray:
         return Plummer._potential(r,self._M,self._a)
-
-    def DF(self,X,V):
-        x,y,z    = X
-        vx,vy,vz = V
-
-        r = np.sqrt(x**2+y**2+z**2)
-
-        
-        E = .5*(vx**2+vy**2+vz**2) + self.potential(r)
-        coeff = (24*np.sqrt(2) / (7 * (np.pi**3))) * (self.N * (self._a**2) / ((self.G**5) * (self._M**5))) 
-        try: 
-            if len(E)>0: 
-                E[np.where(E>0)]= 0
-                p  =  coeff*(-E)**(7/2) # check that units are 1/kpc^3/(km/s)^3
-        except:
-            if E<0:
-                p  =  coeff*(-E)**(7/2)
-            else:
-                p= 0  # check that units are 1/kpc^3/(km/s)^3
-        return p
 
     def projected_density(self,R: np.ndarray) -> np.ndarray:
         '''
@@ -999,7 +968,7 @@ class Plummer(JaxPotential):
         xyz[2] = r * np.sin(theta) #* Check the angle conventions again! 
         return np.sqrt(xyz[0]**2+xyz[1]**2)
 
-    def sample_w(self,N:int, evolve=False,save=False,fileName='./out.txt') -> np.ndarray:
+    def sample_w_conditional(self,N:int, evolve=False,save=False,fileName='./out.txt') -> np.ndarray:
         # first sample from r
         x,y,z= self.sample_xyz(N)
 
@@ -1055,7 +1024,7 @@ class Plummer(JaxPotential):
                 print('Error saving file, use abosulte path in fileName')
         return np.c_[x,y,z,vx,vy,vz]
 
-    def sample_w_emcee(self,N:int, evolve=False,save=False,fileName='./out.txt') -> np.ndarray:
+    def sample_w(self,N:int, evolve=False,save=False,fileName='./out.txt') -> np.ndarray:
         '''
         Use emcee to generate samples from a plummer sphere.
         Since you can easily generate samples from a plummer sphere using different methods, i'll use this as a test and compare the results between both methods
