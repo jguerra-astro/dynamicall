@@ -725,7 +725,7 @@ class Isochrone(JaxPotential):
         return M*num/den
 
     @staticmethod
-    def _DF(x,v,M,b):
+    def _DF(w,M,b):
         '''
         Distribution function for the Isochrone potential
 
@@ -745,6 +745,9 @@ class Isochrone(JaxPotential):
         float
             distribution function
         '''
+        x = w[:3]
+        v = w[3:]
+        G = 4.300917270036279e-06 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
         Energy = 0.5 * jnp.dot(v,v) + Isochrone._potential(M,b,jnp.linalg.norm(x))
         E = -Energy
 
@@ -752,7 +755,7 @@ class Isochrone(JaxPotential):
             return -jnp.inf
 
         def E_lt_zero():
-            tE = -E * a / (G * M)
+            tE = -Energy * b / (G * M)
             denominator = jnp.sqrt(2) * (2 * jnp.pi) ** 3 * (G * M * b) ** (3 / 2)
             numerator = jnp.sqrt(E) / ((2 * (1 - tE)) ** 4)
         
@@ -760,11 +763,51 @@ class Isochrone(JaxPotential):
             term2 = 3 * (16 * tE ** 2 + 28 * tE - 9)
         
             f_I = numerator * term1 + numerator * term2 * jnp.arcsin(jnp.sqrt(E)) / jnp.sqrt(tE * (1 - tE))
-            return f_I
+            
+            return jnp.log(f_I)
         
         f_I = jax.lax.cond(Energy > 0, E_gt_zero, E_lt_zero)
 
         return f_I
+
+    @staticmethod
+    def _DF_emcee(w,M,b):
+        '''
+        Distribution function for the Isochrone potential
+
+        Parameters
+        ----------
+        x : jnp.array
+            position vector
+        v : jnp.array
+            velocity vector
+        M : float
+            total mass
+        b : float
+            scale radius
+
+        Returns
+        -------
+        float
+            distribution function
+        '''
+        x = w[:3]
+        v = w[3:]
+        G = 4.300917270036279e-06 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
+        Energy = 0.5 * jnp.dot(v,v) + Isochrone._potential(M,b,jnp.linalg.norm(x))
+        E = -Energy
+
+        tE = -Energy * b / (G * M)
+        denominator = jnp.sqrt(2) * (2 * jnp.pi) ** 3 * (G * M * b) ** (3 / 2)
+        numerator = jnp.sqrt(E) / ((2 * (1 - tE)) ** 4)
+    
+        term1 = 27 - 66 * tE + 320 * tE ** 2 - 240 * tE ** 3 + 64 * tE ** 4
+        term2 = 3 * (16 * tE ** 2 + 28 * tE - 9)
+    
+        f_I = numerator * term1 + numerator * term2 * jnp.arcsin(jnp.sqrt(E)) / jnp.sqrt(tE * (1 - tE))
+        
+        return jnp.log(f_I)
+        
 
 class Gaussians(JaxPotential):
     r'''
@@ -984,6 +1027,7 @@ class Plummer(JaxPotential):
         vz = out * np.cos(theta)
 
         v = np.sqrt(vx**2+vy**2+vz**2)
+        vr = (x*vx+y*vy+z*vz)/r
         if evolve:
             import astropy.units as u
             w0 = gd.PhaseSpacePosition(pos=pos, vel=vel)
@@ -1009,8 +1053,76 @@ class Plummer(JaxPotential):
               
             except:
                 print('Error saving file, use abosulte path in fileName')
-        return r,v
+        return np.c_[x,y,z,vx,vy,vz]
 
+    def sample_w_emcee(self,N:int, evolve=False,save=False,fileName='./out.txt') -> np.ndarray:
+        '''
+        Use emcee to generate samples from a plummer sphere.
+        Since you can easily generate samples from a plummer sphere using different methods, i'll use this as a test and compare the results between both methods
+
+        Parameters
+        ----------
+        N : int
+            _description_
+        evolve : bool, optional
+            _description_, by default False
+        save : bool, optional
+            _description_, by default False
+        fileName : str, optional
+            _description_, by default './out.txt'
+
+        Returns
+        -------
+        np.ndarray
+            _description_
+        '''
+
+        def E_plummer(w,M,b):
+            x = w[:3]
+            v = w[3:]
+            r = np.linalg.norm(x)
+            E = Plummer._potential(r,M,b) + 0.5*np.dot(v,v)
+            return 7*np.log(-E)/2
+
+        def log_prior(w,M,b):
+            x = w[:3]
+            v = w[3:]
+            r = np.linalg.norm(x)
+
+            Energy = Plummer._potential(r,M,b) + 0.5*np.dot(v,v)
+
+            if (Energy < 0) and (r < 70):
+                # TODO: must change r < 70 to something like r < r_200, also include v_esc?s
+                return 0
+            return -np.inf
+
+
+        def log_probability(theta,M,b):
+            lp = log_prior(theta,M,b)
+            if not np.isfinite(lp):
+                return -np.inf
+            return lp + E_plummer(theta,M,b)
+        
+        import emcee
+        ndim = 6
+        nwalkers = 32
+        p0 = np.random.rand(nwalkers, ndim) # need to make p0 better
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=[self._M,self._a])
+        state = sampler.run_mcmc(p0, 5000)
+        sampler.reset()
+        sampler.run_mcmc(state,N)
+        samples = sampler.get_chain(flat=True)
+        print(
+            "Mean acceptance fraction: {0:.3f}".format(
+                np.mean(sampler.acceptance_fraction)
+            )
+        )
+        print(
+            "Mean autocorrelation time: {0:.3f} steps".format(
+                np.mean(sampler.get_autocorr_time())
+            )
+        )
+        return samples
 
     def probability(self, x: np.ndarray) -> np.ndarray:
         '''
