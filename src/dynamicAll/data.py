@@ -237,6 +237,8 @@ class DCJLData(Data):
         # Additional information
         self._feh    = self.halo.s['feh']   
         self._tForm  = self.halo.s['tform']
+
+        super().__init__()
         
     def mass_bspline(self):
         return -1
@@ -288,14 +290,11 @@ class DCJLData(Data):
         
         return self._labels['feh']
 
+
     def Lum(sim,band='v'):
         sun_abs_mag = {'u':5.56,'b':5.45,'v':4.8,'r':4.46,'i':4.1,'j':3.66,
                         'h':3.32,'k':3.28}[band]
         return 10.0 ** ((sun_abs_mag - sim.star[band + '_mag']) / 2.5)
-
-
-
-
 
 class MockData(Data):
     def __init__(self,dataSet):
@@ -321,6 +320,18 @@ class MockData(Data):
         self._vz = jnp.array(dataSet['vz'])
         self.N_star = len(self._x)
 
+        try:
+            vel_error = jnp.array(dataSet['error'])
+        except:
+            # set all of them to None        self._vlos   = jnp.array(dataSet['z'])
+            self. d_vlos = None
+            self.d_vr   = None
+            self.d_vtheta = None
+            self.d_vphi = None
+            self.d_pmr = None
+            self.d_pmt = None
+
+
         # Spherical
         try:
             self._r      = jnp.array(dataSet['r'])   
@@ -339,10 +350,19 @@ class MockData(Data):
             self.cylindrical()
         
         # `Projected' -- choose 'z' direction to be line-of-sight
-        self._vlos  = jnp.array(dataSet['z'])
+        self._vlos   = jnp.array(dataSet['vz'])
+        
         self. d_vlos = jnp.array(dataSet['error'])
+        
+        self.d_vr   = jnp.sqrt(jnp.array(3*dataSet['error']**2))
+        self.d_vtheta = self.d_vr
+        self.d_vphi = self.d_vr
+        self.d_pmr = self.d_vr
+        self.d_pmt = self.d_vr
 
         # errors on observations
         self._error = jnp.array(dataSet['error'])
+
+        super().__init__()
 
 

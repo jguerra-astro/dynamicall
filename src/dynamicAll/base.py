@@ -33,7 +33,6 @@ from jax import random
 from typing import Callable
 import emcee
 
-# xmass,wmass  = np.loadtxt('/Users/juan/phd/projects/dynamicAll/src/data/gausleg_100',delimiter=',')
 xmass,wmass = np.polynomial.legendre.leggauss(100)
 xmass = jnp.array(xmass)
 wmass = jnp.array(wmass)
@@ -42,7 +41,7 @@ x,w = np.polynomial.legendre.leggauss(100) # are these tabulated -- does it take
 
 x,w = jnp.array(x),jnp.array(w)
 
-
+from . import models
 
 class JaxPotential(ABC):
     '''
@@ -59,7 +58,9 @@ class JaxPotential(ABC):
     -------
     _type_
         _description_
-    '''    
+    '''
+    _tracer_priors = {}    
+    _dm_priors = {}
     @abstractmethod
     def density(self,r):
         pass
@@ -223,7 +224,7 @@ class JaxPotential(ABC):
                 r_range=[0,np.inf],
                 v_range = [0,None],
                 nwalkers:int =32,
-                N_burn:int = 5000
+                N_burn:int = 10_000
                 ) -> np.ndarray:
         '''
         Use emcee to generate samples of :math:`vec{w} = (\vec{x},\vec{v}) from the distribution function f(vec{w}) = f(E)`
@@ -238,7 +239,13 @@ class JaxPotential(ABC):
         np.ndarray
             _description_
         '''
-        df = self.DF
+        G = 4.30091e-6 # gravitational constant in units of kpc km^2 s^-2 Msol^-1
+        def df(w):
+            x = w[:3]
+            v = w[3:]
+            r = np.linalg.norm(x)
+            E = self.potential(r) + 0.5*np.dot(v,v)
+            return self.logDF(E)
 
         def log_prior(w):
             x = w[:3]
@@ -247,36 +254,48 @@ class JaxPotential(ABC):
 
             Energy = self.potential(r) + 0.5*np.dot(v,v)
 
-            if (Energy < 0) and (r < np.inf):
+            # if (Energy < 0) and (Energy > -G*self._M/self._a): and (r < 50):
+            if (Energy < 0) and (r < 70) and (r > 1e-3):
                 # TODO: must change r < 70 to something like r < r_200, also include v_esc?s
                 return 0
             return -np.inf
 
 
         def log_probability(w):
+
             lp = log_prior(w)
             if not np.isfinite(lp):
                 return -np.inf
             return lp + df(w)
 
         ndim = 6
-        p0 = np.random.rand(nwalkers, ndim) # need to make p0 better
+        r_temp = np.logspace(-3,1,nwalkers)
+        # print(r_temp.shape)
+        v_temp = self.v_circ(r_temp)
+
+        x,y,z = self.spherical_to_cartesian(r_temp)
+        vx,vy,vz = self.spherical_to_cartesian(v_temp) 
         
+        p0 = np.array([x,y,z,vx,vy,vz]).reshape(nwalkers,ndim)
+
+
+        # p0 = np.random.rand(nwalkers, ndim) # need to make p0 better
+        # print(p0.shape)
         sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability)
-        state = sampler.run_mcmc(p0, N_burn)
+        state = sampler.run_mcmc(p0, N_burn,progress=True)
         sampler.reset()
-        sampler.run_mcmc(state,N)
+        sampler.run_mcmc(state,N,progress=True)
         samples = sampler.get_chain(flat=True)
-        print(
-            "Mean acceptance fraction: {0:.3f}".format(
-                np.mean(sampler.acceptance_fraction)
-            )
-        )
-        print(
-            "Mean autocorrelation time: {0:.3f} steps".format(
-                np.mean(sampler.get_autocorr_time())
-            )
-        )
+        # print(
+        #     "Mean acceptance fraction: {0:.3f}".format(
+        #         np.mean(sampler.acceptance_fraction)
+        #     )
+        # )
+        # print(
+        #     "Mean autocorrelation time: {0:.3f} steps".format(
+        #         np.mean(sampler.get_autocorr_time())
+        #     )
+        # )
         return samples
 
     def spherical_to_cartesian(self,quantity):
@@ -362,7 +381,15 @@ class JaxPotential(ABC):
         f_abel = lambda y,q: -1*dfunc(y)/jnp.sqrt(y**2-q**2)/jnp.pi
         
         return np.sum(wk*f_abel(r/jnp.sin(xk),r)*r*jnp.cos(xk)/jnp.sin(xk)**2,axis=0)
-    
+
+    @classmethod
+    def get_tracer_priors(cls):
+        return cls.tracer_priors
+
+    @classmethod
+    def get_dm_priors(cls):
+        return cls.dm_priors
+      
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
     def _peri(cls,pars,x0,v0):
@@ -459,52 +486,123 @@ class JaxPotential(ABC):
         L_phi = x[0]*v[1] - x[1]*v[0]
         return L_phi
 
-    @classmethod
-    def infer(cls,model,data,errors):
-        rng_key = random.PRNGKey(0)
-        rng_key, rng_key_ = random.split(rng_key)
+    # @property
+    # def tracer_priors(self):
+    #     return self._tracer_priors.copy()
 
-        # Run NUTS.
-        kernel = NUTS(model)
-        num_samples = 5000
-        mcmc = MCMC(kernel, num_warmup=1000,  num_samples=num_samples)
-        mcmc.run(rng_key_,data= data,error=errors)
-        mcmc.print_summary()
-        samples_1 = mcmc.get_samples()
+    # @tracer_priors.setter
+    # def tracer_priors(self, priors):
+    #     self._tracer_priors = priors
 
-        return -1
+    # @property
+    # def default_priors(self):
+    #     return self._default_priors.copy()
 
-
+    # @default_priors.setter
+    # def default_priors(self, priors):
+    #     self._default_priors = priors
 
 class Data:
 
-    def dispersion_i(
-        self,
-        component: str,
+    def __init__(self):
+        
+        # define component map -- this will make call to the dispersion function easier see docs for dispersion_i
+        self._component_map = {
+            'radial': (self._r, self._vr, self.d_vr),
+            'theta' : (self._r, self._vtheta, self.d_vtheta),
+            'phi'   : (self._r, self._vphi, self.d_vphi),
+            'los'   : (self._R, self._vlos, self.d_vlos),
+            'pmr'   : (self._R, self._pmr, self.d_pmt),
+            'pmt'   : (self._R, self._pmt, self.d_pmr)
+        }
+
+        if self._r is None:
+            warnings.warn("The '_r' component is not defined.\nOnly project moments may be available.")
+
+        if self._pmr is None or self._pmt is None:
+            warnings.warn("'pmr' and 'pmt' components are not defined.\nVelocity dispersion for these components will not be available.\n only 'los' moment will be available")
+        
+        self._cached_dispersion = {}  # Initialize cache dictionary if it doesn't exist # could put this in an __init__function
+
+        required_components = ('_r', '_vr', '_vtheta', '_vphi', '_R', '_vlos', '_pmr', '_pmt')
+        if any(getattr(self, comp) is None for comp in required_components):
+            warnings.warn("Some required instance variables are not defined.\nThis will limit the functionality of this function.") 
+
+    def dispersion_i(self,
+        component: str = 'los',
         binfunc  : Callable = histogram,
         bins = 'blocks'):
+        r'''
+        Calculate the dispersion of a given component e.g
+
+        r_center,dispersion_i, dispersion_i_err = dispersion_i('los')
+
+        Parameters
+        ----------
+        component : str, optional
+            The component for which to calculate the dispersion.
+            Available components: 'radial', 'theta', 'phi', 'los', 'pmr', 'pmt'.
+            Defaults to 'los'.
+        binfunc : Callable, optional
+            function used to bin data, by default histogram.
+            As in astropy.stats.histogram
+        bins : int or sequence of scalars or str, optional
+            bin edges, by default 'blocks'
+
+        Returns
+        -------
+        result : tuple
+        A tuple containing three values:
+            - r_center : array
+              The center values for the dispersion bins.
+            - dispersion_i : array
+              The calculated dispersion for the specified component.
+            - dispersion_error : array
+              The uncertainty associated with the dispersion calculation.
+
+        Raises
+        ------
+        Warning
+            If the component type is unknown or missing.
+
+        Notes
+        -----
+        - This function utilizes caching to store and reuse previously calculated dispersion results.
+
+        Examples
+        --------
+        >>> # Use mock data set
+        >>> dataSet = pd.read_csv('data/gs010_bs050_rcrs025_rarcinf_cusp_0064mpc3_df_1000_3_err.dat')
+        >>> error = np.full_like(dataSet['x'],2.0)
+        >>> # append error to dataSet
+        >>> dataSet['error'] = error
+        >>> obj = data.Mockdata(dataset)
+        >>> r_center, dispersion_i, dispersion_error = obj.dispersion_i('radial')
+        >>> r_center, dispersion_default, dispersion_error = obj.dispersion_i()  # Calculate dispersion for the default component ('los')
+        '''
         
-        component = component.casefold() # in case theres capitals or something
+        component = component.casefold() # Just in case there's random capitalizations by the user
+
+        if component in self._cached_dispersion:
+            return self._cached_dispersion[component]
         
-        # return self.dispersion(self.pos['component'],self.vel)
-        
-        match component:
-            case 'radial':
-                return self.dispersion(self._r,self._vr,self.d_vr,component,binfunc=binfunc,bins=bins)
-            case 'theta':
-                return self.dispersion(self._r,self._vtheta,self.d_vtheta,component,binfunc=binfunc,bins=bins)
-            case 'phi':
-                return self.dispersion(self._r,self._vphi,self.d_vphi,component,binfunc=binfunc,bins=bins)
-            case 'los':
-                return self.dispersion(self._R,self._vlos,self.d_vlos,component,binfunc=binfunc,bins=bins)
-            case 'pmr':
-                return self.dispersion(self._R,self._pmr,self.d_pmt,component,binfunc=binfunc,bins=bins)
-            case 'pmt':
-                return self.dispersion(self._R,self._pmt,self.d_pmr,component,binfunc=binfunc,bins=bins)
-            case _:
-                print('Uknown or missing component type')
+        required_components = ('_r', '_vr', '_vtheta', '_vphi', '_R', '_vlos', '_pmr', '_pmt')
+        if any(getattr(self, comp) is None for comp in required_components):
+            warnings.warn("Some required instance variables are not defined.\nThis will limit the functionality of this function.") 
+
+
+
+        if component in self._component_map:
+            data = self._component_map[component]
+            out = self.dispersion(*data, component, binfunc=binfunc, bins=bins)
+            self._cached_dispersion[component] = out
+            return out 
+        else:
+            warnings.warn('\nUnknown or missing component type.\n make sure you have the right data in order to calculate this component of the dispersion')
+
+        return None  # Optionally return a value if needed
     
-    def dispersion(self,ri,vi,d_vi,component, binfunc: Callable = histogram,bins='blocks'):
+    def dispersion(self,ri,vi,d_vi,component=None, binfunc: Callable = histogram,bins='blocks'):
         '''
         calculates the dispersion of velocity component, v_i at radii r
         -- or at project radius R. Also calcualtes the 
@@ -527,20 +625,31 @@ class Data:
         
         Notes
         -----
-        TODO: Figure out how to make this cleaner
+        TODO: make this a static class method
 
         '''
-        N, bin_edges = binfunc(ri.value,bins = bins)
-        r_center     = .5*(bin_edges[:-1]+ bin_edges[1:]) 
-        self.bin_edges[component] = bin_edges
-        meanv = jnp.mean(vi) # Probably shouldn't assume that v_{com} = 0
-        mu,_,bin_numbers   = binned_statistic(ri.value,(meanv- vi)**2,'mean',bins=self.bin_edges[component])
-        s2_error = self.dispersion_errors(ri,vi,component,1000,N,error=d_vi)
-        s_error = s2_error/2/np.sqrt(mu)
-        
-        return r_center,np.sqrt(mu), s_error
+        # first bin positions -- Note: this will only take anytime the first time this function is run -- results are then cached
+        N, bin_edges = binfunc(ri,bins = bins)
 
-    def dispersion_errors(self,ri,vi,component,Nmonte:int,Nbins,error=None):
+        r_center     = .5*(bin_edges[:-1]+ bin_edges[1:]) # Using the center of the bins seems like an ok method -- a mean or median might be better though
+
+        meanv = jnp.mean(vi) # Probably shouldn't assume that v_{com} = 0
+        # alternatively could do
+        # meamnv,_,bin_numbers   = binned_statistic(ri, vi,'mean',bins=bin_edges)
+        # then calculate dispersion as <v_i**2> - <v_i>**2
+
+        # calculate velocity dispersion as <(v_i - <v_i>)**2>
+        mu,_,bin_numbers   = binned_statistic(ri,(meanv- vi)**2,'mean',bins=bin_edges)
+        
+        # Estimate errors using bootstrap resampling
+   
+        s2_error = self.dispersion_errors(ri,vi,d_vi,component,bin_edges,1000,N,error=d_vi)
+    
+        s_error = s2_error/2/np.sqrt(mu) # error on the dispersion
+        
+        return jnp.array(r_center),jnp.sqrt(mu), jnp.array(s_error)
+
+    def dispersion_errors(self,ri,vi,d_vi,component,bin_edges,Nmonte:int,Nbins,error=None):
         '''
         Very Basic Error calculation for dispersion
 
@@ -568,19 +677,46 @@ class Data:
             # centered at the measured velocity with a sigma = observational error
             vlos_new = vi + error*np.random.normal(size=N)
             #next calculate the dispersion of the new velocities
-            mu,_,_   = binned_statistic(ri,(meanv-vlos_new)**2,'mean',bins=self.bin_edges[component])
+            mu,_,_   = binned_statistic(ri,(meanv-vlos_new)**2,'mean',bins=bin_edges)
             stemp[i] = mu
         
         meanv = jnp.mean(vi) # Probably shouldn't assume that v_{com} = 0
-        mu,_,bin_numbers   = binned_statistic(ri.value,(meanv- vi)**2,'mean',bins=self.bin_edges[component])
-        N,_,bin_numbers   = binned_statistic(ri.value,ri.value,'count',bins=self.bin_edges[component])
+        mu,_,bin_numbers   = binned_statistic(ri,(meanv- vi)**2,'mean',bins=bin_edges)
+        N,_,bin_numbers   = binned_statistic(ri,ri,'count',bins=bin_edges)
 
         # Get standard deviation of the Nmonte iterations
         mError = np.std(stemp,axis=0)
         # Add Poisson error
-        self.s_error = np.sqrt(mError**2 + mu**2/N)
+        self.s_error = np.sqrt(mError**2 + mu**2/N + self._error[0]**2)
         return self.s_error
     
+    def plot_dispersion_i(self,component=None,binfunc: Callable = histogram,bins='blocks',ax=None,fig=None):
+
+        if component in self._cached_dispersion:
+            r_center,dispersion,dispersion_error = self._cached_dispersion[component]
+
+        else:
+            r_center, dispersion,dispersion_error = self.dispersion_i(component)
+
+        # fig,ax = plt.subplots()
+        ax.step(r_center,dispersion,where='mid')
+        ax.errorbar(r_center,dispersion,yerr=dispersion_error,fmt='none',ecolor='k',elinewidth=1.5)
+        ax.set(
+            xscale = 'log',
+            xlabel = 'R [kpc]',
+            ylabel =r'$\sigma_{los}$ [km/s]',
+            ylim   = (0,20),
+        );  
+
+    def plot_spatial(self,component):
+        fig, ax =plt.subplots(ncols =2,nrows=2)
+        ax = ax.flatten()
+        component = component.lower()
+        
+
+
+
+
     def fourth_moment(self,ri,vi,d_vi,binfunc: Callable = histogram, bins ='blocks'):
         
         N, bin_edges = binfunc(ri,bins = bins)
@@ -619,23 +755,21 @@ class Data:
         '''
         if dim==3:
             try: 
-                N,bin_edges = bin_method(self.r,bins =self.bin_edges)
-                v_shell = (4/3)*np.pi*(bin_edges[1:]**3 - bin_edges[:-1]**3)
-                r_center = (np.roll(bin_edges,-1)+bin_edges)[:-1]/2
-                nu = N/v_shell
+                N,bin_edges = bin_method(self._r,bins =self.bin_edges)
             except:
-                N,bin_edges = bin_method(self.r,bins =bins)
-                v_shell = (4/3)*np.pi*(bin_edges[1:]**3 - bin_edges[:-1]**3)
-                r_center = (np.roll(bin_edges,-1)+bin_edges)[:-1]/2
-                nu = N/v_shell
+                N,bin_edges = bin_method(self._r,bins =bins)
+
+            v_shell = (4/3)*np.pi*(bin_edges[1:]**3 - bin_edges[:-1]**3)
+            r_center = (np.roll(bin_edges,-1)+bin_edges)[:-1]/2
+            nu = N/v_shell
         else:
             try:
-                N,bin_edges= bin_method(self.R.value,bins =self.bin_edges)
+                N,bin_edges= bin_method(self._R,bins =self.bin_edges)
                 v_shell = np.pi*(bin_edges[1:]**2 - bin_edges[:-1]**2)
                 r_center = (np.roll(bin_edges,-1)+bin_edges)[:-1]/2
                 nu = N/v_shell
             except:
-                N,bin_edges = bin_method(self.R.value,bins =self.bin_edges)
+                N,bin_edges = bin_method(self._R,bins =bins)
                 v_shell = np.pi*(bin_edges[1:]**2 - bin_edges[:-1]**2)
                 r_center = (np.roll(bin_edges,-1)+bin_edges)[:-1]/2
                 nu = N/v_shell  
@@ -932,6 +1066,11 @@ class Data:
         c = -2*beta
         M_jeans = (np.array(vr_fit) * q_eval / G) * (np.array(a) + np.array(b) + np.array(c))
         return q_eval,np.array(M_jeans)
+
+
+
+
+
 
 def rho_eval(S, r):
     r'''

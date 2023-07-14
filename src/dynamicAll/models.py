@@ -1,41 +1,36 @@
 #third-party imports
+from functools import partial
 from typing import Callable
+
+import astropy.units as u
 import jax
 import jax.numpy as jnp
-from jaxopt import Bisection
 import numpy as np
-import astropy.units as u
 import scipy.special as sc
-from scipy.integrate import quad
 from jax._src.config import config
-from functools import partial
+from jaxopt import Bisection
+from scipy.integrate import quad
+
 config.update("jax_enable_x64", True)
 
 
-from scipy.integrate import quad
-from scipy.integrate import fixed_quad
+from typing import Union
+
 import arviz as az
+import corner
 import numpyro
 import numpyro.distributions as dist
-from numpyro.diagnostics import summary
-
-from numpyro.infer import MCMC, NUTS
 from jax import random
-import corner
+from numpyro.diagnostics import summary
+from numpyro.infer import MCMC, NUTS
+# TODO: Removed these
+from scipy.integrate import fixed_quad, quad
 
-from typing import Union
 # project 
 from . import abel
-from .base import JaxPotential
 from . import distributions as jdists
+from .base import JaxPotential
 
-# TODO: Removed these
-from scipy.integrate import quad
-from scipy.integrate import fixed_quad
-
-#? What other classes should be here?
-# TODO: Some of the static methods in plummer, don't need to be there so i should get rid of them?
-# TODO: Gross gotta clean thise up...
 
 x, w = np.polynomial.legendre.leggauss(256) #TODO: Find a better way to set this.
 
@@ -49,6 +44,69 @@ def centre(r:float,x0:jnp.ndarray,v0:jnp.ndarray,M:float,b:float) -> float:
     r0     = jnp.linalg.norm(x0,axis=0)
     energy =  T + Isochrone._potential(M,b,r0)  # total energy
     return 2*r**2 *(energy - Isochrone._potential(M,b,r)) - jnp.dot(L,L) 
+
+
+
+class Hernquist(JaxPotential):
+    
+    def __init__(self, M:float, a:float):
+        self._M = M
+        self._a = a
+
+    def density(self, r:Union[float,jnp.ndarray]) -> Union[float,jnp.ndarray]:
+        _units = self._M/2/jnp.pi/self._a**3
+        q = r/self._a         
+        return _units/q/(1+q)**3
+
+    def mass(self, r:Union[float,jnp.ndarray]) -> Union[float,jnp.ndarray]: 
+        _units = self._M
+        q = r/self._a
+        return _units* q**2/(1+q)**2
+
+    def potential(self, r:Union[float,jnp.ndarray]) -> Union[float,jnp.ndarray]:
+        q = r/self._a
+        G =  4.300917270036279e-06 
+        _units = -G*self._M/self._a
+        return _units/(1+q)
+
+    def v_circ(self, r:Union[float,jnp.ndarray]) -> Union[float,jnp.ndarray]:
+        G =  4.300917270036279e-06 
+        return jnp.sqrt(G*self._M*r)/(r+self._a)
+
+    def dispersion(self, r:Union[float,jnp.ndarray]) -> Union[float,jnp.ndarray]:
+        G =  4.300917270036279e-06 
+        term1 =  G*self._M/(12*self._a)
+        term2 = 12*r*(r+self._a)**3*np.log((r+self._a)/r)/self._a**4
+        term3 = -r/(r+self._a) * (25 + 52*r/self._a + 42*(r/self._a)**2 + 12*(r/self._a)**3) 
+        return  term1 *(term2 + term3)
+
+    def logDF(self,E):
+        '''
+        log of the DF for the Hernquist profile -- Note this is not normalized.
+        This is just meant to be used with the MCMC sampler.
+
+        Parameters
+        ----------
+        E : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        '''
+        G =  4.300917270036279e-06 
+        q = jnp.sqrt(-self._a * E/(G*self._M))
+
+        term1 = (1-q**2)**(-5/2)
+        term2 = 3*jnp.arcsin(q) + q*(1-q**2)**(1/2)*(1-2*q**2)*(8*q**4-8*q**2-3)
+        return np.log(term1*term2)
+
+
+
+
+    
+
 
 class HernquistZhao(JaxPotential):
     r'''
@@ -83,6 +141,27 @@ class HernquistZhao(JaxPotential):
     Zhao 1996      : http://dx.doi.org/10.1093/mnras/278.2.488
 
     '''
+
+    rhos: float
+    rs: float
+    a: float
+    b: float
+    c: float
+    tracer_priors = {
+        'rhos' : dist.LogNormal(0.0, 1.0),
+        'rs'   : dist.LogNormal(0.0, 1.0),
+        'a'    : dist.Uniform(0.0, 1.0),
+        'b'    : dist.Uniform(0.0, 1.0),
+        'c'    : dist.Uniform(0.0, 1.0),
+    }#TODO: make sure these priors are within physical limits
+
+    dm_priors = {
+        'rhos' : dist.LogNormal(0.0, 1.0),
+        'rs'   : dist.LogNormal(0.0, 1.0),
+        'a'    : dist.Uniform(0.0, 1.0),
+        'b'    : dist.Uniform(0.0, 1.0),
+        'c'    : dist.Uniform(0.0, 1.0),
+    }
 
     def __init__(self,rhos: float,rs: float,a: float,b: float,c: float):
         
@@ -421,6 +500,14 @@ class NFW(JaxPotential):
         scale radius :math:`r_{s}`
     
     '''
+    rhos: float
+    rs: float
+
+    dm_priors = {
+        'rhos': dist.LogUniform(1e-3,1e3),
+        'rs': dist.LogUniform(1e-3,1e3)
+    }
+
     def __init__(self,rhos: float,rs: float):
         self._rhos   = rhos
         self._rs     = rs
@@ -611,7 +698,7 @@ class Isochrone(JaxPotential):
         
         return Isochrone._potential(self._M,self._b,r)
 
-    def v_spherical(self,r:float) -> float:
+    def v_circ(self,r:float) -> float:
         '''
         circular speed at radius r B&T Eq 2.49
 
@@ -675,6 +762,9 @@ class Isochrone(JaxPotential):
         bisec2 = Bisection(optimality_fun= centre, lower= r0, upper = 500,check_bracket=True)
         r_apo = bisec2.run(x0=x0,v0=v0,M=self._M,b=self._b).params
         return r_apo
+
+    def dispersion(self,r):
+        pass
 
     @staticmethod
     @jax.jit
@@ -770,8 +860,8 @@ class Isochrone(JaxPotential):
 
         return f_I
 
-    @staticmethod
-    def _DF_emcee(w,M,b):
+    # @staticmethod
+    def logDF(self,E):
         '''
         Distribution function for the Isochrone potential
 
@@ -791,13 +881,15 @@ class Isochrone(JaxPotential):
         float
             distribution function
         '''
-        x = w[:3]
-        v = w[3:]
+        # x = w[:3]
+        # v = w[3:]
+        # G = 4.300917270036279e-06 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
+        # Energy = 0.5 * jnp.dot(v,v) + Isochrone._potential(M,b,jnp.linalg.norm(x))
+        E = -E
+        M =self._M
+        b = self._b
         G = 4.300917270036279e-06 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
-        Energy = 0.5 * jnp.dot(v,v) + Isochrone._potential(M,b,jnp.linalg.norm(x))
-        E = -Energy
-
-        tE = -Energy * b / (G * M)
+        tE = E * b / (G * M)
         denominator = jnp.sqrt(2) * (2 * jnp.pi) ** 3 * (G * M * b) ** (3 / 2)
         numerator = jnp.sqrt(E) / ((2 * (1 - tE)) ** 4)
     
@@ -869,7 +961,6 @@ class Gaussians(JaxPotential):
 class Plummer(JaxPotential):
     r'''
     Class for a spherical Plummer model
-
     .. math::
         \rho(r) = \frac{3M}{4\pi a^3} \left(1+\frac{r^2}{a^2}\right)^{-5/2}
 
@@ -880,6 +971,17 @@ class Plummer(JaxPotential):
     a : float
         scale length | [kpc]
     '''
+    M: float 
+    b: float
+    tracer_priors = {
+        'M':dist.Uniform(0,1e10),
+        'a':dist.Uniform(0,100),
+    }
+
+    dm_priors = {
+        'M':dist.Uniform(0,1e10),
+        'a':dist.Uniform(0,100),
+    }
     def __init__(self,M,a):
         '''
         TODO: implement multiple components
@@ -889,15 +991,75 @@ class Plummer(JaxPotential):
         #calculate density
         self._rho = 3*self._M/(4*np.pi*self._a**3)
         self.G    = 4.300917270036279e-06 #kpc km^2 s^-2 Msun^-1
-    
+
     def density(self,r:np.ndarray)->np.ndarray:
-        
+        '''
+        .. math::
+            \rho(r) = \frac{3M}{4\pi a^3} \left(1+\frac{r^2}{a^2}\right)^{-5/2}
+
+        Parameters
+        ----------
+        r : np.ndarray
+            radii | [kpc]
+
+        Returns
+        -------
+        np.ndarray
+            density | :math:`[M_{\odot} kpc^{-3}]`
+        '''
         return Plummer._density(r,self._M,self._a)
 
+    def dispersion(self,r:np.ndarray)->np.ndarray:
+        '''
+        .. math::
+            \sigma_{r}^{2}(r) = \frac{GM}{6\sqrt{r^2+a^2}}
+
+        Parameters
+        ----------
+        r : np.ndarray
+            radii | [kpc]
+
+        Returns
+        -------
+        np.ndarray
+            dispersion :math:`sigma_{r}^{2}` | :math:`[km^{2} s^{-2}]`
+        '''
+        return Plummer._dispersion(r,self._M,self._a)
+
     def mass(self,r:np.ndarray)-> np.ndarray:
+        '''
+        Mass enclosed within radius r
+
+        .. math::
+            M(r) = \frac{M r^3}{(r^2+a^2)^{3/2}}
+
+        Parameters
+        ----------
+        r : np.ndarray
+            radii | [kpc]
+
+        Returns
+        -------
+        np.ndarray
+            _description_
+        '''
         return Plummer._mass(self._M,self._a,r)
     
     def potential(self,r:jnp.ndarray)->jnp.ndarray:
+        '''
+        .. math::
+            \Phi(r) = -\frac{GM}{\sqrt{r^2+a^2}}
+
+        Parameters
+        ----------
+        r : jnp.ndarray
+            _description_
+
+        Returns
+        -------
+        jnp.ndarray
+            _description_
+        '''
         return Plummer._potential(r,self._M,self._a)
 
     def projected_density(self,R: np.ndarray) -> np.ndarray:
@@ -1024,10 +1186,16 @@ class Plummer(JaxPotential):
                 print('Error saving file, use abosulte path in fileName')
         return np.c_[x,y,z,vx,vy,vz]
 
-    def sample_w(self,N:int, evolve=False,save=False,fileName='./out.txt') -> np.ndarray:
+    def sample_w(self,
+                N:int, 
+                evolve=False,
+                save=False,
+                fileName='./out.txt'
+                ) -> np.ndarray:
         '''
         Use emcee to generate samples from a plummer sphere.
-        Since you can easily generate samples from a plummer sphere using different methods, i'll use this as a test and compare the results between both methods
+        Since you can easily generate samples from a plummer sphere using different methods, 
+        i'll use this as a test and compare the results between both methods
 
         Parameters
         ----------
@@ -1077,7 +1245,7 @@ class Plummer(JaxPotential):
         nwalkers = 32
         p0 = np.random.rand(nwalkers, ndim) # need to make p0 better
         sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=[self._M,self._a])
-        state = sampler.run_mcmc(p0, 5000)
+        state = sampler.run_mcmc(p0, 10000)
         sampler.reset()
         sampler.run_mcmc(state,N)
         samples = sampler.get_chain(flat=True)
@@ -1103,7 +1271,7 @@ class Plummer(JaxPotential):
         '''
         return 2*np.pi*x * self.projection(x,1,self._a)
 
-    def DF(self,E):
+    def logDF(self,E):
         '''
         Distribution function for a Plummer shere
 
@@ -1112,15 +1280,77 @@ class Plummer(JaxPotential):
             \frac{24\sqrt{2}}{7\pi^3}
             \frac{a^2}{G^5 M^4}(-E)^{7/2}
         '''
-        G = 4.302e-6 #kpc km^2 s^-2 Msun^-1
-        # return 24*np.sqrt(2)/(7*np.pi**3) * self._a**2 / (G**5 * self._M**4) * (-E)**(7/2)
-        return (-E)**(7/2)
+        return 7*np.log(-E)/2
+
+    # @property
+    # def tracer_priors(self):
+    #     return self._tracer_priors.copy()
+
+    # @tracer_priors.setter
+    # def tracer_priors(self, priors):
+    #     self._tracer_priors = priors
+
+
+    # @property
+    # def default_priors(self):
+    #     return self._default_priors.copy()
+
+    # @default_priors.setter
+    # def default_priors(self, priors):
+    #     self._default_priors = priors
+
+
+    @staticmethod
+    def _density(r: np.ndarray,M: float,a: float) -> np.ndarray:
+        '''
+        Making these static methods for fitting purposes
+
+        Parameters
+        ----------
+        r : np.ndarray
+            radius : np.sqrt(x**2+y**2 + z**2)
+        M : float
+            _description_
+        a : float
+            _description_
+
+        Returns
+        -------
+        np.ndarray
+            _description_
+        '''
+        q     = r/a
+        coeff = 3*M/(4*np.pi*a**3)
+        
+        return coeff * (1+q**2)**(-5/2)
+
+    @staticmethod
+    def _dispersion(r: np.ndarray,M: float,a: float) -> np.ndarray:
+        '''
+        velocity dispersion
+
+        Parameters
+        ----------
+        r : np.ndarray
+            radii | :math:`[kpc]`
+        M : float
+            mass | :math:`[M_{\odot}]`
+        a : float
+            scale radius :math:`[kpc]`
+
+        Returns
+        -------
+        np.ndarray
+            velocity dispersion at r | :math:`[km^{2}s^{-2}]`
+        '''
+        G    = 4.300917270036279e-06 #kpc km^2 s^-2 Msun^-1
+        return G*M/jnp.sqrt(r**2+a**2)/6
 
     @staticmethod
     def from_scale_density_radius(rho: float, a:float):
         '''
         Alternate way to create instance of Plummer model from
-        scale density and raidus
+        scale density and radius
         '''
         M = (rho*4*np.pi*a**3)/3
         return Plummer(M,a) 
@@ -1148,30 +1378,6 @@ class Plummer(JaxPotential):
         term2 = (x**2 + a**2)**(3/2)
         return term1/term2
 
-    @staticmethod
-    def _density(r: np.ndarray,M: float,a: float) -> np.ndarray:
-        '''
-        Making these static methods for fitting purposes
-
-        Parameters
-        ----------
-        r : np.ndarray
-            radius : np.sqrt(x**2+y**2 + z**2)
-        M : float
-            _description_
-        a : float
-            _description_
-
-        Returns
-        -------
-        np.ndarray
-            _description_
-        '''
-        q     = r/a
-        coeff = 3*M/(4*np.pi*a**3)
-        
-        return coeff * (1+q**2)**(-5/2)
-    
     @staticmethod
     def _potential(r: jnp.ndarray,M: float, a: float) -> jnp.ndarray:
         '''
@@ -1811,13 +2017,47 @@ class gOM:
         return (r**2+a**2)**alpha
 
 class Anisotropy:
-
+    _priors = {}
     def beta(self):
         pass
     def f_beta(self):
         pass
 
-class OsipkovMerrit(Anisotropy):
+    @classmethod
+    def get_priors(cls):
+        return cls._priors
+
+
+class BetaConstant(Anisotropy):
+    r'''
+    Constant anisotropy profile
+
+    .. math::
+        \beta(r) = \beta_0
+
+    Parameters
+    ----------
+    beta0 : float
+        _description_
+    '''
+    beta0: float
+
+    anisotropy_prior = {
+        'beta0': dist.Uniform(-5,1)
+        }
+
+    def __init__(self,beta0):
+        self._beta0 = beta0
+
+    @staticmethod
+    def beta(r,beta0):
+        return beta0
+
+    @staticmethod
+    def f_beta(r,beta0):
+        return 1
+
+class BetaOsipkovMerrit(Anisotropy):
     r'''
     Osipkov-Merrit anisotropy profile
 
