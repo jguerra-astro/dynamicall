@@ -32,6 +32,7 @@ from jax.lax import scan
 from jax import random
 from typing import Callable
 import emcee
+from scipy.optimize import curve_fit
 
 xmass,wmass = np.polynomial.legendre.leggauss(100)
 xmass = jnp.array(xmass)
@@ -61,6 +62,7 @@ class JaxPotential(ABC):
     '''
     _tracer_priors = {}    
     _dm_priors = {}
+
     @abstractmethod
     def density(self,r):
         pass
@@ -173,9 +175,10 @@ class JaxPotential(ABC):
         -----
         This doesnt really belong here -- at least not in this structure
         '''
+        x = jnp.atleast_1d(x)
         rho_crit = 133.3636319527206 # critical density from astropy's WMAP9 with units [solMass/kpc**3]
         Delta    = 200.0
-        return self.mass(x)/(4*jnp.pi*(x**3)/3) - Delta*rho_crit
+        return self.mass(x)[0]/(4*jnp.pi*(x[0]**3)/3) - Delta*rho_crit
     
     def r200(self):
         '''
@@ -239,7 +242,7 @@ class JaxPotential(ABC):
         np.ndarray
             _description_
         '''
-        G = 4.30091e-6 # gravitational constant in units of kpc km^2 s^-2 Msol^-1
+        G = 4.300917270036279e-06 # gravitational constant in units of kpc km^2 s^-2 Msol^-1
         def df(w):
             x = w[:3]
             v = w[3:]
@@ -255,7 +258,7 @@ class JaxPotential(ABC):
             Energy = self.potential(r) + 0.5*np.dot(v,v)
 
             # if (Energy < 0) and (Energy > -G*self._M/self._a): and (r < 50):
-            if (Energy < 0) and (r < 70) and (r > 1e-3):
+            if (Energy < 0) and (r < 70) and (r > 1e-5):
                 # TODO: must change r < 70 to something like r < r_200, also include v_esc?s
                 return 0
             return -np.inf
@@ -296,6 +299,54 @@ class JaxPotential(ABC):
         #         np.mean(sampler.get_autocorr_time())
         #     )
         # )
+        return samples
+
+
+    def sample_w_conditional(
+                self,
+                N:int,
+                # r : array, 
+                nwalkers:int =2,
+                N_burn:int = 5_000):
+
+        G = 4.300917270036279e-06 # gravitational constant in units of kpc km^2 s^-2 Msol^-1
+
+        def df(v,r):
+            E = self.potential(r) + 0.5*np.dot(v,v)
+            return self.logDF(E)
+
+        def log_prior(v,r):
+            Energy = self.potential(r) + 0.5*np.dot(v,v)
+            if (Energy < 0) and (v > 0):
+                return 0
+            return -np.inf
+
+        def log_probability(v,r):
+
+            lp = log_prior(v,r)
+            if not np.isfinite(lp):
+                return -np.inf
+            return lp + df(v,r)
+
+        ndim = 1  
+        r_temp = np.logspace(-3,1,nwalkers)
+        # print(r_temp.shape)
+        v_temp = self.v_circ(r_temp)
+
+        # x,y,z = self.spherical_to_cartesian(r_temp)
+        # vx,vy,vz = self.spherical_to_cartesian(v_temp) 
+        p0 = v_temp
+        # p0 = np.array([x,y,z,vx,vy,vz]).reshape(nwalkers,ndim)
+
+
+        # p0 = np.random.rand(nwalkers, ndim) # need to make p0 better
+        # print(p0.shape)
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability,args=(r,))
+        state = sampler.run_mcmc(p0, N_burn,progress=True)
+        sampler.reset()
+        sampler.run_mcmc(state,N,progress=True)
+        samples = sampler.get_chain(flat=True)
+        vx,vy,vz = self.spherical_to_cartesian(samples) 
         return samples
 
     def spherical_to_cartesian(self,quantity):
@@ -713,10 +764,6 @@ class Data:
         ax = ax.flatten()
         component = component.lower()
         
-
-
-
-
     def fourth_moment(self,ri,vi,d_vi,binfunc: Callable = histogram, bins ='blocks'):
         
         N, bin_edges = binfunc(ri,bins = bins)
@@ -821,8 +868,9 @@ class Data:
         -----
         '''
         chi = np.log(R)        
-        spl = Data.bspline(R)
-        return  0.5*np.exp(spl(chi) - 2*chi)/np.pi
+        spl = Data.bspline(self._R)
+        return  np.exp(spl(chi) - 2*chi)/(2*np.pi)
+        # return  0.5*np.exp(spl(chi))/(R**2*np.pi)
 
     def bspline_3d(self,r: np.ndarray) -> np.ndarray:
         '''
@@ -841,7 +889,7 @@ class Data:
         TODO: clean up notation on this and projected version
         '''        
         chi = np.log(r)
-        spl = Data.bspline(r)
+        spl = Data.bspline(self._r)
         return  0.25*np.exp(spl(chi) - 3*chi)/np.pi
     
     def spherical(self):
@@ -892,6 +940,23 @@ class Data:
         self._vz_test = self._vr*self._R/self._r + self._vtheta*self._z/self._r
         self._pmt     = self._vphi
         # return self._pmr,self._pmt,self._vz_test
+    # @classmethod
+    def fit_projection(self,profile:Callable,p0 =[],bounds=(0,np.inf)):
+        
+        R_center,nu = self.spatial_density()
+        # fit to projected density profile
+        popt,pcov = curve_fit(profile,R_center,nu,bounds=bounds,p0=p0)
+
+        fig,ax = plt.subplots()
+        ax.step(R_center,nu,where='mid',label='data')
+        ax.plot(R_center,profile(R_center,*popt),label='fit')
+        ax.set(
+            xlabel = 'R [kpc]',
+            ylabel =r'$\rm\Sigma(R)~N~kpc^{-3}$',
+            xscale = 'log',
+            yscale = 'log',
+        ); 
+        return fig,ax,popt
 
     def fit_gaussian(self,v_i,error_i,rhalf=None):
         rng_key = random.PRNGKey(0)
@@ -906,6 +971,54 @@ class Data:
         # corner.corner(samples_1,var_names=['mu','sigma','mwolf'],quantiles=[0.16, 0.5, 0.84],show_titles=True,labels=[r'$\mu$',r'$\sigma$',r'$M_{\rm wolf}$'],title_fmt='2.f');
         return samples_1
 
+    def mass_estimator(self,estimator:str = 'Wolf',rhalf=None) -> float:
+        '''
+        Use the average velocity dispersion of your data to estimate the mass at the half-light radius
+        using the estimator of your choice.
+        
+        For radial velocities, you have the option of Wolf, or Walker.
+
+        If your data contains proper motions, you can use the estimator proposed in Errani et al. 2018.
+
+        Parameters
+        ----------
+        rhalf : float
+            The half-light radius of your data.
+        estimator : str, optional
+            The estimator to use. The default is 'Wolf'.
+            Options are:
+                - Wolf
+                - Walker
+                - Errani
+        
+        Returns
+        -------
+        float
+            The mass estimate at the half-light radius.
+        '''
+        # If rhalf is non then check if it is in the data, if not raise an error
+        if rhalf is None:
+            if self._rhalf is None:
+                raise ValueError('rhalf must be specified')
+            else:
+                rhalf = self._rhalf
+        
+        # fit the velocity data to a gaussian using match case to select the estimator
+        match estimator:
+            case 'Wolf':
+                samples = self.fit_gaussian(self._vlos,self._vlos_error,rhalf=rhalf)
+                disp = samples['sigma'].mean()
+
+            case 'Walker':
+                samples = self.fit_gaussian(self._vlos,self._vlos_error,rhalf=rhalf)
+                disp = samples['sigma'].mean()
+
+            case 'Errani': 
+                return -1 
+
+            case _:
+                return -1
+    
     @staticmethod
     def bspline(x:np.ndarray):
         '''
@@ -929,6 +1042,7 @@ class Data:
                 base  = np.exp(1)
                 ) # This make
         chi = np.log(r)
+        # chi = np.linspace(np.log(x.min()), np.log(x.max()), 100)
         spl  = agama.splineLogDensity(chi,q,w=np.full_like(q,1))
         return spl
     
@@ -1087,17 +1201,3 @@ def dlnrho_dlnr_eval(S, r):
     r is point or array of points where rho should be evaluated
     '''
     return (S(np.log(r), der=1) - 3)
-
-
-def run_inference(self, model, num_warmup=1000, num_samples=1000):
-
-    kernel = NUTS(model)
-    mcmc = MCMC(
-        kernel,
-        num_warmup = num_warmup,
-        num_samples= num_samples,
-        num_chains = 1,
-        progress_bar =True
-    )
-    mcmc.run(random.PRNGKey(0))
-    summary_dict = summary(mcmc.get_samples(), group_by_chain=False)

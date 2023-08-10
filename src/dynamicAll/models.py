@@ -32,12 +32,12 @@ from . import distributions as jdists
 from .base import JaxPotential
 
 
-x, w = np.polynomial.legendre.leggauss(256) #TODO: Find a better way to set this.
+x, w = np.polynomial.legendre.leggauss(100) #TODO: Find a better way to set this.
 
 x = jnp.array(x)
 w = jnp.array(w)
 
-def centre(r:float,x0:jnp.ndarray,v0:jnp.ndarray,M:float,b:float) -> float:
+def centre(r:float,x0:jax.Array,v0:jax.Array,M:float,b:float) -> float:
     
     L      = jnp.cross(x0,v0)                   # Angular momentum
     T      = 0.5*jnp.dot(v0,v0)                 # Kinetic energy 
@@ -45,35 +45,48 @@ def centre(r:float,x0:jnp.ndarray,v0:jnp.ndarray,M:float,b:float) -> float:
     energy =  T + Isochrone._potential(M,b,r0)  # total energy
     return 2*r**2 *(energy - Isochrone._potential(M,b,r)) - jnp.dot(L,L) 
 
-
-
 class Hernquist(JaxPotential):
     
     def __init__(self, M:float, a:float):
         self._M = M
         self._a = a
 
-    def density(self, r:Union[float,jnp.ndarray]) -> Union[float,jnp.ndarray]:
+    def density(self, r:Union[float,jax.Array]) -> Union[float,jax.Array]:
         _units = self._M/2/jnp.pi/self._a**3
         q = r/self._a         
         return _units/q/(1+q)**3
 
-    def mass(self, r:Union[float,jnp.ndarray]) -> Union[float,jnp.ndarray]: 
+    def mass(self, r:Union[float,jax.Array]) -> Union[float,jax.Array]: 
         _units = self._M
         q = r/self._a
         return _units* q**2/(1+q)**2
 
-    def potential(self, r:Union[float,jnp.ndarray]) -> Union[float,jnp.ndarray]:
+    def potential(self, r:Union[float,jax.Array]) -> Union[float,jax.Array]:
         q = r/self._a
         G =  4.300917270036279e-06 
         _units = -G*self._M/self._a
         return _units/(1+q)
 
-    def v_circ(self, r:Union[float,jnp.ndarray]) -> Union[float,jnp.ndarray]:
+    def v_circ(self, r:Union[float,jax.Array]) -> Union[float,jax.Array]:
         G =  4.300917270036279e-06 
         return jnp.sqrt(G*self._M*r)/(r+self._a)
 
-    def dispersion(self, r:Union[float,jnp.ndarray]) -> Union[float,jnp.ndarray]:
+    def dispersion(self, r:Union[float,jax.Array]) -> Union[float,jax.Array]:
+        '''
+        Analytic expression for the velocity dispersion of the Hernquist profile.
+        Useful for testing DF sampling.
+        Useful 
+
+        Parameters
+        ----------
+        r : Union[float,jax.Array]
+            
+
+        Returns
+        -------
+        Union[float,jax.Array]
+            _description_
+        '''
         G =  4.300917270036279e-06 
         term1 =  G*self._M/(12*self._a)
         term2 = 12*r*(r+self._a)**3*np.log((r+self._a)/r)/self._a**4
@@ -102,12 +115,41 @@ class Hernquist(JaxPotential):
         term2 = 3*jnp.arcsin(q) + q*(1-q**2)**(1/2)*(1-2*q**2)*(8*q**4-8*q**2-3)
         return np.log(term1*term2)
 
+    def pdf_r(self,r):
+        
+        _units = 2/self._a**3
+        q = r/self._a         
+        return _units*r**2/q/(1+q)**3
+
+class Jaffe(JaxPotential):
+
+    def __init__(self, M:float, a:float):
+        self._M = M
+        self._a = a
+
+    def mass(self,r):
+
+        q= r/self._a
+        return self._M*q/(1+q) 
+
+    def potential(self,r):
+        
+        G = 4.300917270036279e-06 # G in kpc km^2 s^-2 Msun^-1
+        return - G*self._M* jnp.log(1+self._a/r)
 
 
+    def logDF(self,r):
+        '''
+        TODO: finish this one
 
+        Parameters
+        ----------
+        r : _type_
+            _description_
+        '''
+        fm = lambda x: .5*jnp.sqrt(jnp.pi)*jnp.exp(x**2)*jax.scipy.special.erf(x)
+        # fp 
     
-
-
 class HernquistZhao(JaxPotential):
     r'''
     Hernquist-Zhao density profile
@@ -122,15 +164,18 @@ class HernquistZhao(JaxPotential):
     rs : float
         scale radius -- units: [L]
     a : float
-        inner slope -- for  :math:`\frac{r}{r_s}<< 1 ~ \rightarrow \rho \sim r^{-a}`
+        inner slope -- for  :math:`\frac{r}{r_s} \ll 1 ~ \rightarrow \rho \sim r^{-a}`
     b : float
         characterizes width of transition between inner slope and outer slope
     c : float
-        outer slope -- for :math:`r/r_s >> 1~ \rho \sim r^{-c}`
+        outer slope -- for :math:`r/r_s \gg 1~ \rho \sim r^{-c}`
     
     Notes
     -----
-    for :math:`c \ge 3` mass diverges as :math:`r\rightarrow \infty`
+    for :math:`c \ge 3` mass diverges as :math:`r\rightarrow \infty` therefore default priors on c go from 1 to 3.
+    You can get around this, by limiting relevant integrations to a finite radius e.g. :math:`r_{200}`.
+
+    Note however 
     
     References
     ----------
@@ -139,15 +184,8 @@ class HernquistZhao(JaxPotential):
     An & Zhao 2012 : http://dx.doi.org/10.1093/mnras/sts175
     
     Zhao 1996      : http://dx.doi.org/10.1093/mnras/278.2.488
-
     '''
-
-    rhos: float
-    rs: float
-    a: float
-    b: float
-    c: float
-    tracer_priors = {
+    _tracer_priors = {
         'rhos' : dist.LogNormal(0.0, 1.0),
         'rs'   : dist.LogNormal(0.0, 1.0),
         'a'    : dist.Uniform(0.0, 1.0),
@@ -155,12 +193,12 @@ class HernquistZhao(JaxPotential):
         'c'    : dist.Uniform(0.0, 1.0),
     }#TODO: make sure these priors are within physical limits
 
-    dm_priors = {
+    _dm_priors = {
         'rhos' : dist.LogNormal(0.0, 1.0),
         'rs'   : dist.LogNormal(0.0, 1.0),
-        'a'    : dist.Uniform(0.0, 1.0),
-        'b'    : dist.Uniform(0.0, 1.0),
-        'c'    : dist.Uniform(0.0, 1.0),
+        'a'    : dist.Uniform(-1.0, 3.0),
+        'b'    : dist.Uniform(0.1, 5.0),
+        'c'    : dist.Uniform(1.0, 3.0),
     }
 
     def __init__(self,rhos: float,rs: float,a: float,b: float,c: float):
@@ -171,28 +209,31 @@ class HernquistZhao(JaxPotential):
         self._b    = b
         self._c    = c
 
-    def density(self,r:Union[float,jnp.ndarray]) -> Union[float,jnp.ndarray]:
+    def density(self,r:Union[float,jax.Array]) -> Union[float,jax.Array]:
         r'''
         Hernquist-Zhao density profile
 
+        .. math::
+            \rho(r) =\frac{\rho_s}{\left(\frac{r}{r_s}\right)^a \left[1+\left(\frac{r}{r_s}\right)^{b}\right]^{\frac{c-a}{b}}}
+
         Parameters
         ----------
-        r : float | jnp.ndarray
+        r : float | jax.Array
             :math:`r = \sqrt{x^2+y^2+z^2}` | units: [L]
 
         Returns
         -------
-        float | jnp.ndarray
+        float | jax.Array
 
         '''
         return HernquistZhao._density(r,self._rhos,self._rs, self._a, self._b, self._c)
 
     def mass(self,r):
-        # vec_mass  = jax.vmap(HernquistZhao._mass,in_axes=(0, None,None,None, None,None))
-
-        return HernquistZhao._mass(r,self._rhos,self._rs, self._a, self._b, self._c)  
-        # return vec_mass(r,self._rhos,self._rs, self._a, self._b, self._c)  
-
+        r = jnp.atleast_1d(r)
+        vec_mass  = jax.vmap(HernquistZhao._mass,in_axes=(0, None,None,None, None,None))
+        # return HernquistZhao._mass(r,self._rhos,self._rs, self._a, self._b, self._c)  
+        return vec_mass(r,self._rhos,self._rs, self._a, self._b, self._c)  
+# 
     def potential_scipy(self,r):
         r'''
         Potential for Hernquist density
@@ -271,6 +312,12 @@ class HernquistZhao(JaxPotential):
         x1 = jnp.pi/2
         xk = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
         wk = 0.5*(x1-x0)*w
+
+        # we'll use Jax's flow control to split up integration into two regimes r << rs and r >> rs
+        # this will avoid numerical issues with the trig substitution for r << rs
+        # for r >> rs, the trig substitution is needed in order to turn the integral into a finite integral
+        # TODO: for when there is a limit on the upper bound of the integral we again swith integration schemes - yet to be implemented
+
         
         def less_than_rs():
             '''
@@ -426,6 +473,7 @@ class HernquistZhao(JaxPotential):
         wk    = 0.5*q*w
         units = 4*jnp.pi*rhos*rs**3
         return units* jnp.sum(wk*xk**2 *HernquistZhao._density(xk,1.0,1.0,a,b,c),axis=0)
+    
     @staticmethod
     def _mass_test(r: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
         r'''
@@ -885,19 +933,21 @@ class Isochrone(JaxPotential):
         # v = w[3:]
         # G = 4.300917270036279e-06 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
         # Energy = 0.5 * jnp.dot(v,v) + Isochrone._potential(M,b,jnp.linalg.norm(x))
-        E = -E
-        M =self._M
+        Epsilon = -E
+        
+        M = self._M
         b = self._b
         G = 4.300917270036279e-06 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
-        tE = E * b / (G * M)
+        
+        tE = Epsilon * b / (G * M)
+        
         denominator = jnp.sqrt(2) * (2 * jnp.pi) ** 3 * (G * M * b) ** (3 / 2)
-        numerator = jnp.sqrt(E) / ((2 * (1 - tE)) ** 4)
+        numerator = jnp.sqrt(tE) / ((2 * (1 - tE)) ** 4)
     
         term1 = 27 - 66 * tE + 320 * tE ** 2 - 240 * tE ** 3 + 64 * tE ** 4
         term2 = 3 * (16 * tE ** 2 + 28 * tE - 9)
     
-        f_I = numerator * term1 + numerator * term2 * jnp.arcsin(jnp.sqrt(E)) / jnp.sqrt(tE * (1 - tE))
-        
+        f_I = numerator * term1 + numerator * term2 * jnp.arcsin(jnp.sqrt(tE)) / jnp.sqrt(tE * (1 - tE))
         return jnp.log(f_I)
         
 class Gaussians(JaxPotential):
@@ -909,7 +959,7 @@ class Gaussians(JaxPotential):
 
     Parameters
     ----------
-    params : jnp.DeviceArray
+    params : jax.Array
         array of shape (2,N) where the first row is the mass and the second row is the sigma
     N : int
         Number of Gaussians    
@@ -941,22 +991,46 @@ class Gaussians(JaxPotential):
 
     @staticmethod
     @jax.jit
-    def _density(r,M: jnp.DeviceArray,sigma: jnp.DeviceArray,N=4):
+    def _density(r,M: jax.Array,sigma: jax.Array,N=4):
         rho_vec = jax.vmap(Gaussians.density_i, in_axes=(0,None,None))
         return jnp.sum(rho_vec(r,M,sigma),axis=1)
 
     @staticmethod
     @jax.jit
     def mass_j(r,M:float,sigma:float):
-        
         return M*(jax.scipy.special.erf(r/(jnp.sqrt(2)*sigma)) - jnp.sqrt(2/jnp.pi) * r * jnp.exp(-r**2/ (2*sigma**2))/sigma)
 
     @staticmethod
     @jax.jit
-    def _mass(r: float,M:jnp.DeviceArray,sigma: jnp.DeviceArray):
-
+    def _mass(r: float,M:jax.Array,sigma: jax.Array):
         m_vec = jax.vmap(Gaussians.mass_i, in_axes=(0,None,None))
         return jnp.sum(m_vec(r,M,sigma),axis=1)
+
+class Gaussian(JaxPotential):
+    def __init__(self,M,sigma):
+        self._M = M
+        self._sigma = sigma
+
+    def density(self,r):
+        density = Gaussian.density_i(r,self._M,self._sigma)
+        return density
+
+    def mass(self,r):
+        mass = Gaussian.density_i(r,self._M,self._sigma)
+
+    @staticmethod
+    @jax.jit
+    def density_i(r,M: float,sigma: float):
+
+        rho = M/(jnp.sqrt(2*jnp.pi) * sigma)**3 # part with the units  [Mass * Length**-3] 
+
+        return rho * jnp.exp(- r**2/(2*sigma**2))
+
+    @staticmethod
+    @jax.jit
+    def mass_j(r,M:float,sigma:float):
+        
+        return M*(jax.scipy.special.erf(r/(jnp.sqrt(2)*sigma)) - jnp.sqrt(2/jnp.pi) * r * jnp.exp(-r**2/ (2*sigma**2))/sigma)
 
 class Plummer(JaxPotential):
     r'''
@@ -991,6 +1065,7 @@ class Plummer(JaxPotential):
         #calculate density
         self._rho = 3*self._M/(4*np.pi*self._a**3)
         self.G    = 4.300917270036279e-06 #kpc km^2 s^-2 Msun^-1
+        
 
     def density(self,r:np.ndarray)->np.ndarray:
         '''
@@ -1045,19 +1120,19 @@ class Plummer(JaxPotential):
         '''
         return Plummer._mass(self._M,self._a,r)
     
-    def potential(self,r:jnp.ndarray)->jnp.ndarray:
+    def potential(self,r:jax.Array)->jax.Array:
         '''
         .. math::
             \Phi(r) = -\frac{GM}{\sqrt{r^2+a^2}}
 
         Parameters
         ----------
-        r : jnp.ndarray
+        r : jax.Array
             _description_
 
         Returns
         -------
-        jnp.ndarray
+        jax.Array
             _description_
         '''
         return Plummer._potential(r,self._M,self._a)
@@ -1161,9 +1236,13 @@ class Plummer(JaxPotential):
         vr = (x*vx+y*vy+z*vz)/r
         if evolve:
             import astropy.units as u
-            w0 = gd.PhaseSpacePosition(pos=pos, vel=vel)
+            import gala.dynamics as gd
+            import gala.potential as gp
+            import gala.integrate as gi
+            from gala.units import galactic
             pos = [x, y, z] * u.kpc
             vel = [vx, vy, vz] * u.km / u.s
+            w0 = gd.PhaseSpacePosition(pos=pos, vel=vel)
             M = self._M * u.Msun
             b = self._a * u.kpc
 
@@ -1379,18 +1458,18 @@ class Plummer(JaxPotential):
         return term1/term2
 
     @staticmethod
-    def _potential(r: jnp.ndarray,M: float, a: float) -> jnp.ndarray:
+    def _potential(r: jax.Array,M: float, a: float) -> jax.Array:
         '''
         Analitycal potential for plummer sphere
 
         Parameters
         ----------
-        r : jnp.ndarray
+        r : jax.Array
             _description_
 
         Returns
         -------
-        jnp.ndarray
+        jax.Array
             Potential at r | units [G] = #kpc km^2 s^-2 Msun^-1
         '''
         G = 4.300917270036279e-06 #kpc km^2 s^-2 Msun^-1
@@ -1524,7 +1603,7 @@ class gEinasto(JaxPotential):
         self._alpha = alpha
         self._gamma = gamma
 
-    def density(self,r: np.ndarray) -> np.ndarray:
+    def density(self,r: jax.Array) -> jax.Array:
         '''
         Parameters
         ----------
@@ -1539,7 +1618,7 @@ class gEinasto(JaxPotential):
         return gEinasto._density(r,self._rhos,self._rs,self._alpha,self._gamma)
 
     @staticmethod
-    def _density(r: jnp.ndarray,rhos: float,rs: float,alpha: float,gamma: float) -> jnp.ndarray:
+    def _density(r: jax.Array,rhos: float,rs: float,alpha: float,gamma: float) -> jax.Array:
         '''
         Parameters
         ----------
@@ -1561,7 +1640,6 @@ class gEinasto(JaxPotential):
         '''
         q = r/rs
         return rhos*(r/rs)**(-gamma) * np.exp(-(2/alpha) * (q**alpha - 1))
-
 
 # THESE SHOULD GO INTO A DIFFERENT FILE
 class JeansOM:    
@@ -2017,7 +2095,7 @@ class gOM:
         return (r**2+a**2)**alpha
 
 class Anisotropy:
-    _priors = {}
+    _priors: dict = {}
     def beta(self):
         pass
     def f_beta(self):
@@ -2026,7 +2104,6 @@ class Anisotropy:
     @classmethod
     def get_priors(cls):
         return cls._priors
-
 
 class BetaConstant(Anisotropy):
     r'''
@@ -2083,3 +2160,4 @@ class BetaOsipkovMerrit(Anisotropy):
     def f_beta(r,a,beta):
         return (1+(r/a)**2)**beta
 
+x
