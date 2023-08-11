@@ -1181,11 +1181,6 @@ class Data:
         M_jeans = (np.array(vr_fit) * q_eval / G) * (np.array(a) + np.array(b) + np.array(c))
         return q_eval,np.array(M_jeans)
 
-
-
-
-
-
 def rho_eval(S, r):
     r'''
     Calculates rho(r)
