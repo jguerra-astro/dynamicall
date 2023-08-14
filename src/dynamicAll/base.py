@@ -38,7 +38,7 @@ xmass,wmass = np.polynomial.legendre.leggauss(100)
 xmass = jnp.array(xmass)
 wmass = jnp.array(wmass)
 
-x,w = np.polynomial.legendre.leggauss(100) # are these tabulated -- does it take a long time to calculate?
+x,w = np.polynomial.legendre.leggauss(1000) # are these tabulated -- does it take a long time to calculate?
 
 x,w = jnp.array(x),jnp.array(w)
 
@@ -62,6 +62,60 @@ class JaxPotential(ABC):
     '''
     _tracer_priors = {}    
     _dm_priors = {}
+    # @partial(jax.jit, static_argnums=(0,))
+    def dJdOmega(self,theta,d,rt):
+        r'''
+        .. math:
+            \frac{dJ}{d\omega} = \int{\rho^{2}(r) d\ell}
+
+        Parameters
+        ----------
+        theta : _type_
+            _description_
+        '''
+        l0 = d*jnp.cos(theta) - jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)
+        l1 = d*jnp.cos(theta) + jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)          
+        xi = 0.5*(l1-l0)*x + 0.5*(l1+l0) 
+        wi = 0.5*(l1-l0)*w
+        return jnp.sum(wi*self.density(jnp.sqrt(xi**2 + d**2 - 2*xi*d*jnp.cos(theta)))**2)
+
+    def jFactor(self,theta,d,rt):
+        r'''
+        J-factor
+        .. math:
+            J= \int\int_{\rm los} \rho^{2}(r) d\Omega dl
+        
+        where we write r as :math:`r^2=\ell^2+d^2-2 \ell d \cos \theta` where :math:`\ell` is the distance along the line of sight and d is the distance to the center of the galaxy.
+        Spherical symmetry lets us write :math:`d\Omega=2\pi\sin\theta d\theta`.
+
+        The bounds on the line of sight are $\ell_{ \pm}=d \cos \theta \pm \sqrt{r_{200}^2-d^2 \sin ^2 \theta}$.
+        where $r_{200}$ is the 'size' of the system.
+
+        substituting in the integral we get
+        $$
+        J(\theta_{\rm max}) = 2 \pi \int_{0}^{\theta_{\rm max}} \int_{\ell_{-}}^{\ell_{+}} \left[\rho\left(\sqrt{\ell^2+d^2-2 \ell d \cos \theta}\right)\right]^{2}\sin(\theta) d\ell d\theta
+        $$
+
+        Parameters
+        ----------
+        theta : float
+            _description_
+        d : float
+            distance to system | [kpc]
+        rt : float
+            tidal radius of system | [kpc]
+
+        Notes
+        -----
+        Should rt just be r_200? should i just change the bounds on the line of sight part to be -inf to inf?
+        '''
+        # theta = jnp.atleast_1d(theta)
+        x0 = 0
+        x1 = theta
+        xi = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
+        wi = 0.5*(x1-x0)*w
+        vectorized_func = jax.vmap(self.dJdOmega,in_axes=(0,None,None))
+        return 2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi))
 
     @abstractmethod
     def density(self,r):
@@ -536,22 +590,6 @@ class JaxPotential(ABC):
         '''
         L_phi = x[0]*v[1] - x[1]*v[0]
         return L_phi
-
-    # @property
-    # def tracer_priors(self):
-    #     return self._tracer_priors.copy()
-
-    # @tracer_priors.setter
-    # def tracer_priors(self, priors):
-    #     self._tracer_priors = priors
-
-    # @property
-    # def default_priors(self):
-    #     return self._default_priors.copy()
-
-    # @default_priors.setter
-    # def default_priors(self, priors):
-    #     self._default_priors = priors
 
 class Data:
 
