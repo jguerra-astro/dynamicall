@@ -194,8 +194,8 @@ class HernquistZhao(JaxPotential):
     }#TODO: make sure these priors are within physical limits
 
     _dm_priors = {
-        'rhos' : dist.LogNormal(0.0, 1.0),
-        'rs'   : dist.LogNormal(0.0, 1.0),
+        'rhos' : dist.LogUniform(1e5,1e30),
+        'rs'   : dist.LogUniform(1e-10, 1e10),
         'a'    : dist.Uniform(-1.0, 3.0),
         'b'    : dist.Uniform(0.1, 5.0),
         'c'    : dist.Uniform(1.0, 3.0),
@@ -233,7 +233,7 @@ class HernquistZhao(JaxPotential):
         vec_mass  = jax.vmap(HernquistZhao._mass,in_axes=(0, None,None,None, None,None))
         # return HernquistZhao._mass(r,self._rhos,self._rs, self._a, self._b, self._c)  
         return vec_mass(r,self._rhos,self._rs, self._a, self._b, self._c)  
-# 
+        
     def potential_scipy(self,r):
         r'''
         Potential for Hernquist density
@@ -548,10 +548,8 @@ class NFW(JaxPotential):
         scale radius :math:`r_{s}`
     
     '''
-    rhos: float
-    rs: float
 
-    dm_priors = {
+    _dm_priors = {
         'rhos': dist.LogUniform(1e-3,1e3),
         'rs': dist.LogUniform(1e-3,1e3)
     }
@@ -1045,21 +1043,17 @@ class Plummer(JaxPotential):
     a : float
         scale length | [kpc]
     '''
-    M: float 
-    b: float
-    tracer_priors = {
-        'M':dist.Uniform(0,1e10),
-        'a':dist.Uniform(0,100),
+    _tracer_priors = {
+        'M':dist.LogUniform(10**-2,10**8),
+        'a':dist.LogUniform(10**-3,10**3),
     }
 
-    dm_priors = {
-        'M':dist.Uniform(0,1e10),
-        'a':dist.Uniform(0,100),
+    _dm_priors = {
+        'M':dist.Uniform(10**3,10**12),
+        'a':dist.Uniform(1e-10,1e10),
     }
     def __init__(self,M,a):
-        '''
-        TODO: implement multiple components
-        '''
+
         self._M = M 
         self._a = a
         #calculate density
@@ -1540,10 +1534,10 @@ class Plummer(JaxPotential):
         return mcmc
 
 class King(JaxPotential):
-    param_names ={
-        'rc': 1,
-        'rt': 1,
-    }
+
+    _dm_priors = {}
+    _tracer_priors = {}
+
     def __init__(self,rc,rt):
         self._rc = rc
         self._rt = rt
@@ -2159,5 +2153,3 @@ class BetaOsipkovMerrit(Anisotropy):
     @staticmethod
     def f_beta(r,a,beta):
         return (1+(r/a)**2)**beta
-
-x
