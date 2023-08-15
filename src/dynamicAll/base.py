@@ -117,6 +117,35 @@ class JaxPotential(ABC):
         vectorized_func = jax.vmap(self.dJdOmega,in_axes=(0,None,None))
         return 2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi))
 
+    
+    
+    def dDdOmega(selt,theta,d,rt):
+        l0 = d*jnp.cos(theta) - jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)
+        l1 = d*jnp.cos(theta) + jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)          
+        xi = 0.5*(l1-l0)*x + 0.5*(l1+l0) 
+        wi = 0.5*(l1-l0)*w
+        return jnp.sum(wi*self.density(jnp.sqrt(xi**2 + d**2 - 2*xi*d*jnp.cos(theta))))
+    
+    def dFactor(self,theta,d,rt):
+        '''
+        Decay Factor
+
+        Parameters
+        ----------
+        theta : _type_
+            _description_
+        d : _type_
+            _description_
+        rt : _type_
+            _description_
+        '''
+        x0 = 0
+        x1 = theta
+        xi = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
+        wi = 0.5*(x1-x0)*w
+        vectorized_func = jax.vmap(self.dDdOmega,in_axes=(0,None,None))
+        return 2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi))
+
     @abstractmethod
     def density(self,r):
         pass
@@ -354,7 +383,6 @@ class JaxPotential(ABC):
         #     )
         # )
         return samples
-
 
     def sample_w_conditional(
                 self,
