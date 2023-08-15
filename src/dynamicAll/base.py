@@ -1,4 +1,5 @@
 import astropy.units as u
+import astropy.constants as const
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -34,14 +35,6 @@ from typing import Callable
 import emcee
 from scipy.optimize import curve_fit
 
-xmass,wmass = np.polynomial.legendre.leggauss(100)
-xmass = jnp.array(xmass)
-wmass = jnp.array(wmass)
-
-x,w = np.polynomial.legendre.leggauss(1000) # are these tabulated -- does it take a long time to calculate?
-
-x,w = jnp.array(x),jnp.array(w)
-
 from . import models
 
 class JaxPotential(ABC):
@@ -62,7 +55,19 @@ class JaxPotential(ABC):
     '''
     _tracer_priors = {}    
     _dm_priors = {}
-    # @partial(jax.jit, static_argnums=(0,))
+
+    def __init__(self,int_order = 256,JfactorN = 1000):
+        
+        self._G = const.G.to(u.kpc*u.km**2/u.solMass/u.s**2).value
+
+        # Intregation stuff
+        xi,wi = np.polynomial.legendre.leggauss(int_order)
+        self._x,self._w = jnp.array(xi),jnp.array(wi)
+
+        xj,wj = np.polynomial.legendre.leggauss(JfactorN)
+        self._xj,self._wj = jnp.array(xj),jnp.array(wj)
+
+
     def dJdOmega(self,theta,d,rt):
         r'''
         .. math:
@@ -75,8 +80,8 @@ class JaxPotential(ABC):
         '''
         l0 = d*jnp.cos(theta) - jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)
         l1 = d*jnp.cos(theta) + jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)          
-        xi = 0.5*(l1-l0)*x + 0.5*(l1+l0) 
-        wi = 0.5*(l1-l0)*w
+        xi = 0.5*(l1-l0)*self._xj + 0.5*(l1+l0) 
+        wi = 0.5*(l1-l0)*self._wj
         return jnp.sum(wi*self.density(jnp.sqrt(xi**2 + d**2 - 2*xi*d*jnp.cos(theta)))**2)
 
     def jFactor(self,theta,d,rt):
@@ -112,18 +117,16 @@ class JaxPotential(ABC):
         # theta = jnp.atleast_1d(theta)
         x0 = 0
         x1 = theta
-        xi = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
-        wi = 0.5*(x1-x0)*w
+        xi = 0.5*(x1-x0)*self._xj + 0.5*(x1+x0) 
+        wi = 0.5*(x1-x0)*self._wj
         vectorized_func = jax.vmap(self.dJdOmega,in_axes=(0,None,None))
         return 2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi))
 
-    
-    
     def dDdOmega(selt,theta,d,rt):
         l0 = d*jnp.cos(theta) - jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)
         l1 = d*jnp.cos(theta) + jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)          
-        xi = 0.5*(l1-l0)*x + 0.5*(l1+l0) 
-        wi = 0.5*(l1-l0)*w
+        xi = 0.5*(l1-l0)*self._xj + 0.5*(l1+l0) 
+        wi = 0.5*(l1-l0)*self._wj
         return jnp.sum(wi*self.density(jnp.sqrt(xi**2 + d**2 - 2*xi*d*jnp.cos(theta))))
     
     def dFactor(self,theta,d,rt):
