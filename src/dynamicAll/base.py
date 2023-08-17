@@ -55,18 +55,20 @@ class JaxPotential(ABC):
     '''
     _tracer_priors = {}    
     _dm_priors = {}
-
+    _xk,_wk = np.polynomial.legendre.leggauss(256)
+    _xk,_wk = jnp.array(_xk),jnp.array(_wk)    
+    
     def __init__(self,int_order = 256,JfactorN = 1000):
         
         self._G = const.G.to(u.kpc*u.km**2/u.solMass/u.s**2).value
 
-        # Intregation stuff
+        # Intregation stuff. 256 is more than enough for the accuracy we need.
         xi,wi = np.polynomial.legendre.leggauss(int_order)
         self._x,self._w = jnp.array(xi),jnp.array(wi)
-
+        
+        # Need a different accuracy for the J-factor integral
         xj,wj = np.polynomial.legendre.leggauss(JfactorN)
         self._xj,self._wj = jnp.array(xj),jnp.array(wj)
-
 
     def dJdOmega(self,theta,d,rt):
         r'''
@@ -110,9 +112,16 @@ class JaxPotential(ABC):
         rt : float
             tidal radius of system | [kpc]
 
+        Returns
+        -------
+        float
+            J-factor | [:math:`M_{\odot}^{2}~kpc^{-5}]`
+
         Notes
         -----
         Should rt just be r_200? should i just change the bounds on the line of sight part to be -inf to inf?
+        Note the Units.
+        Maybe I should just return log10(J/[GeV^{2} cm^{-5}]) instead of J?
         '''
         # theta = jnp.atleast_1d(theta)
         x0 = 0
@@ -122,7 +131,7 @@ class JaxPotential(ABC):
         vectorized_func = jax.vmap(self.dJdOmega,in_axes=(0,None,None))
         return 2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi))
 
-    def dDdOmega(selt,theta,d,rt):
+    def dDdOmega(self,theta,d,rt):
         l0 = d*jnp.cos(theta) - jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)
         l1 = d*jnp.cos(theta) + jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)          
         xi = 0.5*(l1-l0)*self._xj + 0.5*(l1+l0) 
@@ -141,11 +150,20 @@ class JaxPotential(ABC):
             _description_
         rt : _type_
             _description_
+
+        Returns
+        -------
+        float
+            Decay Factor | [:math:`M_{\odot}~kpc^{-2}]`
+
+        Notes
+        -----
+        TODO: Decide on the units and log10 or not
         '''
         x0 = 0
         x1 = theta
-        xi = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
-        wi = 0.5*(x1-x0)*w
+        xi = 0.5*(x1-x0)*self._xj + 0.5*(x1+x0) 
+        wi = 0.5*(x1-x0)*self._wj
         vectorized_func = jax.vmap(self.dDdOmega,in_axes=(0,None,None))
         return 2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi))
 
@@ -517,6 +535,13 @@ class JaxPotential(ABC):
         f_abel = lambda y,q: -1*dfunc(y)/jnp.sqrt(y**2-q**2)/jnp.pi
         
         return np.sum(wk*f_abel(r/jnp.sin(xk),r)*r*jnp.cos(xk)/jnp.sin(xk)**2,axis=0)
+
+
+    @classmethod
+    def set_Norder(cls, N):
+        new_xk,new_wk = np.polynomial.legendre.leggauss(N)
+        cls._xk = jnp.array(new_xk)
+        cls._wk = jnp.array(new_wk)
 
     @classmethod
     def get_tracer_priors(cls):

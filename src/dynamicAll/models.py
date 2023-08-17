@@ -1,7 +1,5 @@
 #third-party imports
-from functools import partial
 from typing import Callable
-
 import astropy.units as u
 import jax
 import jax.numpy as jnp
@@ -9,13 +7,8 @@ import numpy as np
 import scipy.special as sc
 from jax._src.config import config
 from jaxopt import Bisection
-from scipy.integrate import quad
-
 config.update("jax_enable_x64", True)
-
-
 from typing import Union
-
 import arviz as az
 import corner
 import numpyro
@@ -23,19 +16,11 @@ import numpyro.distributions as dist
 from jax import random
 from numpyro.diagnostics import summary
 from numpyro.infer import MCMC, NUTS
-# TODO: Removed these
-from scipy.integrate import fixed_quad, quad
-
 # project 
 from . import abel
 from . import distributions as jdists
 from .base import JaxPotential
 
-
-x, w = np.polynomial.legendre.leggauss(100) #TODO: Find a better way to set this.
-
-x = jnp.array(x)
-w = jnp.array(w)
 
 def centre(r:float,x0:jax.Array,v0:jax.Array,M:float,b:float) -> float:
     
@@ -209,6 +194,8 @@ class HernquistZhao(JaxPotential):
         self._b    = b
         self._c    = c
 
+        super().__init__()
+
     def density(self,r:Union[float,jax.Array]) -> Union[float,jax.Array]:
         r'''
         Hernquist-Zhao density profile
@@ -296,7 +283,7 @@ class HernquistZhao(JaxPotential):
             potential | units: :math:`km^{2} s^{-2}`
             
         '''
-        G =  4.300917270036279e-06 # Gravitational constant in kpc*km**2/Msun/s^2
+        G =  self._G 
         # for readability
         a       = self._a
         b       = self._b
@@ -308,6 +295,7 @@ class HernquistZhao(JaxPotential):
         phi_in  = rs*self._mass(q,1.0,1.0,a,b,c)/r  # M/r
 
         # integration points and weights for Gauss-Legendre quadrature + trig substitution
+        x,w = self._xj,self._wj
         x0 = 0.0
         x1 = jnp.pi/2
         xk = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
@@ -469,8 +457,8 @@ class HernquistZhao(JaxPotential):
             Mass enclosed within radius r | units [Mass]
         '''
         q     = r/rs
-        xk    = 0.5*q*x + 0.5*q
-        wk    = 0.5*q*w
+        xk    = 0.5*q*HernquistZhao._xk + 0.5*q
+        wk    = 0.5*q*HernquistZhao._wk
         units = 4*jnp.pi*rhos*rs**3
         return units* jnp.sum(wk*xk**2 *HernquistZhao._density(xk,1.0,1.0,a,b,c),axis=0)
     
@@ -558,6 +546,8 @@ class NFW(JaxPotential):
         self._rhos   = rhos
         self._rs     = rs
         self._params = [self._rhos,self._rs]
+
+        super().__init__()
     
     def density(self,r):
         r'''
@@ -574,7 +564,7 @@ class NFW(JaxPotential):
         _type_
             _description_
         '''
-        return NFW._density(*self._params,r=r)
+        return NFW._density(r,*self._params)
 
     def mass(self,r): 
         r'''
@@ -638,30 +628,6 @@ class NFW(JaxPotential):
 
         return 4*np.pi*r**2*NFW._density(self._rhos,self._rs,r)/NFW._mass(r_200,self._rhos,self._rs)
 
-    def random(self,y):
-        r'''
-        _summary_
-
-        Parameters
-        ----------
-        n : _type_
-            _description_
-
-        Returns
-        -------
-        _type_
-            _description_
-        '''
-        r_200 = self.r200()
-        # choose n random numbers between 0 and 1 using jax.random.uniform
-
-        # lambda function 
-        func = lambda x: y - self.cdf(x)
-
-        bisec = Bisection(optimality_fun=func, lower= 1e-20, upper = r_200,check_bracket=False)
-
-        return bisec.run().params
-
     def potential(self,r):
         r'''
         Potential for NFW profile
@@ -679,12 +645,12 @@ class NFW(JaxPotential):
         _type_
             _description_
         '''
-        G  = 4.517103049894965e-39 #[kpc**3 solMass**-1 s**-2] 
+        G  = self._G
         return -4*np.pi*G*self._rhos*self._rs**3 *jnp.log(1.0+r/self._rs)/r
 
     @staticmethod 
     @jax.jit
-    def _density(rhos: float ,rs: float,r):
+    def _density(r,rhos: float ,rs: float):
         q= r/rs
         return rhos * q**(-1) * (1+q)**(-2)
 
@@ -1635,7 +1601,6 @@ class gEinasto(JaxPotential):
         q = r/rs
         return rhos*(r/rs)**(-gamma) * np.exp(-(2/alpha) * (q**alpha - 1))
 
-# THESE SHOULD GO INTO A DIFFERENT FILE
 class JeansOM:    
 
     def __init__(self,data: np.ndarray,model_dm,model_tr,model_beta):
