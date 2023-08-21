@@ -647,7 +647,64 @@ class NFW(JaxPotential):
         '''
         G  = self._G
         return -4*np.pi*G*self._rhos*self._rs**3 *jnp.log(1.0+r/self._rs)/r
+    
+    @partial(jax.jit, static_argnums=(0,))
+    def J_analytic(self,theta,D):
+        r'''
+        .. math::
+            \mathrm{J(\theta | D,\rho_s,r_s)}
+            =\frac{\pi \rho_0^2 r_{\mathrm{s}}^3}{3 D^2 \Delta^4}\left[2 y\left(7 y-4 y^3+3 \pi \Delta^4\right)\right.\left.+6\left(2 \Delta^6-2 \Delta^2-y^4\right) X(y)\right]
+        
+        where :math:`y=D\theta/r_s`, :math:`\Delta=\sqrt{1-y^2}` and
+        .. math:: 
+            X(s)= \begin{cases}\frac{1}{\sqrt{1-s^2}} \operatorname{Arcsech} s, & 0 \leq s \leq 1 \\ \frac{1}{\sqrt{s^2-1}} \operatorname{Arcsec} s, & s \geq 1.\end{cases}
+    
+        This is using the approximation that :math:`d\Omega d\mathcal{l} =\frac{2πRdRdz}{D^{2}}`.
 
+        Parameters
+        ----------
+        theta : _type_
+            _description_
+        D : float
+            _description_
+
+        References
+        ----------
+        Evans et. al. 2016:  https://ui.adsabs.harvard.edu/abs/2016PhRvD..93j3512E/abstract
+
+        '''
+        theta = jnp.atleast_1d(theta)
+        def chi(s):
+            '''
+            Overkill at the moment,but in case I want to make it more complicated later.
+            Also note the use of jax.lax.cond.
+            To be Tested: is this still differentiable?
+
+            Parameters
+            ----------
+            s : _type_
+                _description_
+            '''
+            def s_lt_one():
+                return jnp.arccosh(1/s)/jnp.sqrt(1-s**2)
+
+            def s_gt_one():
+                return jnp.arccos(1/s)/jnp.sqrt(s**2-1)
+
+            def s_eq_one():
+                return 1.0
+            return jax.lax.cond(s< 1, s_lt_one, lambda: jax.lax.cond(s>1, s_gt_one, s_eq_one))
+        
+        chiv = jax.vmap(chi)
+        y = D*theta/rs
+        Delta2 = 1.0 - y**2
+
+        coeff = jnp.pi*rhos**2*rs**3/(3*D**2*Delta2**2)
+        term1 = 2*y*(7*y -4*y**3 + 3*jnp.pi*Delta2**2)
+        term2 = 6*(2*Delta2**3 - 2*Delta2 -y**4)*chiv(y)
+
+        return coeff*(term1+term2)
+        
     @staticmethod 
     @jax.jit
     def _density(r,rhos: float ,rs: float):
@@ -681,6 +738,27 @@ class NFW(JaxPotential):
         q    = (rs+r)/rs
         mNFW = 4*jnp.pi*rhos*rs**3 * (jnp.log(q) - (r/(rs+r))) # Analytical NFW mass profile
         return mNFW
+
+    @staticmethod
+    def from_ms_rs(M: float,rs: float):
+        '''
+        alternate constructor for NFW profile
+
+        Parameters
+        ----------
+        M : _type_
+            _description_
+        rs : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        '''
+        rhos = M/(4*np.pi*rs**3)
+        
+        return NFW(rhos,rs)
 
 class Isochrone(JaxPotential):
     

@@ -85,7 +85,7 @@ class JaxPotential(ABC):
         xi = 0.5*(l1-l0)*self._xj + 0.5*(l1+l0) 
         wi = 0.5*(l1-l0)*self._wj
         return jnp.sum(wi*self.density(jnp.sqrt(xi**2 + d**2 - 2*xi*d*jnp.cos(theta)))**2)
-
+    @partial(jax.jit, static_argnums=(0,))
     def jFactor(self,theta,d,rt):
         r'''
         J-factor
@@ -138,6 +138,7 @@ class JaxPotential(ABC):
         wi = 0.5*(l1-l0)*self._wj
         return jnp.sum(wi*self.density(jnp.sqrt(xi**2 + d**2 - 2*xi*d*jnp.cos(theta))))
     
+    @partial(jax.jit, static_argnums=(0,))
     def dFactor(self,theta,d,rt):
         '''
         Decay Factor
