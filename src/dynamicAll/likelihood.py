@@ -1,78 +1,111 @@
 from typing import Callable
+import astropy.units as u
+import astropy.constants as const
+import jax
+import jax.numpy as jnp
 import numpy as np
+from astropy.cosmology import WMAP9 as cosmo
+from jax._src.config import config
+from jaxopt import Bisection
+from scipy.optimize import root
+from scipy.stats import binned_statistic
+import scipy
+import agama
+from scipy.spatial.transform import Rotation
+from astropy.stats import histogram
+config.update("jax_enable_x64", True)
 
-def lnLikelihood(data: np.ndarray,obs_error: np.ndarray,model: Callable, theta: np.ndarray) -> float:
-    '''
-    log likelihood function for 2+1 dimensional data e.g (x,y,v_{los}) equivalenetly (R,v_{los})
+import numpyro
+import numpyro.distributions as dist
+from numpyro.diagnostics import summary
+from typing import Callable
+from numpyro.infer import MCMC, NUTS
+from jax import random
 
-    Parameters
-    ----------
-    data : np.ndarray
-        Projected positions and line of sight velocities
-        R    = data[0]
-        vlos = data[1]
-    error : np.ndarray
-        assuming that measurements are indepentt, error.shape = vlos.shape
-    theta : np.ndarray
-        Parameters we're trying to fit
-        e.g. for basic models: (inner-slope, rho_d,r_d,stellar-anisotropy)
-
-
-    Returns
-    -------
-    float
-        _description_
-
-
-    Notes
-    -------
-    #?: Maybe it would be better to accept x,y,v intead of R,v?
-
-    TODO: currently we fit the stellar component seperately, but we should probably do everything at once.
-    '''
-
-    q  = data[0]            # projected radii
-    v  = data[1]            # line-of-sight/"radial" velocitiess
-    N  = v.shape[0]         # number of observed stars
-    sigmasq  = model(q,theta) + obs_error**2
-        
-    # log of likelihood
-    term1 = - 0.5 * np.sum(np.log(sigmasq))
-    term2 = - 0.5 * np.sum(v**2/sigmasq)   # This assumes that the velocities are gaussian centered at 0 -- could also fit for this
-    term3 = - 0.5 * N *np.log(2*np.pi) # doesnt really need to be here
-
-    return term1+term2+term3
+import matplotlib.pyplot as plt
+import corner
+import arviz as az
+from functools import partial
+from numpyro.distributions import Distribution
+from numpyro.distributions import constraints
+from abc import ABC, abstractmethod
+from jax import lax, vmap
+from jax.lax import scan
+from jax import random
+from typing import Callable
+import emcee
+from scipy.optimize import curve_fit
+from .base import Data
+from . import models
 
 
-def lnLikelihood2(data: np.ndarray,obs_error: np.ndarray,model: Callable, theta: np.ndarray) -> float:
-    '''
-    Log likelihood assuming 3+1 dimenstional data (x,y,z,v_{los})
+class Likelihood:
+
+    def __init__(self, data: Data, model: Callable):
+        self.data = data
+        self.model = model
 
 
-    Parameters
-    ----------
-    data : np.ndarray
-        _description_
-    obs_error : np.ndarray
-        _description_
-    model : Callable
-        _description_
-    theta : np.ndarray
-        _description_
+    def lnLikelihood(self,theta: jax.Array) -> float:
+        '''
+        log likelihood function for 2+1 dimensional data e.g (x,y,v_{los}) equivalenetly (R,v_{los})
 
-    Returns
-    -------
-    float
-        _description_
+        Parameters
+        ----------
+        theta : jax.Array
+            Parameters we're trying to fit
+            e.g. for basic models: (inner-slope, rho_d,r_d,stellar-anisotropy)
 
-    Notes
-    -------
-    Ok, so whats up? What does adding positions do
 
-    '''
-    q  = data[0]            # projected radii
-    v  = data[1]            # line-of-sight/"radial" velocitiess
-    N  = v.shape[0]         # number of observed stars
-    sigmasq  = model(q,theta) + obs_error**2
+        Returns
+        -------
+        float
+            _description_
 
-    return -1
+
+        Notes
+        -------
+
+        '''
+
+        q  = data[0]            # projected radii
+        v  = data[1]            # line-of-sight/"radial" velocitiess
+        N  = v.shape[0]         # number of observed stars
+        sigmasq  = model(q,theta) + obs_error**2
+            
+        # log of likelihood
+        term1 = - 0.5 * jnp.sum(np.log(sigmasq))
+        term2 = - 0.5 * jnp.sum(v**2/sigmasq)   # This assumes that the velocities are gaussian centered at 0 -- could also fit for this
+        term3 = - 0.5 * N *jnp.log(2*np.pi) # doesnt really need to be here
+
+        return term1+term2+term3
+
+    def lnLikelihood2(self,theta: jax.Array) -> float:
+        '''
+        Log likelihood assuming 3+1 dimenstional data (R,v_{los},v_{pmr},v_{pmt})
+
+        Parameters
+        ----------
+        theta : jax.Array
+            _description_
+
+        Returns
+        -------
+        float
+            _description_
+
+        Notes
+        -------
+        Ok, so whats up? What does adding positions do
+
+        '''
+        q   = data['R']       # projected radii
+        v1  = data['vlos']    # line-of-sight/"radial" velocitiess
+        v2  = data['vpmr']
+        v3  = data['vpmt']
+
+        N  = v.shape[0]         # number of observed stars
+        sigmasq  = model(q,theta) + obs_error**2
+        sigmasq  = model(q,theta) + obs_error**2
+
+        return -1

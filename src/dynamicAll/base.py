@@ -35,7 +35,6 @@ from typing import Callable
 import emcee
 from scipy.optimize import curve_fit
 
-from . import models
 
 class JaxPotential(ABC):
     '''
@@ -54,11 +53,17 @@ class JaxPotential(ABC):
         _description_
     '''
     _tracer_priors = {}    
-    _dm_priors = {}
-    _xk,_wk = np.polynomial.legendre.leggauss(256)
-    _xk,_wk = jnp.array(_xk),jnp.array(_wk)    
+    _dm_priors     = {}
     
-    def __init__(self,int_order = 256,JfactorN = 1000):
+    # So that static methods can do integrals and what not
+    _xk,_wk = np.polynomial.legendre.leggauss(100)
+    _xk,_wk = jnp.array(_xk),jnp.array(_wk)    
+    _G      = const.G.to(u.kpc*u.km**2/u.solMass/u.s**2).value
+
+    def __init__(self,
+        int_order: int   = 100,
+        JfactorN : int   = 1000,
+        Gunit = u.kpc*u.km**2/u.solMass/u.s**2):
         
         self._G = const.G.to(u.kpc*u.km**2/u.solMass/u.s**2).value
 
@@ -132,6 +137,23 @@ class JaxPotential(ABC):
         return 2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi))
 
     def dDdOmega(self,theta,d,rt):
+        '''
+        _summary_
+
+        Parameters
+        ----------
+        theta : _type_
+            _description_
+        d : _type_
+            _description_
+        rt : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        '''
         l0 = d*jnp.cos(theta) - jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)
         l1 = d*jnp.cos(theta) + jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)          
         xi = 0.5*(l1-l0)*self._xj + 0.5*(l1+l0) 
@@ -206,6 +228,20 @@ class JaxPotential(ABC):
         phi_out = jnp.sum(wk*self.density(r/jnp.sin(xk))*(r/jnp.sin(xk))*r*jnp.cos(xk)/jnp.sin(xk)**2,axis=0)
         return -G*(phi_in+ 4*jnp.pi*phi_out)
 
+    def v_circ(self,r):
+        '''
+        circular velocity at a given radius r
+
+        .. math::
+            v_{circ} = \sqrt{r\frac{d\phi}{dr}} = \sqrt{\frac{GM(r)}{r}}
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+        '''
+        return jnp.sqrt(self._G*self.mass(r)/r)
+
     def v_esc(self,r):
         '''
         Calculates the escape velocity at a given radius r
@@ -240,7 +276,8 @@ class JaxPotential(ABC):
         r = jnp.linalg.norm(x,axis=0)
     
         return T +self.potential(r)
-
+    
+    @partial(jax.jit, static_argnums=(0,))
     def gamma(self,r):
         r'''
         log-slope of density profile.
@@ -497,8 +534,8 @@ class JaxPotential(ABC):
         x1 = jnp.pi/2
         # x,w = np.polynomial.legendre.leggauss(100) # are these tabulated -- does it take a long time to calculate?
         
-        xk = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
-        wk = 0.5*(x1-x0)*w
+        xk = 0.5*(x1-x0)*self._xk + 0.5*(x1+x0) 
+        wk = 0.5*(x1-x0)*self._wk
         return np.sum(wk*f_abel(R/jnp.sin(xk),R)*R*jnp.cos(xk)/jnp.sin(xk)**2,axis=0)
     @partial(jax.jit, static_argnums=(0,))
     def deproject(self,r):
@@ -527,8 +564,8 @@ class JaxPotential(ABC):
         x0 = 0
         x1 = jnp.pi/2
         
-        xk = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
-        wk = 0.5*(x1-x0)*w
+        xk = 0.5*(x1-x0)*self._xk + 0.5*(x1+x0) 
+        wk = 0.5*(x1-x0)*self._wk
         
         dfunc = jax.vmap(jax.grad(self.project,argnums=0))
         # dfunc = jax.vmap(jax.grad(self.projected_density,argnums=0))
@@ -536,7 +573,6 @@ class JaxPotential(ABC):
         f_abel = lambda y,q: -1*dfunc(y)/jnp.sqrt(y**2-q**2)/jnp.pi
         
         return np.sum(wk*f_abel(r/jnp.sin(xk),r)*r*jnp.cos(xk)/jnp.sin(xk)**2,axis=0)
-
 
     @classmethod
     def set_Norder(cls, N):
@@ -546,12 +582,51 @@ class JaxPotential(ABC):
 
     @classmethod
     def get_tracer_priors(cls):
-        return cls.tracer_priors
+        '''
+        TODO: Add instance for Normal distribution
+        '''
+        for param_name, distribution in cls._tracer_priors.items():
+            distribution_name = distribution.__class__.__name__
+            if isinstance(distribution, (dist.Uniform, dist.LogUniform)):
+                low = f"{distribution.low:.2e}"
+                high = f"{distribution.high:.2e}"
+                bounds_info = f"Bounds: ({low}, {high})"
+
+            elif isinstance(distribution, (dist.Normal, dist.LogNormal)):
+                mean = f"{distribution.loc:.2e}"
+                std_dev = f"{distribution.scale:.2e}"
+                bounds_info = f"Mean: {mean}, StdDev: {std_dev}"
+            else:
+                bounds_info = "No Bounds"
+
+            print(f"Parameter: {param_name}, Distribution: {distribution_name}, {bounds_info}")
+
+    @classmethod
+    def set_tracer_priors(cls,new_priors):
+        cls._tracer_priors = new_priors
 
     @classmethod
     def get_dm_priors(cls):
-        return cls.dm_priors
-      
+        for param_name, distribution in cls._dm_priors.items():
+            distribution_name = distribution.__class__.__name__
+            if isinstance(distribution, (dist.Uniform, dist.LogUniform)):
+                low = f"{distribution.low:.2e}"
+                high = f"{distribution.high:.2e}"
+                bounds_info = f"Bounds: ({low}, {high})"
+
+            elif isinstance(distribution, (dist.Normal, dist.LogNormal)):
+                mean = f"{distribution.loc:.2e}"
+                std_dev = f"{distribution.scale:.2e}"
+                bounds_info = f"Mean: {mean}, StdDev: {std_dev}"
+            else:
+                bounds_info = "No Bounds"
+
+            print(f"Parameter: {param_name}, Distribution: {distribution_name}, {bounds_info}")
+    
+    @classmethod
+    def set_dm_priors(cls,new_priors):
+        cls._dm_priors = new_priors
+
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
     def _peri(cls,pars,x0,v0):
@@ -1275,6 +1350,9 @@ class Data:
         c = -2*beta
         M_jeans = (np.array(vr_fit) * q_eval / G) * (np.array(a) + np.array(b) + np.array(c))
         return q_eval,np.array(M_jeans)
+
+
+
 
 def rho_eval(S, r):
     r'''

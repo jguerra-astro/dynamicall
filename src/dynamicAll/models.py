@@ -20,6 +20,7 @@ from numpyro.infer import MCMC, NUTS
 from . import abel
 from . import distributions as jdists
 from .base import JaxPotential
+from functools import partial
 
 
 def centre(r:float,x0:jax.Array,v0:jax.Array,M:float,b:float) -> float:
@@ -170,20 +171,21 @@ class HernquistZhao(JaxPotential):
     
     Zhao 1996      : http://dx.doi.org/10.1093/mnras/278.2.488
     '''
+    
     _tracer_priors = {
-        'rhos' : dist.LogNormal(0.0, 1.0),
-        'rs'   : dist.LogNormal(0.0, 1.0),
-        'a'    : dist.Uniform(0.0, 1.0),
-        'b'    : dist.Uniform(0.0, 1.0),
-        'c'    : dist.Uniform(0.0, 1.0),
+        'tracer_rhos' : dist.LogNormal(0.0, 1.0),
+        'tracer_rs'   : dist.LogNormal(0.0, 1.0),
+        'tracer_a'    : dist.Uniform(0.0, 1.0),
+        'tracer_b'    : dist.Uniform(0.0, 1.0),
+        'tracer_c'    : dist.Uniform(0.0, 1.0),
     }#TODO: make sure these priors are within physical limits
 
     _dm_priors = {
-        'rhos' : dist.LogUniform(1e5,1e30),
-        'rs'   : dist.LogUniform(1e-10, 1e10),
-        'a'    : dist.Uniform(-1.0, 3.0),
-        'b'    : dist.Uniform(0.1, 5.0),
-        'c'    : dist.Uniform(1.0, 3.0),
+        'dm_rhos' : dist.LogUniform(jnp.exp(5),jnp.exp(30)),
+        'dm_rs'   : dist.LogUniform(jnp.exp(-10),jnp.exp(10)),
+        'dm_a'    : dist.Uniform(-1.0, 3.0),
+        'dm_b'    : dist.Uniform(0.1, 5.0),
+        'dm_c'    : dist.Uniform(1.0, 3.0),
     }
 
     def __init__(self,rhos: float,rs: float,a: float,b: float,c: float):
@@ -283,15 +285,17 @@ class HernquistZhao(JaxPotential):
             potential | units: :math:`km^{2} s^{-2}`
             
         '''
-        G =  self._G 
         # for readability
+        G       = self._G 
         a       = self._a
         b       = self._b
         c       = self._c
         rs      = self._rs   # kpc 
         rhos    = self._rhos # Msun/kpc^3
         
+        # vec_mass  = jax.vmap(HernquistZhao._mass,in_axes=(0, None,None,None, None,None))
         q       = r/rs # always convenient to make all integrals dimensionless
+        # phi_in  = rs*vec_mass(q,1.0,1.0,a,b,c)/r  # M/r
         phi_in  = rs*self._mass(q,1.0,1.0,a,b,c)/r  # M/r
 
         # integration points and weights for Gauss-Legendre quadrature + trig substitution
@@ -312,13 +316,15 @@ class HernquistZhao(JaxPotential):
             for r << rs, (\frac{r}{r_{s}} < 1e-5, depending on the order of the integration) the trig substitution usually used leads to numerical issues.
             Instead just use regular Gauss-Legendre quadrature from r to rs. then use the trig substitution to
             '''
-            x0 = r
-            x1 = 1.0          
+            x0 = q
+            x1 = 1          
             xi = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
             wi = 0.5*(x1-x0)*w
 
             t1 = jnp.sum(wi*HernquistZhao._density(xi,1.0,1.0,a,b,c)*xi,axis=0) # integrate from r to rs
-            t2 = rs*jnp.sum(wk*HernquistZhao._density(rs/jnp.sin(xk),1.0,1.0,a,b,c)*rs*jnp.cos(xk)/jnp.sin(xk)**3,axis=0) # integrate from rs to infinity
+            
+            t2 = 1*jnp.sum(wk*HernquistZhao._density(1/jnp.sin(xk),1.0,1.0,a,b,c)*1*jnp.cos(xk)/jnp.sin(xk)**3,axis=0) # integrate from rs to infinity
+            
             return t1+t2
 
         def greater_than_rs():
@@ -330,50 +336,7 @@ class HernquistZhao(JaxPotential):
 
         phi_out = jax.lax.cond(r <= rs, less_than_rs, greater_than_rs)
         
-        return -G*rhos*rs**2 *(0 -(phi_in+ 4*jnp.pi*phi_out)) 
-
-    def potential_old(self,r):
-        # # return -G*phi_in
-        # x0 = 0.0
-        # x1 = jnp.pi/2
-        
-        # xk = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
-        # wk = 0.5*(x1-x0)*w
-        # phi_out = q*jnp.sum(wk*self._density(q/jnp.sin(xk),1.0,1.0,a,b,c)*q*jnp.cos(xk)/jnp.sin(xk)**3,axis=0)
-
-
-        x0 = jnp.arcsin(r/rs)             # lower bound of integral])
-        x1 = jnp.pi/2.0                   # upper bound of integral
-
-        xi = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
-        wi = 0.5*(x1-x0)*w
-
-        t1 = r*jnp.sum(wi*self._density(r/jnp.sin(xi),1.0,1.0,a,b,c)*r*jnp.cos(xi)/jnp.sin(xi)**3,axis=0)
-        x0 = 0.0
-        x1 = jnp.pi/2
-        xk = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
-        wk = 0.5*(x1-x0)*w
-
-        t2 = rs*jnp.sum(wk*self._density(rs/jnp.sin(xk),1.0,1.0,a,b,c)*rs*jnp.cos(xk)/jnp.sin(xk)**3,axis=0)
-        phi_out=(t1+t2)
-        return -G*rhos*rs**2 *(0 -(phi_in+ 4*jnp.pi*phi_out)) 
-
-    def projection(self,R):
-        '''
-        TODO: What the hell is this doing here???
-
-        Parameters
-        ----------
-        func : _type_
-            _description_
-        R : _type_
-            _description_
-        params : _type_
-            _description_
-        
-        '''
-
-        return abel.project(self.density,R,(self._rhos,self._rs,self._a,self._b,self._c))
+        return -G*rhos*rs**2 *(phi_in+ 4*jnp.pi*phi_out)
 
     @staticmethod
     @jax.jit
@@ -461,6 +424,37 @@ class HernquistZhao(JaxPotential):
         wk    = 0.5*q*HernquistZhao._wk
         units = 4*jnp.pi*rhos*rs**3
         return units* jnp.sum(wk*xk**2 *HernquistZhao._density(xk,1.0,1.0,a,b,c),axis=0)
+
+    @staticmethod
+    @jax.jit
+    def _mass_fit(r: float,param_dict) -> float:
+        r'''
+        
+        Parameters
+        ----------
+        r : float
+            radius | units [L]
+        rhos : float
+            scale densisty | units [Mass * L**-3]
+        rs : float
+            scale radius | units [L]
+        a : float
+            inner slope | unitless
+        b : float
+            smoothness of transition from inner to outer slope | unitless
+        c : float
+            outer slope | unitless
+
+        Returns
+        -------
+        float
+            Mass enclosed within radius r | units [Mass]
+        '''
+        q     = r/param_dict['rs']
+        xk    = 0.5*q*HernquistZhao._xk + 0.5*q
+        wk    = 0.5*q*HernquistZhao._wk
+        units = 4*jnp.pi*param_dict['rhos']*param_dict['rs']**3
+        return units* jnp.sum(wk*xk**2 *HernquistZhao._density(xk,1.0,1.0,param_dict['a'],param_dict['b'],param_dict['c']),axis=0)
     
     @staticmethod
     def _mass_test(r: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
@@ -538,8 +532,8 @@ class NFW(JaxPotential):
     '''
 
     _dm_priors = {
-        'rhos': dist.LogUniform(1e-3,1e3),
-        'rs': dist.LogUniform(1e-3,1e3)
+        'dm_rhos': dist.LogUniform(1e-3,1e3),
+        'dm_rs': dist.LogUniform(1e-3,1e3)
     }
 
     def __init__(self,rhos: float,rs: float):
@@ -738,6 +732,12 @@ class NFW(JaxPotential):
         q    = (rs+r)/rs
         mNFW = 4*jnp.pi*rhos*rs**3 * (jnp.log(q) - (r/(rs+r))) # Analytical NFW mass profile
         return mNFW
+    @staticmethod
+    @jax.jit
+    def _potential(r,rhos: float,rs: float):
+                
+        G  = NFW._G
+        return -4*np.pi*G*rhos*rs**3 *jnp.log(1.0+r/rs)/r
 
     @staticmethod
     def from_ms_rs(M: float,rs: float):
@@ -1088,13 +1088,13 @@ class Plummer(JaxPotential):
         scale length | [kpc]
     '''
     _tracer_priors = {
-        'M':dist.LogUniform(10**-2,10**8),
-        'a':dist.LogUniform(10**-3,10**3),
+        'tracer_M':dist.LogUniform(1e-2,1e8),
+        'tracer_a':dist.LogUniform(1e-3,1e3),
     }
 
     _dm_priors = {
-        'M':dist.Uniform(10**3,10**12),
-        'a':dist.Uniform(1e-10,1e10),
+        'dm_M':dist.LogUniform(1e3,1e12),
+        'dm_a':dist.LogUniform(1e-10,1e10),
     }
     def __init__(self,M,a):
 
@@ -1106,7 +1106,7 @@ class Plummer(JaxPotential):
         
 
     def density(self,r:np.ndarray)->np.ndarray:
-        '''
+        r'''
         .. math::
             \rho(r) = \frac{3M}{4\pi a^3} \left(1+\frac{r^2}{a^2}\right)^{-5/2}
 
@@ -1442,6 +1442,30 @@ class Plummer(JaxPotential):
         return coeff * (1+q**2)**(-5/2)
 
     @staticmethod
+    def _density_fit(r: np.ndarray,param_dict) -> np.ndarray:
+        '''
+        Making these static methods for fitting purposes
+
+        Parameters
+        ----------
+        r : np.ndarray
+            radius : np.sqrt(x**2+y**2 + z**2)
+        M : float
+            _description_
+        a : float
+            _description_
+
+        Returns
+        -------
+        np.ndarray
+            _description_
+        '''
+        q     = r/param_dict['a']
+        coeff = 3*param_dict['M']/(4*np.pi*param_dict['a']**3)
+        
+        return coeff * (1+q**2)**(-5/2)
+
+    @staticmethod
     def _dispersion(r: np.ndarray,M: float,a: float) -> np.ndarray:
         '''
         velocity dispersion
@@ -1538,6 +1562,29 @@ class Plummer(JaxPotential):
         return coeff * (1 + q**2)**(-2)
 
     @staticmethod
+    def _projection_function(R: np.ndarray,param_dict) -> np.ndarray:
+        '''
+        2D projection of plummer model
+
+        Parameters
+        ----------
+        R : np.ndarray
+            Projected radii
+        M : float
+            'Mass' of system -- could just be total number of objects though
+        a : float
+            scale radius
+
+        Returns
+        -------
+        np.ndarray
+            [M.unit kpc^{-2}]
+        '''
+        q     = R/param_dict['a']
+        coeff = param_dict['M']/(np.pi*param_dict['a']**2) #units [M.unit/a.unit**2]
+        return coeff * (1 + q**2)**(-2)
+
+    @staticmethod
     def prob_func(x: np.ndarray,a: float) -> np.ndarray:
         return 4*np.pi*x**2 * Plummer._density(x,1,a)
 
@@ -1585,22 +1632,24 @@ class King(JaxPotential):
     def __init__(self,rc,rt):
         self._rc = rc
         self._rt = rt
+    
     def density(self, r):
         
-        return King.density(r,self._rc,self._rt)
+        return King._density(r,self._rc,self._rt)
 
     @staticmethod    
-    def _projection(R,rc,rt):
+    def _projection(R,rc: float,rt: float):
         '''                                                                                                                                                                     
         King Profile -surface brightness King 1962)                                                                                                                             
         '''
-        w = 1 +R**2/rc**2
-        v = 1 +rt**2/rc**2
-        term1 = np.sqrt(w)**-1
-        term2 = np.sqrt(v)**-1
+        w = 1.0 +R**2/rc**2
+        v = 1.0 +rt**2/rc**2
+        term1 = jnp.sqrt(w)**-1
+        term2 = jnp.sqrt(v)**-1
         return (term1-term2)**2
+    
     @staticmethod        
-    def _density(r,rc,rt):
+    def _density(r,rc: float,rt: float):
         '''                                                                                                                          
         King Profile - stellar density King 1962                                                                                     
         '''
@@ -1678,6 +1727,203 @@ class gEinasto(JaxPotential):
         '''
         q = r/rs
         return rhos*(r/rs)**(-gamma) * np.exp(-(2/alpha) * (q**alpha - 1))
+
+class NFW_truncated(NFW):
+
+    def __init__(self,rs,rhos,rt=None):
+        super().__init__(rs,rhos)
+        if rt is None:
+            self._rt = self.r200()
+
+    def density(self,r):
+        '''
+        This is the basic idea, but it's not quite right... i think
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+        '''
+        def r_lteq_rt():
+            return super().density(r)
+
+        def r_gt_rt():
+            return 0.0
+        
+        return jax.lax.cond(r<=self._rt,r_lteq_rt,r_gt_rt)
+        
+class PowerLaws(JaxPotential):
+    '''
+    See e.g GravSphere
+
+    Parameters
+    ----------
+    JaxPotential : _type_
+        _description_
+    '''
+    _dm_priors = {
+        'dm_rhos':dist.LogUniform(1e-2,1e8),
+        'dm_R_half':dist.LogUniform(1e-3,1e3),
+        'dm_gamma':dist.Uniform(-3,3),
+        'dm_beta':dist.Uniform(-3,3),
+        'dm_delta':dist.Uniform(-3,3),
+        'dm_sigma':dist.Uniform(-3,3),
+        'dm_alpha':dist.Uniform(-3,3),
+    }
+    def __init__(self,
+        rhos: float,
+        R_half: float,
+        gamma: float,
+        beta: float,
+        delta: float,
+        sigma: float,
+        alpha: float,
+        radial_bins: jax.Array = jnp.array([0.25,0.5,1.0,2.0,4.0]),
+        ):
+        self._rhos = rhos
+        self._R_half = R_half
+        self._gamma = gamma
+        self._beta = beta
+        self._delta = delta
+        self._sigma = sigma
+        self._alpha = alpha
+        self._radial_bins = radial_bins
+
+    def density(self,r):
+        return PowerLaws._density(r,
+                self._R_half,
+                self._rhos,
+                self._gamma,
+                self._beta,
+                self._delta,
+                self._sigma,
+                self._alpha,
+                self._radial_bins)
+    
+
+    @staticmethod
+    @jax.jit
+    def _density(r,
+        R_half : float,
+        rhos   : float,
+        gamma  : float,
+        beta   : float,
+        delta  : float,
+        sigma  : float,
+        alpha  : float,
+        radial_bins: jax.Array = jnp.array([0.25,0.5,1.0,2.0,4.0])):
+        '''
+        Describe the density profile as a sequence of power laws e.g Gravsphere
+
+        ..math::
+            \rho(r) = \rho_{s} 
+            \begin{cases}
+                \left(\frac{r}{0.25R_{1/2}}\right)^{\gamma} & r \lt 0.25 R_{1/2} \\
+                \left(\frac{r}{0.5R_{1/2}}\right)^{\beta}
+                    \left(\frac{0.5 R_{1/2}}{0.25 R_{half}}\right)^{\beta} & 0.25 R_{1/2} \le r \lt 0.5 R_{1/2} \\
+                \left(\frac{r}{R_{1/2}}\right)^{\delta}
+                    \left(\frac{R_{1/2}}{0.5 R_{half}}\right)^{\delta}
+                    \left(\frac{0.5 R_{1/2}}{0.25 R_{half}}\right)^{\beta} & 0.5 R_{1/2} \le r \lt R_{1/2} \\
+                \left(\frac{r}{2R_{1/2}}\right)^{\sigma}
+                    \left(\frac{2 R_{1/2}}{R_{half}}\right)^{\sigma}
+                    \left(\frac{R_{1/2}}{0.5 R_{half}}\right)^{\delta}
+                    \left(\frac{0.5 R_{1/2}}{0.25 R_{half}}\right)^{\beta}  & R_{1/2} \le r \lt 2 R_{1/2} \\
+                \left(\frac{r}{4R_{1/2}}\right)^{\alpha}
+                    \left(\frac{4 R_{1/2}}{2 R_{half}}\right)^{\alpha}
+                    \left(\frac{2 R_{1/2}}{R_{half}}\right)^{\sigma}
+                    \left(\frac{R_{1/2}}{0.5 R_{half}}\right)^{\delta}
+                    \left(\frac{0.5 R_{1/2}}{0.25 R_{half}}\right)^{\beta}  & r \ge 2 R_{1/2} \\
+            \end{cases}
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+        R_half : float
+            _description_
+        rhos : float
+            _description_
+        gamma : float
+            _description_
+        beta : float
+            _description_
+        delta : float
+            _description_
+        sigma : float
+            _description_
+        alpha : float
+            _description_
+        radial_bins : jax.Array, optional
+            _description_, by default jnp.array([0.25,0.5,1.0,2.0,4.0])
+
+        Returns
+        -------
+        _type_
+            _description_
+        '''
+        r_c = radial_bins* R_half
+
+        def r_gamma():
+            return (r/r_c[0])**gamma
+        def r_beta():
+            # Note Additional terms are added to ensure continuity
+            return (r/r_c[1])**beta * (r_c[1]/r_c[0])**(beta)
+        def r_delta():
+            return (r/r_c[2])**delta * (r_c[2]/r_c[1])**(delta) * (r_c[1]/r_c[0])**(beta)
+        def r_sigma():
+            return (r/r_c[3])**sigma * (r_c[3]/r_c[2])**(sigma) * (r_c[2]/r_c[1])**(delta) * (r_c[1]/r_c[0])**(beta)
+        def r_alpha():
+            return (r/r_c[4])**alpha * (r_c[4]/r_c[3])**(alpha) * (r_c[3]/r_c[2])**(sigma) * (r_c[2]/r_c[1])**(delta) * (r_c[1]/r_c[0])**(beta)
+
+
+        density = rhos* jax.lax.cond(r < r_c[0],
+                            r_gamma,
+                            lambda: jax.lax.cond(r<r_c[1],
+                                        r_beta,
+                                        lambda: jax.lax.cond(r<r_c[2],r_delta,
+                                                lambda: jax.lax.cond(r<r_c[3],r_sigma, r_alpha)
+                                                    )
+                                        )
+                                    )
+
+        return density
+    
+    @staticmethod
+    def _mass(r,
+        R_half: float,
+        rhos: float,
+        gamma: float,
+        beta: float,
+        delta: float,
+        sigma: float,
+        alpha: float,
+        radial_bins: jax.Array = jnp.array([0.25,0.5,1.0,2.0,4.0])):
+        '''
+        _summary_
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+        R_half : float
+            _description_
+        rhos : float
+            _description_
+        gamma : float
+            _description_
+        beta : float
+            _description_
+        delta : float
+            _description_
+        sigma : float
+            _description_
+        alpha : float
+            _description_
+        radial_bins : jax.Array, optional
+            _description_, by default jnp.array([0.25,0.5,1.0,2.0,4.0])
+        '''
+        ...
+
 
 class JeansOM:    
 
@@ -2131,6 +2377,8 @@ class gOM:
 
         return (r**2+a**2)**alpha
 
+
+
 class Anisotropy:
     _priors: dict = {}
     def beta(self):
@@ -2140,7 +2388,21 @@ class Anisotropy:
 
     @classmethod
     def get_priors(cls):
-        return cls._priors
+        for param_name, distribution in cls._priors.items():
+            distribution_name = distribution.__class__.__name__
+            if isinstance(distribution, (dist.Uniform, dist.LogUniform)):
+                low = f"{distribution.low:.2e}"
+                high = f"{distribution.high:.2e}"
+                bounds_info = f"Bounds: ({low}, {high})"
+
+            elif isinstance(distribution, (dist.Normal, dist.LogNormal)):
+                mean = f"{distribution.loc:.2e}"
+                std_dev = f"{distribution.scale:.2e}"
+                bounds_info = f"Mean: {mean}, StdDev: {std_dev}"
+            else:
+                bounds_info = "No Bounds"
+
+            print(f"Parameter: {param_name}, Distribution: {distribution_name}, {bounds_info}")
 
 class BetaConstant(Anisotropy):
     r'''
@@ -2156,7 +2418,7 @@ class BetaConstant(Anisotropy):
     '''
     beta0: float
 
-    anisotropy_prior = {
+    _priors = {
         'beta0': dist.Uniform(-5,1)
         }
 
@@ -2164,11 +2426,49 @@ class BetaConstant(Anisotropy):
         self._beta0 = beta0
 
     @staticmethod
-    def beta(r,beta0):
-        return beta0
+    def _beta(r,param_dict):
+        return param_dict['beta0']
 
     @staticmethod
-    def f_beta(r,beta0):
+    def _f_beta(r,param_dict):
+        return 1
+
+class BetaSymmetric(Anisotropy):
+    '''
+    This is the symmetric version of a constant anisotropy profile.
+    Define by
+    .. math::
+        \tilde{\beta} = \frac{\beta}{2-\beta}
+
+    or equivalently
+    .. math::
+        \beta = \frac{2\tilde{\beta}}{1+\tilde{\beta}}.
+
+    This allows for a simple prior on :math:`\tilde{\beta}` (-1,1) that maps to :math:`\beta` (-infinity,1).
+    and :math:`\tilde{\beta} = 0` corresponds to :math:`\beta = 0`.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    _type_
+        _description_
+    '''
+    beta0: float
+
+    _anisotropy_prior = {
+        'beta_tilde': dist.Uniform(-1,1)
+        }
+    def __init__(self,beta_tilde):
+        self._beta_tilde = beta_tilde
+
+    @staticmethod
+    def beta(beta_tilde):
+        return 2*beta_tilde/(1+beta_tilde)
+
+    @staticmethod
+    def f_beta(beta0):
         return 1
 
 class BetaOsipkovMerrit(Anisotropy):
@@ -2186,6 +2486,10 @@ class BetaOsipkovMerrit(Anisotropy):
     beta0 : float
         _description_
     '''
+    _anisotropy_prior = {
+        'ra': dist.Uniform(0,10),
+        'beta': dist.Uniform(-5,1),
+        }
     def __init__(self,ra):
         self._ra    = ra
 
