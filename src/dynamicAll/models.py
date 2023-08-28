@@ -375,6 +375,13 @@ class HernquistZhao(JaxPotential):
         nu = (a-c)/b
         return rhos * q**-a * (1+q**b)**(nu)
 
+    @staticmethod
+    @jax.jit
+    def _density_fit(r,param_dict):
+        q = r/param_dict['rs']
+        nu = (param_dict['a']-param_dict['c'])/param_dict['b']
+        return param_dict['rhos'] * q**-param_dict['a'] * (1+q**param_dict['b'])**(nu)
+   
     @staticmethod    
     def mass_scipy(r,rhos: float,rs: float,a: float,b: float,c: float):
         '''
@@ -760,6 +767,46 @@ class NFW(JaxPotential):
         
         return NFW(rhos,rs)
 
+class gNFW(JaxPotential):
+
+    _dm_param_dict = {
+        'gamma': dist.Uniform(-1.0, 2.0),
+        'rhos': dist.LogUniform(1e-3,1e10),
+        'rs': dist.LogUniform(1e-3,1e3)
+    }
+
+    def __init__(self,gamma,rhos,rs):
+        self._gamma = gamma
+        self._rhos  = rhos
+        self._rs    = rs
+        self.param_dict = {'gamma':self._gamma,'rhos':self._rhos,'rs':self._rs}
+
+        super().__init__()
+
+    def density(self,r):
+        return gNFW._density(r,self.param_dict)
+
+    @staticmethod
+    def _density(r,param_dict):
+        gamma = param_dict['gamma']
+        rhos  = param_dict['rhos']
+        rs    = param_dict['rs']
+        q     = r/rs
+        return rhos * q**(-gamma) * (1+q)**(gamma-3)
+
+    @staticmethod
+    @jax.jit
+    def _mass_fit(r,param_dict):
+
+        q     = r/param_dict['rs']
+        xk    = 0.5*q*gNFW._xm + 0.5*q
+        wk    = 0.5*q*gNFW._wm
+        # units = 4*jnp.pi*param_dict['rhos']*param_dict['rs']**3
+        # param_dict['rhos'] = 1.0
+        # param_dict['rs']   = 1.0
+        units = 4*jnp.pi 
+        return units* jnp.sum(wk*xk**2 *gNFW._density(xk,param_dict),axis=0)
+
 class Isochrone(JaxPotential):
     
     def __init__(self,M:float,b:float)-> None:
@@ -1104,6 +1151,7 @@ class Plummer(JaxPotential):
         self._rho = 3*self._M/(4*np.pi*self._a**3)
         self.G    = 4.300917270036279e-06 #kpc km^2 s^-2 Msun^-1
         
+        ''
 
     def density(self,r:np.ndarray)->np.ndarray:
         r'''
@@ -1243,7 +1291,11 @@ class Plummer(JaxPotential):
         xyz[2] = r * np.sin(theta) #* Check the angle conventions again! 
         return np.sqrt(xyz[0]**2+xyz[1]**2)
 
-    def sample_w_conditional(self,N:int, evolve=False,save=False,fileName='./out.txt') -> np.ndarray:
+    def sample_w_conditional(self,
+                N:int,
+                evolve=False,
+                save=False,
+                fileName='./out.txt') -> np.ndarray:
         # first sample from r
         x,y,z= self.sample_xyz(N)
 
@@ -1399,24 +1451,6 @@ class Plummer(JaxPotential):
         '''
         return 7*np.log(-E)/2
 
-    # @property
-    # def tracer_priors(self):
-    #     return self._tracer_priors.copy()
-
-    # @tracer_priors.setter
-    # def tracer_priors(self, priors):
-    #     self._tracer_priors = priors
-
-
-    # @property
-    # def default_priors(self):
-    #     return self._default_priors.copy()
-
-    # @default_priors.setter
-    # def default_priors(self, priors):
-    #     self._default_priors = priors
-
-
     @staticmethod
     def _density(r: np.ndarray,M: float,a: float) -> np.ndarray:
         '''
@@ -1539,7 +1573,7 @@ class Plummer(JaxPotential):
         return -G*M/a/jnp.sqrt(1+q**2)
 
     @staticmethod
-    def projection(R: np.ndarray, M: float, a: float) -> np.ndarray:
+    def _projection(R: np.ndarray, M: float, a: float) -> np.ndarray:
         '''
         2D projection of plummer model
 
@@ -1603,26 +1637,6 @@ class Plummer(JaxPotential):
         r_center = (np.roll(bin_edges,-1)+bin_edges)[:-1]/2
         nu = N/v_shell
         return r_center,nu,bin_edges,v_shell
-
-    @staticmethod
-    def fit(data):
-        def model(data=None):
-            # Define the prior distribution for a
-            a = numpyro.sample('a', numpyro.distributions.Uniform(0, 10)) # should maybe leave this as a parameter
-            # Define the likelihood function using the Normal3D distribution qq
-            # with numpyro.plate('data', len(data)):
-            numpyro.sample('obs', jdists.Plummer(a), obs=data)
-
-        # Run the MCMC sampler
-        num_samples = 1000
-        num_warmup = 1000
-        kernel = NUTS(model)
-        mcmc = MCMC(kernel, 
-                    num_warmup=2000,
-                    num_samples=4000,
-                    num_chains=2,)
-        mcmc.run(random.PRNGKey(0), data=data)
-        return mcmc
 
 class King(JaxPotential):
 
@@ -1924,461 +1938,6 @@ class PowerLaws(JaxPotential):
         '''
         ...
 
-
-class JeansOM:    
-
-    def __init__(self,data: np.ndarray,model_dm,model_tr,model_beta):
-        '''
-        Parameters
-        ----------
-        data : np.ndarray
-            (projected positions,line-of-sight velocities)
-
-        Notes
-        -----
-        
-        '''
-        self._G    = 4.5171031e-39 # Gravitational constant in the right units
-        self._data = data          # data
-        self._dm   = model_dm      # dark matter
-        self._tr   = model_tr      # tracers
-        self._beta = model_beta    # stellar anisotropy model
-
-    @staticmethod
-    def likelihood(data: np.ndarray,model: Callable,theta: np.ndarray) -> float:
-        '''
-        I'll keep this around so that it's easy to evaluate the likelihood at a value with some theta
-
-        Parameters
-        ----------
-        data : np.ndarray
-            _description_
-        model : Callable
-            _description_
-        theta : np.ndarray
-            parameters we're fitting
-
-        Returns
-        -------
-        float
-            _description_
-        '''
-        R      = data[0]
-        vi     = data[1]
-        err    = np.full_like(R,0) # here in case i want to change this to include errors
-        N      = len(vi)
-        e2     = model(R,theta) + err**2
-        
-
-        term1 = - 0.5 * np.sum(np.log(e2))
-        term2 = - 0.5 * np.sum(vi**2/e2)   # This assumes that the velocities are gaussian centered at 0 
-        term3 = - 0.5 * N *np.log(2*np.pi) # doesnt really need to be here
-        return term1+term2+term3
-
-    @staticmethod
-    def beta(r:float,a: float,alpha = 1):
-        r'''
-        Osipkov-Merrit stellar anisotropy
-        \beta = 0 as r -> 0
-        \beta = 1 as r -> infinity
-        a determines how quickly the trasition from \beta= 0 to 1 happens 
-        
-        Parameters
-        ----------
-        r : float
-            _description_
-        a : float
-            scale length
-            determines how quickly the trasition from \beta= 0 to 1 happens 
-
-        Returns
-        -------
-        _type_
-            0 as r -> 0
-            1 as r -> infinity
-            unitless
-        
-        Notes
-        -----
-        TODO: Need to change to include alpha parameter as a paramater to fit so that the anisotropy can be negative
-        TODO: change 2 to a parameter
-        TODO: look into the symmetrized velocity anisotropy
-        
-        '''
-        # alpha = 1
-        return alpha*r**2/(r**2+a**2)
-
-    @staticmethod
-    def f_beta(r:float,a:float,alpha = 1):
-        r'''
-        f(r) = exp[2 \inta_{0}^{r}{\beta(r)/r} dr ]
-
-        Parameters
-        ----------
-        r : float
-            _description_
-        a : float
-            scale radius for stellar anisotropy
-
-        Returns
-        -------
-        _type_
-            _description_
-        
-        Notes
-        -----
-        '''
-        return (a**2 + r**2)**alpha
-
-    @staticmethod
-    def mass(r,rhos,rs,a,b,c):
-        
-        return HernquistZhao.mass(r,rhos,rs,a,b,c)
-
-    @staticmethod
-    def nu(r,ap):
-        return Plummer._density(r,1.0,ap)
-
-    @staticmethod
-    def projected_stars(R,ap):
-        return Plummer.projection(R,1.0,ap)
-
-    @staticmethod
-    def beta_func(f,r,a):
-        grad = jax.grad(f)
-        return r*grad(r,a)/f(r,a)
-
-    
-    @staticmethod
-    def dispersion(r: float,r200: float,abeta: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
-        '''
-        velocity dispersion form a system with:
-        1. Hernquist-Zhao density profile
-        2. Asipkov-Merrit stellar anisotropy profile
-
-        see e.g: B&T
-
-        Parameters
-        ----------
-        r : float
-            _description_
-        r200 : float
-            _description_
-        abeta : float
-            _description_
-        rhos : float
-            _description_
-        rs : float
-            _description_
-        a : float
-            _description_
-        b : float
-            _description_
-        c : float
-            _description_
-
-        Returns
-        -------
-        float
-            radial velocity dispersion
-            units: [kpc**2 s**-2]
-
-        Notes
-        -----
-        Needs to be vectorize in order to accept an array of radii
-        '''
-        G  = 4.5171031e-39 # Gravitational constant
-        x0 = r    # lowerbound 
-        x1 = r200 # upperbound
-        
-        # Gauss-Legendre integration
-        xi = (x1-x0)*0.5*x + .5*(x1+x0) # scale from a = 0, b= 1 to a= r, b = r_{200}
-        wi = (x1-x0)*0.5*w              # modify weights
-
-
-        # term1 = G* JeansOM.mass(xi,rhos,rs,a,b,c)* JeansOM.f_beta(xi,abeta)*JeansOM.nu(xi,.25)/xi**2 #GM\nu *f_beta
-        # return JeansOM.mass(xi,rhos,rs,a,b,c)
-        term1  = JeansOM.mass(xi,rhos,rs,a,b,c)*JeansOM.nu(xi,1.0)*JeansOM.f_beta(xi,abeta) /xi**2
-        return G * jnp.sum(wi*term1,axis=0)/JeansOM.f_beta(r,abeta)/JeansOM.nu(r,1.0)
-
-    @staticmethod
-    def nusigma(
-        r     : float,
-        r200  : float,
-        abeta : float,
-        rhos  : float,
-        rs    : float,
-        a     : float,
-        b     : float,
-        c     : float) -> float:
-        '''
-        velocity dispersion form a system with:
-            1. Hernquist-Zhao density profile
-            2. Asipkov-Merrit stellar anisotropy profile
-
-        see e.g: B&T
-
-        Parameters
-        ----------
-        r : float
-            _description_
-        r200 : float
-            _description_
-        abeta : float
-            _description_
-        rhos : float
-            _description_
-        rs : float
-            _description_
-        a : float
-            _description_
-        b : float
-            _description_
-        c : float
-            _description_
-
-        Returns
-        -------
-        float
-            radial velocity dispersion
-            units: [kpc**2 s**-2]
-
-        Notes
-        -----
-        Needs to be vectorize in order to accept an array of radii
-        '''
-        G  = 4.5171031e-39 # Gravitational constant [kpc**3 solMass**-1 s**-2] 
-        x0 = r             # lower bound 
-        x1 = r200          # upper bound
-        
-        # Gauss-Legendre integration
-        xi = (x1-x0)*0.5*x + .5*(x1+x0) # xcale from (0,1) ->  (r,r_{200}) 
-        wi = (x1-x0)*0.5*w              # modify weights
-
-
-        # term1 = G* JeansOM.mass(xi,rhos,rs,a,b,c)* JeansOM.f_beta(xi,abeta)*JeansOM.nu(xi,.25)/xi**2 #GM\nu *f_beta
-
-        term1  = JeansOM.mass(xi,rhos,rs,a,b,c)*JeansOM.nu(xi,1.0) * JeansOM.f_beta(xi,abeta)/xi**2
-        return G* jnp.sum(wi*term1,axis=0)/JeansOM.f_beta(r,abeta)
-
-
-    @staticmethod
-    def los_dispersion(R: float,r200: float,abeta: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
-        '''
-        velocity dispersion form a system with:
-            1. Hernquist-Zhao density profile
-            2. Asipkov-Merrit stellar anisotropy profile
-
-        see e.g: B&T
-
-        Parameters
-        ----------
-        r : float
-            _description_
-        r200 : float
-            _description_
-        abeta : float
-            _description_
-        rhos : float
-            _description_
-        rs : float
-            _description_
-        a : float
-            _description_
-        b : float
-            _description_
-        c : float
-            _description_
-
-        Returns
-        -------
-        float
-            radial velocity dispersion
-            units: [kpc**2 s**-2]
-
-        Notes
-        -----
-        Needs to be vectorize in order to accept an array of radii
-        '''
-        y0 = R    # lowerbound 
-        y1 = r200 # upperbound
-        
-        # Gauss-Legendre integration
-        xj = (y1-y0)*0.5*x + .5*(y1+y0) # scale from a = 0, b= 1 to a= r, b = r_{200}
-        wj = (y1-y0)*0.5*w              # scale weights
-
-        # unit_converstion = 9.5214061e32
-        unit_converstion = 1
-        term1 = 1-JeansOM.beta(xj,abeta)*(R/xj)**2                # 1 - beta(r)* R**2 / r**2
-        
-        term2 = JeansOM.nusigma(xj,r200,abeta,rhos,rs,a,b,c)*xj/jnp.sqrt(xj**2-R**2)     #\nu(r)\sigma_{r}(r)
-
-        return 2 *unit_converstion* jnp.sum(wj*term1*term2,axis=0)/JeansOM.projected_stars(R,1.0)
-
-    @staticmethod
-    def dispersion0(r: float,r200: float,abeta: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
-        '''
-        velocity dispersion form a system with:
-        1. Hernquist-Zhao density profile
-        2. Asipkov-Merrit stellar anisotropy profile
-
-        see e.g: B&T
-
-        Parameters
-        ----------
-        r : float
-            _description_
-        r200 : float
-            _description_
-        abeta : float
-            _description_
-        rhos : float
-            _description_
-        rs : float
-            _description_
-        a : float
-            _description_
-        b : float
-            _description_
-        c : float
-            _description_
-
-        Returns
-        -------
-        float
-            radial velocity dispersion
-            units: [kpc**2 s**-2]
-
-        Notes
-        -----
-        Needs to be vectorize in order to accept an array of radii
-        '''
-        G  = 4.5171031e-39 # Gravitational constant
-        x0 = r    # lowerbound 
-        x1 = r200 # upperbound
-        
-        # Gauss-Legendre integration
-        xi = (x1-x0)*0.5*x + .5*(x1+x0) # scale from a = 0, b= 1 to a= r, b = r_{200}
-        wi = (x1-x0)*0.5*w              # modify weights
-
-        return G * jnp.sum(wi*JeansOM.mass(xi,rhos,rs,a,b,c)*JeansOM.nu(xi,1.0)/xi**2)/JeansOM.nu(r,1.0)
-
-    @staticmethod
-    def nusigma0(r: float, r200: float, abeta : float, rhos: float, rs: float, a: float, b: float, c: float) -> float:
-        '''
-        velocity dispersion form a system with:
-        1. Hernquist-Zhao density profile
-        2. Asipkov-Merrit stellar anisotropy profile
-
-        see e.g: B&T
-
-        Parameters
-        ----------
-        r : float
-            _description_
-        r200 : float
-            _description_
-        abeta : float
-            _description_
-        rhos : float
-            _description_
-        rs : float
-            _description_
-        a : float
-            _description_
-        b : float
-            _description_
-        c : float
-            _description_
-
-        Returns
-        -------
-        float
-            radial velocity dispersion
-            units: [kpc**2 s**-2]
-
-        Notes
-        -----
-        Needs to be vectorize in order to accept an array of radii
-        '''
-        G  = 4.5171031e-39 # Gravitational constant [kpc**3 solMass**-1 s**-2] 
-        x0 = r             # lower bound 
-        x1 = r200          # upper bound
-        
-        # Gauss-Legendre integration
-        xi = (x1-x0)*0.5*x + .5*(x1+x0) # xcale from (0,1) ->  (r,r_{200}) 
-        wi = (x1-x0)*0.5*w              # modify weights
-
-        return G* jnp.sum(wi*JeansOM.mass(xi,rhos,rs,a,b,c)*JeansOM.nu(xi,0.25)/xi**2,axis=0)
-
-    @staticmethod
-    def los_dispersion0(R: float,r200: float,abeta: float,rhos: float,rs: float,a: float,b: float,c: float) -> float:
-        '''
-        velocity dispersion form a system with:
-            1. Hernquist-Zhao density profile
-            2. Asipkov-Merrit stellar anisotropy profile
-
-        see e.g: B&T
-
-        Parameters
-        ----------
-        r : float
-            _description_
-        r200 : float
-            _description_
-        abeta : float
-            _description_
-        rhos : float
-            _description_
-        rs : float
-            _description_
-        a : float
-            _description_
-        b : float
-            _description_
-        c : float
-            _description_
-
-        Returns
-        -------
-        float
-            radial velocity dispersion
-            units: [kpc**2 s**-2]
-
-        Notes
-        -----
-        Needs to be vectorize in order to accept an array of radii
-        
-        '''
-        y0 = R    # lowerbound 
-        y1 = r200 # upperbound
-        
-        # Gauss-Legendre integration
-        xj = (y1-y0)*0.5*x + .5*(y1+y0) # scale from a = 0, b= 1 to a= r, b = r_{200}
-        wj = (y1-y0)*0.5*w              # scale weights
-        
-        term2 = JeansOM.nusigma(xj,r200,abeta,rhos,rs,a,b,c)*xj/jnp.sqrt(xj**2-R**2)     #\nu(r)\sigma_{r}(r)
-
-        return 2* jnp.sum(wj*term2,axis=0)/JeansOM.projected_stars(R,1.0)
-
-class gOM:
-    def __init__(self,a,alpha):
-
-        self._a     = a
-        self._alpha = a
-
-    @staticmethod
-    def beta(r,a,alpha):
-
-        return alpha*r**2/(r**2+a**2)
-
-    @staticmethod
-    def g_beta(r,a,alpha):
-
-        return (r**2+a**2)**alpha
-
-
-
 class Anisotropy:
     _priors: dict = {}
     def beta(self):
@@ -2411,15 +1970,18 @@ class BetaConstant(Anisotropy):
     .. math::
         \beta(r) = \beta_0
 
+    .. math::
+        f(\beta) = r^{2\beta_0}
+
     Parameters
     ----------
     beta0 : float
         _description_
     '''
-    beta0: float
+
 
     _priors = {
-        'beta0': dist.Uniform(-5,1)
+        'beta_0': dist.Uniform(-5,1)
         }
 
     def __init__(self,beta0):
@@ -2427,11 +1989,11 @@ class BetaConstant(Anisotropy):
 
     @staticmethod
     def _beta(r,param_dict):
-        return param_dict['beta0']
+        return param_dict['0']
 
     @staticmethod
     def _f_beta(r,param_dict):
-        return 1
+        return r**(2*param_dict['0'])
 
 class BetaSymmetric(Anisotropy):
     '''
@@ -2455,7 +2017,6 @@ class BetaSymmetric(Anisotropy):
     _type_
         _description_
     '''
-    beta0: float
 
     _anisotropy_prior = {
         'beta_tilde': dist.Uniform(-1,1)

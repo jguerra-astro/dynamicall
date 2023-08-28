@@ -56,10 +56,17 @@ class JaxPotential(ABC):
     _dm_priors     = {}
     
     # So that static methods can do integrals and what not
-    _xk,_wk = np.polynomial.legendre.leggauss(100)
-    _xk,_wk = jnp.array(_xk),jnp.array(_wk)    
-    _G      = const.G.to(u.kpc*u.km**2/u.solMass/u.s**2).value
+    _xk,_wk  = np.polynomial.legendre.leggauss(100)
+    _xk,_wk  = jnp.array(_xk),jnp.array(_wk)    
+    _xm,_wm  = np.polynomial.legendre.leggauss(20)
+    _xm,_wm  = jnp.array(_xm),jnp.array(_wm)    
+    _G       = const.G.to(u.kpc*u.km**2/u.solMass/u.s**2).value
+    _GeV2cm5 = (1*u.solMass**2*u.kpc**-5 *const.c**4).to(u.GeV**2/u.cm**5).value
+    _GeVcm2 = (1*u.solMass*u.kpc**-2 *const.c**2).to(u.GeV/u.cm**2).value
 
+    # Need a different accuracy for the J-factor integral
+    _xj,_wj = np.polynomial.legendre.leggauss(1000)
+    _xj,_wj = jnp.array(_xj),jnp.array(_wj)
     def __init__(self,
         int_order: int   = 100,
         JfactorN : int   = 1000,
@@ -75,7 +82,7 @@ class JaxPotential(ABC):
         xj,wj = np.polynomial.legendre.leggauss(JfactorN)
         self._xj,self._wj = jnp.array(xj),jnp.array(wj)
 
-    def dJdOmega(self,theta,d,rt):
+    def dJdOmega(self,theta,D,rt):
         r'''
         .. math:
             \frac{dJ}{d\omega} = \int{\rho^{2}(r) d\ell}
@@ -85,11 +92,12 @@ class JaxPotential(ABC):
         theta : _type_
             _description_
         '''
-        l0 = d*jnp.cos(theta) - jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)
-        l1 = d*jnp.cos(theta) + jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)          
+        l0 = D*jnp.cos(theta) - jnp.sqrt(rt**2 - (D*jnp.sin(theta))**2)
+        l1 = D*jnp.cos(theta) + jnp.sqrt(rt**2 - (D*jnp.sin(theta))**2)          
         xi = 0.5*(l1-l0)*self._xj + 0.5*(l1+l0) 
         wi = 0.5*(l1-l0)*self._wj
-        return jnp.sum(wi*self.density(jnp.sqrt(xi**2 + d**2 - 2*xi*d*jnp.cos(theta)))**2)
+        return jnp.sum(wi*self.density(jnp.sqrt(xi**2 + D**2 - 2*xi*D*jnp.cos(theta)))**2)
+
     @partial(jax.jit, static_argnums=(0,))
     def jFactor(self,theta,d,rt):
         r'''
@@ -128,14 +136,16 @@ class JaxPotential(ABC):
         Note the Units.
         Maybe I should just return log10(J/[GeV^{2} cm^{-5}]) instead of J?
         '''
-        # theta = jnp.atleast_1d(theta)
+
+        
         x0 = 0
         x1 = theta
         xi = 0.5*(x1-x0)*self._xj + 0.5*(x1+x0) 
         wi = 0.5*(x1-x0)*self._wj
         vectorized_func = jax.vmap(self.dJdOmega,in_axes=(0,None,None))
-        return 2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi))
-
+        return jnp.log10(2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi)) * self._GeV2cm5)
+    
+    @partial(jax.jit,static_argnums=(0,))
     def dDdOmega(self,theta,d,rt):
         '''
         _summary_
@@ -188,7 +198,7 @@ class JaxPotential(ABC):
         xi = 0.5*(x1-x0)*self._xj + 0.5*(x1+x0) 
         wi = 0.5*(x1-x0)*self._wj
         vectorized_func = jax.vmap(self.dDdOmega,in_axes=(0,None,None))
-        return 2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi))
+        return jnp.log10(2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi))*self._GeVcm2)
 
     @abstractmethod
     def density(self,r):
@@ -298,29 +308,6 @@ class JaxPotential(ABC):
         grad = jax.grad(self.density)
         return -r*grad(r)/self.density(r)
 
-    def func(self,x: float):
-        r'''
-        helper function for calculating r_{200} for a given density/mass profile.
-
-        Parameters
-        ----------
-        x : float
-            Has to be in kpc for the units to work out
-            but it cant have units otherwise the function won't work.. 
-
-        Returns
-        -------
-        float
-            average density - 200\rho_{crit}
-        
-        Notes
-        -----
-        This doesnt really belong here -- at least not in this structure
-        '''
-        x = jnp.atleast_1d(x)
-        rho_crit = 133.3636319527206 # critical density from astropy's WMAP9 with units [solMass/kpc**3]
-        Delta    = 200.0
-        return self.mass(x)[0]/(4*jnp.pi*(x[0]**3)/3) - Delta*rho_crit
     
     def r200(self):
         '''
@@ -338,15 +325,76 @@ class JaxPotential(ABC):
         This might actually be more useful
         BUG: lower=1e-20 does not work with the NFW class for some reason even though its analytical... must look into this at some point
         '''
+        def func(x: float):
+            r'''
+            helper function for calculating r_{200} for a given density/mass profile.
+
+            Parameters
+            ----------
+            x : float
+                Has to be in kpc for the units to work out
+                but it cant have units otherwise the function won't work.. 
+
+            Returns
+            -------
+            float
+                average density - 200\rho_{crit}
+            
+            Notes
+            -----
+            This doesnt really belong here -- at least not in this structure
+            '''
+            x = jnp.atleast_1d(x)
+            rho_crit = 133.3636319527206 # critical density from astropy's WMAP9 with units [solMass/kpc**3]
+            Delta    = 200.0
+            return self.mass(x)[0]/(4*jnp.pi*(x[0]**3)/3) - Delta*rho_crit
+        
         # rho_crit = cosmo.critical_density(0).to(u.solMass/u.kpc**3).value
         # rho_crit = 133.3636319527206 # critical density from astropy's WMAP9 with units [solMass/kpc**3]
         # Delta    = 200
         # func     = lambda x: self.get_mass(x)/(4*np.pi*(x**3)/3) - Delta*rho_crit
         
-        bisec = Bisection(optimality_fun=self.func, lower= 1e-10, upper = 300,check_bracket=False)
+        bisec = Bisection(optimality_fun=func, lower= 1e-10, upper = 300,check_bracket=False)
         
         return bisec.run().params
 
+
+    def rtidal(self,r_dsph):
+        '''
+        _summary_
+
+        Parameters
+        ----------
+        r_dsph : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        '''
+        from . import models
+
+        def func(r,r_dsph):
+            # e.g. gala's default parameters for the Milky Way Halo
+            mw_ms = 5.4e11 # Msun - scale mass
+            mw_rs = 15.62  # kpc  - scale radius 
+
+            dSph_mass = self.mass(r)[-1]
+            mw_mass   = models.NFW.from_ms_rs(mw_ms, mw_rs).mass(r_dsph - r)
+            return dSph_mass*(r_dsph - r)**3/r**3 - mw_mass
+        
+        
+        bisec = Bisection(optimality_fun=func, 
+                        lower= 1e-10,
+                        upper = r_dsph,
+                        check_bracket=False,
+                        maxiter=50,
+                        tol=1e-10
+                        )
+        return bisec.run(r_dsph=r_dsph).params
+
+        
     def r200_notjax(self):
         '''
         Radius at which the average density of the halo is equal to 200 times the critical density
@@ -537,6 +585,7 @@ class JaxPotential(ABC):
         xk = 0.5*(x1-x0)*self._xk + 0.5*(x1+x0) 
         wk = 0.5*(x1-x0)*self._wk
         return np.sum(wk*f_abel(R/jnp.sin(xk),R)*R*jnp.cos(xk)/jnp.sin(xk)**2,axis=0)
+    
     @partial(jax.jit, static_argnums=(0,))
     def deproject(self,r):
         r'''
@@ -723,7 +772,139 @@ class JaxPotential(ABC):
         L_phi = x[0]*v[1] - x[1]*v[0]
         return L_phi
 
-class Data:
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _dJdOmega(cls,theta,param_dict,d,rt):
+        r'''
+        .. math:
+            \frac{dJ}{d\omega} = \int{\rho^{2}(r) d\ell}
+
+        Parameters
+        ----------
+        theta : _type_
+            _description_
+        '''
+        # First integrate from r_min to l_
+        
+        # l_min = d*jnp.cos(theta) - jnp.sqrt(rmin**2 - (d*jnp.sin(theta))**2)
+        
+        l0 = d*jnp.cos(theta) - jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)
+        l_mid = d*jnp.cos(theta)
+        xi = 0.5*(l_mid-l0)*cls._xj + 0.5*(l_mid+l0) 
+        wi = 0.5*(l_mid-l0)*cls._wj
+        sum1 =jnp.sum(wi*cls._density_fit(jnp.sqrt(xi**2 + d**2 - 2*xi*d*jnp.cos(theta)),param_dict)**2)
+
+        # Now integrate from rm to l+
+        l_max = d*jnp.cos(theta) + jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)   
+        xv = 0.5*(l_max-l_mid)*cls._xj + 0.5*(l_max+l_mid) 
+        wv = 0.5*(l_max-l_mid)*cls._wj
+        sum2 = jnp.sum(wv*cls._density_fit(jnp.sqrt(xv**2 + d**2 - 2*xv*d*jnp.cos(theta)),param_dict)**2)
+        return sum1+sum2
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _jFactor(cls,theta,param_dict,d,rt):
+        r'''
+        J-factor
+        .. math:
+            J= \int\int_{\rm los} \rho^{2}(r) d\Omega dl
+        
+        where we write r as :math:`r^2=\ell^2+d^2-2 \ell d \cos \theta` where :math:`\ell` is the distance along the line of sight and d is the distance to the center of the galaxy.
+        Spherical symmetry lets us write :math:`d\Omega=2\pi\sin\theta d\theta`.
+
+        The bounds on the line of sight are $\ell_{ \pm}=d \cos \theta \pm \sqrt{r_{200}^2-d^2 \sin ^2 \theta}$.
+        where $r_{200}$ is the 'size' of the system.
+
+        substituting in the integral we get
+        $$
+        J(\theta_{\rm max}) = 2 \pi \int_{0}^{\theta_{\rm max}} \int_{\ell_{-}}^{\ell_{+}} \left[\rho\left(\sqrt{\ell^2+d^2-2 \ell d \cos \theta}\right)\right]^{2}\sin(\theta) d\ell d\theta
+        $$
+
+        Parameters
+        ----------
+        theta : float
+            _description_
+        d : float
+            distance to system | [kpc]
+        rt : float
+            tidal radius of system | [kpc]
+
+        Returns
+        -------
+        float
+            J-factor | [:math:`M_{\odot}^{2}~kpc^{-5}]`
+
+        Notes
+        -----
+        Should rt just be r_200? should i just change the bounds on the line of sight part to be -inf to inf?
+        Note the Units.
+        Maybe I should just return log10(J/[GeV^{2} cm^{-5}]) instead of J?
+        '''
+        # theta = jnp.atleast_1d(theta)
+        x0 = 0
+        x1 = theta
+        xi = 0.5*(x1-x0)*cls._xj + 0.5*(x1+x0) 
+        wi = 0.5*(x1-x0)*cls._wj
+        vectorized_func = jax.vmap(cls._dJdOmega,in_axes=(0,None,None,None))
+        return jnp.log10(2*jnp.pi*jnp.sum(wi*vectorized_func(xi,param_dict,d,rt)*jnp.sin(xi)) * cls._GeV2cm5)
+    @classmethod
+    @partial(jax.jit,static_argnums=(0,))
+    def _dDdOmega(self,theta,d,rt):
+        '''
+        _summary_
+
+        Parameters
+        ----------
+        theta : _type_
+            _description_
+        d : _type_
+            _description_
+        rt : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        '''
+        l0 = d*jnp.cos(theta) - jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)
+        l1 = d*jnp.cos(theta) + jnp.sqrt(rt**2 - (d*jnp.sin(theta))**2)          
+        xi = 0.5*(l1-l0)*self._xj + 0.5*(l1+l0) 
+        wi = 0.5*(l1-l0)*self._wj
+        return jnp.sum(wi*self.density(jnp.sqrt(xi**2 + d**2 - 2*xi*d*jnp.cos(theta))))
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _dFactor(cls,param_dict,theta,d,rt):
+        '''
+        Decay Factor
+
+        Parameters
+        ----------
+        theta : _type_
+            _description_
+        d : _type_
+            _description_
+        rt : _type_
+            _description_
+
+        Returns
+        -------
+        float
+            Decay Factor | [:math:`M_{\odot}~kpc^{-2}]`
+
+        Notes
+        -----
+        TODO: Decide on the units and log10 or not
+        '''
+        x0 = 0
+        x1 = theta
+        xi = 0.5*(x1-x0)*cls._xj + 0.5*(x1+x0) 
+        wi = 0.5*(x1-x0)*cls._wj
+        vectorized_func = jax.vmap(cls.dDdOmega,in_axes=(0,None,None,None))
+        return jnp.log10(2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi),param_dict)*self._GeVcm2)
+
+class Data(ABC):
 
     def __init__(self):
         
@@ -1350,8 +1531,6 @@ class Data:
         c = -2*beta
         M_jeans = (np.array(vr_fit) * q_eval / G) * (np.array(a) + np.array(b) + np.array(c))
         return q_eval,np.array(M_jeans)
-
-
 
 
 def rho_eval(S, r):

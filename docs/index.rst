@@ -24,6 +24,7 @@ The use of Jax allows us to use automatic differentiation to calculate the gradi
    Installation
    notebooks/tutorial_potential
    notebooks/tutorial_plummer
+   notebooks/tutorial_jfactors
    .. modules
 
 Indices and tables

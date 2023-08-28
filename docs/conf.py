@@ -39,7 +39,7 @@ extensions = [
     'sphinx_copybutton',
     # "sphinx_new_tab_link",
 ]
-
+nbsphinx_execute = "off"
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",

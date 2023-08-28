@@ -19,101 +19,7 @@ import astropy.constants as const
 from functools import partial
 import inspect
 
-class SphGalaxy:
-    
-    _xk,_wk = np.polynomial.legendre.leggauss(100)
-    _xk,_wk = jnp.array(_xk),jnp.array(_wk)
-    _G = const.G.to(u.kpc*u.km**2/u.solMass/u.s**2).value
-    
-    def __init__(self,
-                light,
-                dark,
-                anisotropy,
-                priors  : Priors = None):
-
-        self._light      = light
-        self._dark       = dark 
-        self._anisotropy = anisotropy
-
-        self._density    = self._light._density_fit          #  density from the tracer model
-        self._projection = self._light._projection_function
-        self._mass       = self._dark._mass_fit           #  assume this is already vectorized,
-        self._anisotropy = self._anisotropy._beta
-
-        self.mass       = jax.jit(jax.vmap(self._mass,in_axes=(0,None)))
-        self.vec_dispn  = jax.jit(jax.vmap(self.dispersion, in_axes=(0, None, None, None)))        
-        self.vec_dispb  = jax.jit(jax.vmap(self.test_dispersion, in_axes=(0, None, None, None)))
-
-        y0 = 0        # lowerbound 
-        y1 = jnp.pi/2 # upperbound
-        # Modified weights and points for 
-        self.xk = 0.5*(y1-y0)* self._xk + 0.5*(y1+y0) 
-        self.wk = 0.5*(y1-y0)* self._wk 
-
-        self.cosk= jnp.cos(self.xk)
-        self.sink = jnp.sin(self.xk)
-    
-    
-    @partial(jax.jit, static_argnums=(0,))
-    def dispersion(self,r,dm_param_dict,tr_param_dict,beta_param_dict):
-
-
-        @jax.jit
-        def func_(q,dm_param_dict,tr_param_dict,beta_param_dict):
-            # I see, the difference, i dont have to vectorize both func and mass... i think
-            return self._mass(q,dm_param_dict)*self._density(q,tr_param_dict)/q**2
-
-        func = jax.vmap(func_,in_axes=(0,None,None,None))
-        coeff = self._G*r
-
-        return coeff*jnp.sum(self.wk*jnp.cos(self.xk)*func(r/jnp.sin(self.xk),dm_param_dict,tr_param_dict,beta_param_dict)/jnp.sin(self.xk)**2,axis=0)   
-    
-
-    @partial(jax.jit, static_argnums=(0,))
-    def test_dispersion(self,R_,dm_param_dict,tr_param_dict,beta_param_dict) -> float:
-        '''
-        first using the transform y = rcsc(x)
-        then using Gauss-Legendre transformation.
-        '''
-
-        @jax.jit
-        def func_2(x,R_,dm_param_dict,tr_param_dict,beta_param_dict):
-            sn = self.vec_dispn(x,dm_param_dict,tr_param_dict,beta_param_dict)
-            return sn*x/jnp.sqrt(x**2-R_**2)
-
-        func2 = jax.vmap(func_2,in_axes=(0,None,None,None,None))
-
-        # y0 = 0        # lowerbound 
-        # y1 = jnp.pi/2 # upperbound
-        # # Modified weights and points for 
-        # xk = 0.5*(y1-y0)* self._xk + 0.5*(y1+y0) 
-        # wk = 0.5*(y1-y0)* self._wk 
-
-        # cosk= jnp.cos(xk)
-        # sink = jnp.sin(xk)
-
-        return 2* R_* jnp.sum(self.wk*self.cosk*func_2(R_/self.sink,R_,dm_param_dict,tr_param_dict,beta_param_dict)/self.sink**2,axis=0)/self._projection(R_,tr_param_dict)
-
-
-
-    def fit_dSph(self,priors=None):
-        # First get data from data class
-        R = self._data._R
-        v = self._data._v
-        v_err = self._data._v_err
-
-        # define model
-
-        def model_flat(data,error,priors):
-            # set up priors on parameters
-            samples = {}
-            for param_name, prior_dist in priors.priors.items():
-                samples[param_name] = numpyro.sample(param_name, prior_dist)
-
-
-            with numpyro.plate("data", len(data[1,:])):
-
-                sigma2 = jnp.sqrt(self.vec_dispb(data[0,:],dm_param_dict,tr_param_dict,beta_param_dict))
+from .base import Data
 
 class Priors:
     '''
@@ -166,6 +72,214 @@ class Priors:
     def __repr__(self):
         self.__str__()
         return ""
+
+class SphGalaxy:
+    
+    _xk,_wk = np.polynomial.legendre.leggauss(100)
+    _xk,_wk = jnp.array(_xk),jnp.array(_wk)
+    _G = const.G.to(u.kpc*u.km**2/u.solMass/u.s**2).value
+    
+    def __init__(self,
+                tracer_model     = models.Plummer,
+                dark_model       = models.gNFW,
+                anisotropy_model = models.BetaConstant,
+                priors  : Priors = None):
+
+        self._light      = tracer_model
+        self._dark       = dark_model
+        self._anisotropy = anisotropy_model
+
+        self._density    = self._light._density_fit        
+        self._projection = self._light._projection_function
+        self._mass       = self._dark._mass_fit         
+        self._anisotropy = self._anisotropy._beta
+
+        self.mass       = jax.vmap(self._mass,
+                                in_axes=(0,None))
+        self.vec_dispn  = jax.vmap(self.dispersion,
+                                in_axes=(0, None, None, None))       
+        self.vec_dispb  = jax.vmap(self.test_dispersion,
+                                in_axes=(0, None, None, None))
+
+        y0 = 0.0        # lowerbound 
+        y1 = jnp.pi/2.0 # upperbound
+        
+        self.xk = 0.5*(y1-y0)* self._xk + 0.5*(y1+y0) 
+        self.wk = 0.5*(y1-y0)* self._wk 
+        
+        self.cosk = jnp.cos(self.xk)
+        self.sink = jnp.sin(self.xk)
+
+
+        # Checks to see if default values are being used
+        warnings.formatwarning = self.custom_formatwarning
+        if not hasattr(self, 'tracer_model'):
+            warnings.warn("\nNo tracer model defined.\nUsing default Plummer model.\n")
+        if not hasattr(self, 'dark_model'):
+            warnings.warn("\nNo DM model defined.\nUsing default HernquistZhao model.\n")
+        if not hasattr(self, 'anisotropy_model'):
+            warnings.warn("\nNo anisotropy model defined.\nusing default BetaConstant model\n")  
+
+        self._priors       = priors
+        self._tracer_model = tracer_model
+        self._dm_model     = dark_model
+        
+        if priors == None: # if priors aren't defined, use the defaults one --- this is ugly, should rewrite
+            warnings.warn("\nNo priors defined.\nUsing default priors for each model")
+
+            self._priors = Priors()
+            self._priors.add_from_dict(tracer_model._tracer_priors)
+            self._priors.add_from_dict(dark_model._dm_priors)
+            self._priors.add_from_dict(anisotropy_model._priors)
+
+
+        #TODO: add consitency check to make sure all necessary priors are defined
+        # should just be a count check
+    
+
+    @partial(jax.jit, static_argnums=(0,))
+    def dispersion(self,r,dm_param_dict,tr_param_dict,beta_param_dict):
+
+
+        @jax.jit
+        def func_(q,dm_param_dict,tr_param_dict,beta_param_dict):
+
+            return q**(2.0*self._anisotropy(q,beta_param_dict))*self.mass(q,dm_param_dict)*self._density(q,tr_param_dict)/q**2
+
+        # func = jax.vmap(func_,in_axes=(0,None,None,None))
+        coeff = self._G*r
+
+        return coeff*jnp.sum(self.wk*self.cosk*func_(r/self.sink,dm_param_dict,tr_param_dict,beta_param_dict)/self.sink**2,axis=0)/r**(2*self._anisotropy(r,beta_param_dict))
+    
+    @partial(jax.jit, static_argnums=(0,))
+    def test_dispersion(self,R_,dm_param_dict,tr_param_dict,beta_param_dict) -> float:
+        '''
+        first using the transform y = rcsc(x)
+        then using Gauss-Legendre transformation.
+        '''
+
+        @jax.jit
+        def func_22(x,R_,dm_param_dict,tr_param_dict,beta_param_dict):
+            sn = self.vec_dispn(x,dm_param_dict,tr_param_dict,beta_param_dict)
+            # sn = self.dispersion(x,dm_param_dict,tr_param_dict,beta_param_dict)
+            return (1.0 - self._anisotropy(x,beta_param_dict)*(R_**2/x**2))*sn*x/jnp.sqrt(x**2-R_**2)
+
+        # func2 = jax.vmap(func_22,in_axes=(0,None,None,None,None))
+
+        return 2* R_* jnp.sum(self.wk*self.cosk*func_22(R_/self.sink,R_,dm_param_dict,tr_param_dict,beta_param_dict)/self.sink**2,axis=0)/self._projection(R_,tr_param_dict)
+
+
+
+    def fit_dSph(self,
+                data,
+                rng_key=random.PRNGKey(0),
+                num_samples=1000,
+                num_warmup=1000,
+                num_chains=2,
+                progress_bar=True):
+        # First get data from data class
+        R = data._cached_dispersion['los'][0]
+        v = data._cached_dispersion['los'][1]
+        v_err = data._cached_dispersion['los'][2]
+        data_ = jnp.array([R,v,v_err])
+        
+        def model_flat(data,priors):
+            # set up priors on parameters
+            samples = {}
+            sub_dictionaries = {'tracer': {}, 'dm': {}, 'beta': {}}
+            for param_name, prior_dist in priors.priors.items():
+                samples[param_name] = numpyro.sample(param_name, prior_dist)
+
+                if param_name.startswith('tracer_'):
+                    sub_param_name = param_name[len('tracer_'):]
+                    # sub_dictionaries['tracer'][sub_param_name] =samples[param_name]
+                    sub_dictionaries['tracer']['M'] =1.0
+                    sub_dictionaries['tracer']['a'] =0.25
+                elif param_name.startswith('dm_'):
+                    sub_param_name = param_name[len('dm_'):]
+                    sub_dictionaries['dm'][sub_param_name] = samples[param_name]
+                elif param_name.startswith('beta_'):
+                    sub_param_name = param_name[len('beta_'):]
+                    # sub_dictionaries['beta'][sub_param_name] = samples[param_name]
+                    sub_dictionaries['beta']['0'] = 0.0
+
+            sub_dictionaries['tracer']['M'] =1.e3
+            sub_dictionaries['tracer']['a'] =0.25
+
+            sub_dictionaries['beta']['0'] = 0.0
+
+            with numpyro.plate("data", len(data[1])):
+                sigma2 = jnp.sqrt(self.vec_dispb(data[0],sub_dictionaries['dm'],sub_dictionaries['tracer'],sub_dictionaries['beta']))
+
+                numpyro.sample("y", dist.Normal(sigma2,data[2]), obs=data[1])
+
+        rng_key, rng_key_ = random.split(rng_key)
+
+        # Run NUTS.
+        kernel = NUTS(model_flat)
+        # num_samples = 5000
+        mcmc = MCMC(kernel,
+                    num_warmup   = num_warmup,
+                    num_samples  = num_samples,
+                    num_chains   = num_chains,
+                    progress_bar = progress_bar
+        )
+        mcmc.run(rng_key_,data= data_,priors=self._priors)
+        return mcmc
+        # mcmc.print_summary()
+        # samples_1 = mcmc.get_samples()
+
+
+    def fit_unbinned(self,
+                data,
+                rng_key=random.PRNGKey(0),
+                num_samples=1000,
+                num_warmup=1000,
+                num_chains=2,
+                progress_bar=True):
+        # First get data from data class
+        R = data._cached_dispersion['los'][0]
+        v = data._cached_dispersion['los'][1]
+        v_err = 3*data._cached_dispersion['los'][2]
+        data = jnp.array([R,v,v_err])
+
+        def model_flat(data,priors):
+            # set up priors on parameters
+            v_mean = numpyro.sample("v_mean", dist.Uniform(-500,500))
+            samples = {}
+            sub_dictionaries = {'tracer': {}, 'dm': {}, 'beta': {}}
+            for param_name, prior_dist in priors.priors.items():
+                samples[param_name] = numpyro.sample(param_name, prior_dist)
+
+                if param_name.startswith('tracer_'):
+                    sub_param_name = param_name[len('tracer_'):]
+                    sub_dictionaries['tracer'][sub_param_name] =samples[param_name]
+                elif param_name.startswith('dm_'):
+                    sub_param_name = param_name[len('dm_'):]
+                    sub_dictionaries['dm'][sub_param_name] = samples[param_name]
+                elif param_name.startswith('beta_'):
+                    sub_param_name = param_name[len('beta_'):]
+                    sub_dictionaries['beta'][sub_param_name] = samples[param_name]
+
+            with numpyro.plate("data", len(data[1,:])):
+                # sigma2 = jnp.sqrt(self.vec_dispb(data[0,:],dm_param_dict,tr_param_dict,beta_param_dict))
+                sigma2 = jnp.sqrt(self.vec_dispb(data[0,:],sub_dictionaries['dm'],sub_dictionaries['tracer'],sub_dictionaries['beta']))
+
+            numpyro.sample("y", dist.Normal(sigma2,data[-1,:]), obs=data[1:])
+
+        rng_key, rng_key_ = random.split(rng_key)
+
+        # Run NUTS.
+        kernel = NUTS(model_flat)
+        # num_samples = 5000
+        mcmc = MCMC(kernel, num_warmup=num_warmup,  num_samples=num_samples,num_chains=num_chains)
+        mcmc.run(rng_key_,data= data,priors=self._priors)
+        return mcmc
+        # mcmc.print_summary()
+        # samples_1 = mcmc.get_samples()
+
+    def custom_formatwarning(self,message, category, filename, lineno, line=None):
+        return f"{category.__name__}: {message}\n"
 
 class Fit:
     '''
