@@ -56,9 +56,9 @@ class JaxPotential(ABC):
     _dm_priors     = {}
     
     # So that static methods can do integrals and what not
-    _xk,_wk  = np.polynomial.legendre.leggauss(100)
+    _xk,_wk  = np.polynomial.legendre.leggauss(10)
     _xk,_wk  = jnp.array(_xk),jnp.array(_wk)    
-    _xm,_wm  = np.polynomial.legendre.leggauss(20)
+    _xm,_wm  = np.polynomial.legendre.leggauss(10)
     _xm,_wm  = jnp.array(_xm),jnp.array(_wm)    
     _G       = const.G.to(u.kpc*u.km**2/u.solMass/u.s**2).value
     _GeV2cm5 = (1*u.solMass**2*u.kpc**-5 *const.c**4).to(u.GeV**2/u.cm**5).value

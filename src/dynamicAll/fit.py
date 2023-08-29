@@ -75,7 +75,7 @@ class Priors:
 
 class SphGalaxy:
     
-    _xk,_wk = np.polynomial.legendre.leggauss(100)
+    _xk,_wk = np.polynomial.legendre.leggauss(10)
     _xk,_wk = jnp.array(_xk),jnp.array(_wk)
     _G = const.G.to(u.kpc*u.km**2/u.solMass/u.s**2).value
     
