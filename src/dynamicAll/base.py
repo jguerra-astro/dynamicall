@@ -563,7 +563,7 @@ class JaxPotential(ABC):
         ----------
         func : Callable
             function of projected (on-sky) radii, R
-        R : jnp.ndarray
+        R : jax.Array
             Projected distance :math:`(R = \sqrt{x^2 +y^2})`
         
         params : 
@@ -571,7 +571,7 @@ class JaxPotential(ABC):
 
         Returns
         -------
-        jnp.ndarray
+        jax.Array
             projected positions
         '''
         
@@ -709,7 +709,7 @@ class JaxPotential(ABC):
 
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
-    def _action_r(cls,params,x:jnp.DeviceArray,v:jnp.DeviceArray,) -> float:
+    def _action_r(cls,params,x:jax.Array,v:jax.Array,) -> float:
         '''
         Integrand for radial action (B-T 2nd Ed. - eq. 3.224) 
 
@@ -721,9 +721,9 @@ class JaxPotential(ABC):
         
         Parameters
         ----------
-        x : jnp.DeviceArray
+        x : jax.Array
             position vector | [kpc]
-        v : jnp.DeviceArray
+        v : jax.Array
             velocity vector | [km s^{-1}]
 
         Returns
@@ -752,7 +752,7 @@ class JaxPotential(ABC):
 
     @staticmethod
     @jax.jit
-    def action_theta(x: jnp.ndarray, v: jnp.ndarray) -> jnp.ndarray:
+    def action_theta(x: jax.Array, v: jax.Array) -> jax.Array:
         '''
         Equation 3.
         Doesn't depend on the potential
