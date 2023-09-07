@@ -34,7 +34,7 @@ from jax import random
 from typing import Callable
 import emcee
 from scipy.optimize import curve_fit
-
+import warnings
 
 class JaxPotential(ABC):
     '''
@@ -908,32 +908,49 @@ class Data(ABC):
 
     def __init__(self):
         
-        # define component map -- this will make call to the dispersion function easier see docs for dispersion_i
-        self._component_map = {
-            'radial': (self._r, self._vr, self.d_vr),
-            'theta' : (self._r, self._vtheta, self.d_vtheta),
-            'phi'   : (self._r, self._vphi, self.d_vphi),
-            'los'   : (self._R, self._vlos, self.d_vlos),
-            'pmr'   : (self._R, self._pmr, self.d_pmt),
-            'pmt'   : (self._R, self._pmt, self.d_pmr)
-        }
+        if not hasattr(self, '_r'):
+            warnings.warn(r"The '_r' component is not defined.\nOnly projected moments may be available.")
 
-        if self._r is None:
-            warnings.warn("The '_r' component is not defined.\nOnly project moments may be available.")
-
-        if self._pmr is None or self._pmt is None:
-            warnings.warn("'pmr' and 'pmt' components are not defined.\nVelocity dispersion for these components will not be available.\n only 'los' moment will be available")
+        if not hasattr(self, '_pmr') or not hasattr(self, '_pmt'):
+            warnings.warn(r"'pmr' and 'pmt' components are not defined.\nVelocity dispersion for these components will not be available.\n only 'los' moment will be available")
         
         self._cached_dispersion = {}  # Initialize cache dictionary if it doesn't exist # could put this in an __init__function
 
-        required_components = ('_r', '_vr', '_vtheta', '_vphi', '_R', '_vlos', '_pmr', '_pmt')
-        if any(getattr(self, comp) is None for comp in required_components):
-            warnings.warn("Some required instance variables are not defined.\nThis will limit the functionality of this function.") 
+        # required_components = ('_r', '_vr', '_vtheta', '_vphi', '_R', '_vlos', '_pmr', '_pmt')
+        # if any(getattr(self, comp) is None for comp in required_components):
+        #     warnings.warn("Some required instance variables are not defined.\nThis will limit the functionality of this function.") 
+
+        self.N_star = len(self._R)
+        self._component_map = self.construct_component_map()
+
+    def construct_component_map(self):
+        component_map = {}
+
+        if hasattr(self, '_r') and hasattr(self, '_vr'):
+            component_map['radial'] = (self._r, self._vr, getattr(self, 'd_vr', None))
+
+        if hasattr(self, '_r') and hasattr(self, '_vtheta'):
+            component_map['theta'] = (self._r, self._vtheta, getattr(self, 'd_vtheta', None))
+
+        if hasattr(self, '_r') and hasattr(self, '_vphi'):
+            component_map['phi'] = (self._r, self._vphi, getattr(self, 'd_vphi', None))
+
+        if hasattr(self, '_R') and hasattr(self, '_vlos'):
+            component_map['los'] = (self._R, self._vlos, getattr(self, 'd_vlos', None))
+
+        if hasattr(self, '_R') and hasattr(self, '_pmr'):
+            component_map['pmr'] = (self._R, self._pmr, getattr(self, 'd_pmt', None))
+
+        if hasattr(self, '_R') and hasattr(self, '_pmt'):
+            component_map['pmt'] = (self._R, self._pmt, getattr(self, 'd_pmr', None))
+
+        return component_map
 
     def dispersion_i(self,
         component: str = 'los',
         binfunc  : Callable = histogram,
-        bins = 'blocks'):
+        bins = 'blocks',
+        clear_cache: bool = False):
         r'''
         Calculate the dispersion of a given component e.g
 
@@ -985,12 +1002,12 @@ class Data(ABC):
         
         component = component.casefold() # Just in case there's random capitalizations by the user
 
-        if component in self._cached_dispersion:
+        if component in self._cached_dispersion and not clear_cache:
             return self._cached_dispersion[component]
         
-        required_components = ('_r', '_vr', '_vtheta', '_vphi', '_R', '_vlos', '_pmr', '_pmt')
-        if any(getattr(self, comp) is None for comp in required_components):
-            warnings.warn("Some required instance variables are not defined.\nThis will limit the functionality of this function.") 
+        # required_components = ('_r', '_vr', '_vtheta', '_vphi', '_R', '_vlos', '_pmr', '_pmt')
+        # if any(getattr(self, comp) is None for comp in required_components):
+        #     warnings.warn("Some required instance variables are not defined.\nThis will limit the functionality of this function.") 
 
 
 
@@ -1049,7 +1066,7 @@ class Data(ABC):
     
         s_error = s2_error/2/np.sqrt(mu) # error on the dispersion
         
-        return jnp.array(r_center),jnp.sqrt(mu), jnp.array(s_error)
+        return jnp.array(r_center),jnp.sqrt(mu), jnp.array(s_error),bin_edges
 
     def dispersion_errors(self,ri,vi,d_vi,component,bin_edges,Nmonte:int,Nbins,error=None):
         '''
@@ -1070,7 +1087,7 @@ class Data(ABC):
         Maybe I should do this using EMCEE instead or Numpyro I guess
         TODO: add observational error as input? atm its just set to 2
         '''
-        if error==None: error= 2 # gotta change that 2 but need real errors first
+        # if (error.any() == None): error= 2 # gotta change that 2 but need real errors first
         N = self.N_star
         stemp = np.zeros((Nmonte,len(Nbins)))
         meanv = jnp.mean(vi) # Probably shouldn't assume that v_{com} = 0
@@ -1084,12 +1101,12 @@ class Data(ABC):
         
         meanv = jnp.mean(vi) # Probably shouldn't assume that v_{com} = 0
         mu,_,bin_numbers   = binned_statistic(ri,(meanv- vi)**2,'mean',bins=bin_edges)
-        N,_,bin_numbers   = binned_statistic(ri,ri,'count',bins=bin_edges)
+        N,_,bin_numbers     = binned_statistic(ri,ri,'count',bins=bin_edges)
 
         # Get standard deviation of the Nmonte iterations
         mError = np.std(stemp,axis=0)
         # Add Poisson error
-        self.s_error = np.sqrt(mError**2 + mu**2/N + self._error[0]**2)
+        self.s_error = np.sqrt(mError**2 + mu**2/N)
         return self.s_error
     
     def plot_dispersion_i(self,component=None,binfunc: Callable = histogram,bins='blocks',ax=None,fig=None):
@@ -1303,11 +1320,11 @@ class Data(ABC):
         ax.plot(R_center,profile(R_center,*popt),label='fit')
         ax.set(
             xlabel = 'R [kpc]',
-            ylabel =r'$\rm\Sigma(R)~N~kpc^{-3}$',
+            ylabel =r'$\rm\Sigma(R)~N~kpc^{-2}$',
             xscale = 'log',
             yscale = 'log',
         ); 
-        return fig,ax,popt
+        return fig,ax,popt,pcov
 
     def fit_gaussian(self,v_i,error_i,rhalf=None):
         rng_key = random.PRNGKey(0)

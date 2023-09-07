@@ -769,10 +769,10 @@ class NFW(JaxPotential):
 
 class gNFW(JaxPotential):
 
-    _dm_param_dict = {
-        'gamma': dist.Uniform(-1.0, 2.0),
-        'rhos': dist.LogUniform(1e-3,1e10),
-        'rs': dist.LogUniform(1e-3,1e3)
+    _dm_priors = {
+        'dm_gamma': dist.Uniform(-1.0, 2.0),
+        'dm_rhos' : dist.Uniform(5,30),
+        'dm_rs'   : dist.Uniform(-10,10)
     }
 
     def __init__(self,gamma,rhos,rs):
@@ -787,10 +787,11 @@ class gNFW(JaxPotential):
         return gNFW._density(r,self.param_dict)
 
     @staticmethod
+    @jax.jit
     def _density(r,param_dict):
         gamma = param_dict['gamma']
-        rhos  = param_dict['rhos']
-        rs    = param_dict['rs']
+        rhos  = jnp.exp(param_dict['rhos'])
+        rs    = jnp.exp(param_dict['rs'])
         q     = r/rs
         return rhos * q**(-gamma) * (1+q)**(gamma-3)
 
@@ -798,7 +799,7 @@ class gNFW(JaxPotential):
     @jax.jit
     def _mass_fit(r,param_dict):
 
-        q     = r/param_dict['rs']
+        q     = r
         xk    = 0.5*q*gNFW._xm + 0.5*q
         wk    = 0.5*q*gNFW._wm
         # units = 4*jnp.pi*param_dict['rhos']*param_dict['rs']**3
@@ -1135,9 +1136,10 @@ class Plummer(JaxPotential):
         scale length | [kpc]
     '''
     _tracer_priors = {
-        'tracer_M':dist.LogUniform(1e-2,1e8),
-        'tracer_a':dist.LogUniform(1e-3,1e3),
+        'tracer_M':dist.LogUniform(1e0,1e8),
+        'tracer_a':dist.LogUniform(1e-5,1e2),
     }
+
 
     _dm_priors = {
         'dm_M':dist.LogUniform(1e3,1e12),
@@ -1981,7 +1983,7 @@ class BetaConstant(Anisotropy):
 
 
     _priors = {
-        'beta_0': dist.Uniform(-5,1)
+        'beta_0': dist.Uniform(-1,1)
         }
 
     def __init__(self,beta0):
@@ -2018,19 +2020,21 @@ class BetaSymmetric(Anisotropy):
         _description_
     '''
 
-    _anisotropy_prior = {
+    _prior = {
         'beta_tilde': dist.Uniform(-1,1)
         }
     def __init__(self,beta_tilde):
         self._beta_tilde = beta_tilde
 
     @staticmethod
-    def beta(beta_tilde):
-        return 2*beta_tilde/(1+beta_tilde)
+    def beta(r,param_dict):
+        beta_true = 2*param_dict['tilde']/(1+param_dict['tilde'])
+        return beta_true
 
     @staticmethod
-    def f_beta(beta0):
-        return 1
+    def f_beta(r,param_dict):
+        beta_true = 2*param_dict['tilde']/(1+param_dict['tilde'])
+        return r**(2*beta_true)
 
 class BetaOsipkovMerrit(Anisotropy):
     r'''

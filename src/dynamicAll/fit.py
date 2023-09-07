@@ -116,7 +116,7 @@ class SphGalaxy:
         if not hasattr(self, 'tracer_model'):
             warnings.warn("\nNo tracer model defined.\nUsing default Plummer model.\n")
         if not hasattr(self, 'dark_model'):
-            warnings.warn("\nNo DM model defined.\nUsing default HernquistZhao model.\n")
+            warnings.warn("\nNo DM model defined.\nUsing default gNFW model.\n")
         if not hasattr(self, 'anisotropy_model'):
             warnings.warn("\nNo anisotropy model defined.\nusing default BetaConstant model\n")  
 
@@ -168,8 +168,6 @@ class SphGalaxy:
 
         return 2* R_* jnp.sum(self.wk*self.cosk*func_22(R_/self.sink,R_,dm_param_dict,tr_param_dict,beta_param_dict)/self.sink**2,axis=0)/self._projection(R_,tr_param_dict)
 
-
-
     def fit_dSph(self,
                 data,
                 rng_key=random.PRNGKey(0),
@@ -192,21 +190,22 @@ class SphGalaxy:
 
                 if param_name.startswith('tracer_'):
                     sub_param_name = param_name[len('tracer_'):]
-                    # sub_dictionaries['tracer'][sub_param_name] =samples[param_name]
-                    sub_dictionaries['tracer']['M'] =1.0
-                    sub_dictionaries['tracer']['a'] =0.25
+                    sub_dictionaries['tracer'][sub_param_name] =samples[param_name]
+                    # sub_dictionaries['tracer']['M'] = data.N_star                    
+
+                    # sub_dictionaries['tracer']['a'] =0.25
                 elif param_name.startswith('dm_'):
                     sub_param_name = param_name[len('dm_'):]
                     sub_dictionaries['dm'][sub_param_name] = samples[param_name]
                 elif param_name.startswith('beta_'):
                     sub_param_name = param_name[len('beta_'):]
-                    # sub_dictionaries['beta'][sub_param_name] = samples[param_name]
-                    sub_dictionaries['beta']['0'] = 0.0
+                    sub_dictionaries['beta'][sub_param_name] = samples[param_name]
+                    # sub_dictionaries['beta']['0'] = 0.0
 
-            sub_dictionaries['tracer']['M'] =1.e3
-            sub_dictionaries['tracer']['a'] =0.25
+            # sub_dictionaries['tracer']['M'] =1.e3
+            # sub_dictionaries['tracer']['a'] =0.25
 
-            sub_dictionaries['beta']['0'] = 0.0
+            # sub_dictionaries['beta']['0'] = 0.0
 
             with numpyro.plate("data", len(data[1])):
                 sigma2 = jnp.sqrt(self.vec_dispb(data[0],sub_dictionaries['dm'],sub_dictionaries['tracer'],sub_dictionaries['beta']))
@@ -238,9 +237,9 @@ class SphGalaxy:
                 num_chains=2,
                 progress_bar=True):
         # First get data from data class
-        R = data._cached_dispersion['los'][0]
-        v = data._cached_dispersion['los'][1]
-        v_err = 3*data._cached_dispersion['los'][2]
+        R = data._R
+        v = data._vlos 
+        v_err = data.d_vlos 
         data = jnp.array([R,v,v_err])
 
         def model_flat(data,priors):
@@ -262,10 +261,11 @@ class SphGalaxy:
                     sub_dictionaries['beta'][sub_param_name] = samples[param_name]
 
             with numpyro.plate("data", len(data[1,:])):
-                # sigma2 = jnp.sqrt(self.vec_dispb(data[0,:],dm_param_dict,tr_param_dict,beta_param_dict))
-                sigma2 = jnp.sqrt(self.vec_dispb(data[0,:],sub_dictionaries['dm'],sub_dictionaries['tracer'],sub_dictionaries['beta']))
-
-            numpyro.sample("y", dist.Normal(sigma2,data[-1,:]), obs=data[1:])
+                sigma2 = self.vec_dispb(data[0,:],sub_dictionaries['dm'],sub_dictionaries['tracer'],sub_dictionaries['beta'])
+                
+                epsilon = jnp.sqrt(sigma2+data[2,:]**2)
+            
+            numpyro.sample("y", dist.Normal(v,epsilon), obs=data[1:])
 
         rng_key, rng_key_ = random.split(rng_key)
 
