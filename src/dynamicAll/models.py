@@ -539,8 +539,8 @@ class NFW(JaxPotential):
     '''
 
     _dm_priors = {
-        'dm_rhos': dist.LogUniform(1e-3,1e3),
-        'dm_rs': dist.LogUniform(1e-3,1e3)
+        'dm_rhos': dist.Uniform(5,30),
+        'dm_rs': dist.Uniform(-10,10)
     }
 
     def __init__(self,rhos: float,rs: float):
@@ -739,6 +739,30 @@ class NFW(JaxPotential):
         q    = (rs+r)/rs
         mNFW = 4*jnp.pi*rhos*rs**3 * (jnp.log(q) - (r/(rs+r))) # Analytical NFW mass profile
         return mNFW
+
+    @staticmethod
+    @jax.jit
+    def _mass_fit(r,params):
+        '''
+        Analytical NFW mass profile
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+        params : dict
+            dictionary of parameters: {'rhos':float,'rs':float}
+
+        Returns
+        -------
+        _type_
+            _description_
+        '''
+        q     = (params['rs']+r)/params['rs']
+        units = 4*jnp.pi*params['rhos']*params['rs']**3
+        mNFW  = units * (jnp.log(q) - (r/(params['rs']+r)))
+        return mNFW
+
     @staticmethod
     @jax.jit
     def _potential(r,rhos: float,rs: float):

@@ -1003,19 +1003,18 @@ class Data(ABC):
         component = component.casefold() # Just in case there's random capitalizations by the user
 
         if component in self._cached_dispersion and not clear_cache:
+            print('here actually')
             return self._cached_dispersion[component]
         
-        # required_components = ('_r', '_vr', '_vtheta', '_vphi', '_R', '_vlos', '_pmr', '_pmt')
-        # if any(getattr(self, comp) is None for comp in required_components):
-        #     warnings.warn("Some required instance variables are not defined.\nThis will limit the functionality of this function.") 
-
-
 
         if component in self._component_map:
             data = self._component_map[component]
             out = self.dispersion(*data, component, binfunc=binfunc, bins=bins)
+            print(out)
             self._cached_dispersion[component] = out
+            print('here')
             return out 
+        
         else:
             warnings.warn('\nUnknown or missing component type.\n make sure you have the right data in order to calculate this component of the dispersion')
 
@@ -1041,10 +1040,6 @@ class Data(ABC):
         -------
         _type_
             _description_
-        
-        Notes
-        -----
-        TODO: make this a static class method
 
         '''
         # first bin positions -- Note: this will only take anytime the first time this function is run -- results are then cached
@@ -1056,10 +1051,8 @@ class Data(ABC):
         # alternatively could do
         # meamnv,_,bin_numbers   = binned_statistic(ri, vi,'mean',bins=bin_edges)
         # then calculate dispersion as <v_i**2> - <v_i>**2
-
         # calculate velocity dispersion as <(v_i - <v_i>)**2>
         mu,_,bin_numbers   = binned_statistic(ri,(meanv- vi)**2,'mean',bins=bin_edges)
-        
         # Estimate errors using bootstrap resampling
    
         s2_error = self.dispersion_errors(ri,vi,d_vi,component,bin_edges,1000,N,error=d_vi)
