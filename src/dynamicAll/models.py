@@ -493,8 +493,8 @@ class HernquistZhao(JaxPotential):
             # When r > rs
             x0 = 0.0                          # lower bound of integral
             x1 = jnp.pi/2.0                   # upper bound of integral
-            xi = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
-            wi = 0.5*(x1-x0)*w
+            xi = 0.5*(x1-x0)*HernquistZhao._xk + 0.5*(x1+x0) 
+            wi = 0.5*(x1-x0)*HernquistZhao._wk
             coeff = 4*jnp.pi*r
             mrltrs = coeff*jnp.sum(wi*jnp.cos(xi)* HernquistZhao._density(r*jnp.sin(xi),rhos,rs,a,b,c)*(r*jnp.sin(xi))**2)
             return mrltrs
@@ -503,16 +503,16 @@ class HernquistZhao(JaxPotential):
             # When r = rs, first do integral from 0 to rs
             x0 = 0.0         # lower bound of integral
             x1 = jnp.pi/2    # upper bound of integral
-            xi = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
-            wi = 0.5*(x1-x0)*w
+            xi = 0.5*(x1-x0)*HernquistZhao._xk + 0.5*(x1+x0) 
+            wi = 0.5*(x1-x0)*HernquistZhao._wk
             coeff = 4*jnp.pi*rs**3
             mrltrs = coeff*jnp.sum(wi*jnp.cos(xi)* HernquistZhao._density(rs*jnp.sin(xi),rhos,rs,a,b,c)*(jnp.sin(xi))**2)
 
             # Next When r > rs, first do integral from 0 to rs
             x2 = jnp.arcsin(rs/r)          # lower bound of integral
             x3 = jnp.pi/2.0                # upper bound of integral
-            xk = 0.5*(x3-x2)*x + .5*(x3+x2) 
-            wk = 0.5*(x3-x2)*w
+            xk = 0.5*(x3-x2)*HernquistZhao._xk + .5*(x3+x2) 
+            wk = 0.5*(x3-x2)*HernquistZhao._wk
             coeff2 = 4*jnp.pi* rhos*r**3 
             mrgtrs = coeff2*jnp.sum(wk*jnp.cos(xk)* HernquistZhao._density(r*jnp.sin(xk),1.0,rs,a,b,c)*(jnp.sin(xk))**2)
 
@@ -697,10 +697,10 @@ class NFW(JaxPotential):
             return jax.lax.cond(s< 1, s_lt_one, lambda: jax.lax.cond(s>1, s_gt_one, s_eq_one))
         
         chiv = jax.vmap(chi)
-        y = D*theta/rs
+        y = D*theta/self._rs
         Delta2 = 1.0 - y**2
 
-        coeff = jnp.pi*rhos**2*rs**3/(3*D**2*Delta2**2)
+        coeff = jnp.pi*self._rhos**2*self._rs**3/(3*D**2*Delta2**2)
         term1 = 2*y*(7*y -4*y**3 + 3*jnp.pi*Delta2**2)
         term2 = 6*(2*Delta2**3 - 2*Delta2 -y**4)*chiv(y)
 
@@ -773,7 +773,7 @@ class NFW(JaxPotential):
     @staticmethod
     def from_ms_rs(M: float,rs: float):
         '''
-        alternate constructor for NFW profile
+        alternate constructor for NFW profile e.g how gala defines it.
 
         Parameters
         ----------
@@ -1164,7 +1164,6 @@ class Plummer(JaxPotential):
         'tracer_a':dist.LogUniform(1e-5,1e2),
     }
 
-
     _dm_priors = {
         'dm_M':dist.LogUniform(1e3,1e12),
         'dm_a':dist.LogUniform(1e-10,1e10),
@@ -1319,7 +1318,6 @@ class Plummer(JaxPotential):
 
     def sample_w_conditional(self,
                 N:int,
-                evolve=False,
                 save=False,
                 fileName='./out.txt') -> np.ndarray:
         # first sample from r
@@ -1350,29 +1348,6 @@ class Plummer(JaxPotential):
 
         v = np.sqrt(vx**2+vy**2+vz**2)
         vr = (x*vx+y*vy+z*vz)/r
-        if evolve:
-            import astropy.units as u
-            import gala.dynamics as gd
-            import gala.potential as gp
-            import gala.integrate as gi
-            from gala.units import galactic
-            pos = [x, y, z] * u.kpc
-            vel = [vx, vy, vz] * u.km / u.s
-            w0 = gd.PhaseSpacePosition(pos=pos, vel=vel)
-            M = self._M * u.Msun
-            b = self._a * u.kpc
-
-            potential = gp.PlummerPotential(m=M, b=b, units=galactic)
-            Hamiltonian = gp.Hamiltonian(potential)
-
-            orbits = Hamiltonian.integrate_orbit(
-                w0, t=np.linspace(0, 1, 100) * u.Gyr, Integrator=gi.DOPRI853Integrator
-            )
-            r = orbits.spherical.distance
-            r, r_unit = r.value, r.unit
-            v_xyz= orbits.v_xyz
-            vx,vy,vx = v_xyz.to(u.km/u.s).value
-            v_new = jnp.sqrt(vx[-1]**2+vy[-1]**2+vz[-1]**2)
         if save:
             try:
                 np.savetxt(fileName, np.c_[x,y,z,vx,vy,vz], delimiter=',')
@@ -1785,7 +1760,7 @@ class NFW_truncated(NFW):
             _description_
         '''
         def r_lteq_rt():
-            return super().density(r)
+            return NFW._density(r,self._rhos,self._rs)
 
         def r_gt_rt():
             return 0.0
