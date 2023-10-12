@@ -1982,7 +1982,7 @@ class BetaConstant(Anisotropy):
 
 
     _priors = {
-        'beta_0': dist.Uniform(-1,1)
+        'beta_0': dist.Uniform(-5,1)
         }
 
     def __init__(self,beta0):

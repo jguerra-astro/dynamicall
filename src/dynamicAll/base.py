@@ -233,8 +233,8 @@ class JaxPotential(ABC):
         x0 = 0.0
         x1 = jnp.pi/2
         
-        xk = 0.5*(x1-x0)*x + 0.5*(x1+x0) 
-        wk = 0.5*(x1-x0)*w
+        xk = 0.5*(x1-x0)*JaxPotential._xk + 0.5*(x1+x0) 
+        wk = 0.5*(x1-x0)*JaxPotential._wk
         phi_out = jnp.sum(wk*self.density(r/jnp.sin(xk))*(r/jnp.sin(xk))*r*jnp.cos(xk)/jnp.sin(xk)**2,axis=0)
         return -G*(phi_in+ 4*jnp.pi*phi_out)
 
@@ -491,52 +491,6 @@ class JaxPotential(ABC):
         # )
         return samples
 
-    def sample_w_conditional(
-                self,
-                N:int,
-                # r : array, 
-                nwalkers:int =2,
-                N_burn:int = 5_000):
-
-        G = 4.300917270036279e-06 # gravitational constant in units of kpc km^2 s^-2 Msol^-1
-
-        def df(v,r):
-            E = self.potential(r) + 0.5*np.dot(v,v)
-            return self.logDF(E)
-
-        def log_prior(v,r):
-            Energy = self.potential(r) + 0.5*np.dot(v,v)
-            if (Energy < 0) and (v > 0):
-                return 0
-            return -np.inf
-
-        def log_probability(v,r):
-
-            lp = log_prior(v,r)
-            if not np.isfinite(lp):
-                return -np.inf
-            return lp + df(v,r)
-
-        ndim = 1  
-        r_temp = np.logspace(-3,1,nwalkers)
-        # print(r_temp.shape)
-        v_temp = self.v_circ(r_temp)
-
-        # x,y,z = self.spherical_to_cartesian(r_temp)
-        # vx,vy,vz = self.spherical_to_cartesian(v_temp) 
-        p0 = v_temp
-        # p0 = np.array([x,y,z,vx,vy,vz]).reshape(nwalkers,ndim)
-
-
-        # p0 = np.random.rand(nwalkers, ndim) # need to make p0 better
-        # print(p0.shape)
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability,args=(r,))
-        state = sampler.run_mcmc(p0, N_burn,progress=True)
-        sampler.reset()
-        sampler.run_mcmc(state,N,progress=True)
-        samples = sampler.get_chain(flat=True)
-        vx,vy,vz = self.spherical_to_cartesian(samples) 
-        return samples
 
     def spherical_to_cartesian(self,quantity):
         N= len(quantity)
@@ -735,8 +689,8 @@ class JaxPotential(ABC):
         x1 = cls._apo(params,x,v)
 
         # Gauss-Legendre integration
-        xi = 0.5*(x1-x0)*xmass + .5*(x1+x0) # scale from (r,r_{200}) -> (-1,1)
-        wi = 0.5*(x1-x0)*wmass
+        xi = 0.5*(x1-x0)*JaxPotential._xm + .5*(x1+x0) # scale from (r,r_{200}) -> (-1,1)
+        wi = 0.5*(x1-x0)*JaxPotential._wm
         
         L     = jnp.linalg.norm(jnp.cross(x,v),axis=0) # abs(Angular momentum)
         T     = .5*jnp.dot(v,v)
@@ -902,7 +856,7 @@ class JaxPotential(ABC):
         xi = 0.5*(x1-x0)*cls._xj + 0.5*(x1+x0) 
         wi = 0.5*(x1-x0)*cls._wj
         vectorized_func = jax.vmap(cls.dDdOmega,in_axes=(0,None,None,None))
-        return jnp.log10(2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi),param_dict)*self._GeVcm2)
+        return jnp.log10(2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi),param_dict)*cls._GeVcm2)
 
 class Data(ABC):
 
