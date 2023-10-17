@@ -758,9 +758,9 @@ class NFW(JaxPotential):
         _type_
             _description_
         '''
-        q     = (params['rs']+r)/params['rs']
-        units = 4*jnp.pi*params['rhos']*params['rs']**3
-        mNFW  = units * (jnp.log(q) - (r/(params['rs']+r)))
+        q     = (jnp.exp(params['rs'])+r)/jnp.exp(params['rs'])
+        units = 4*jnp.pi*jnp.exp(params['rhos'])*jnp.exp(params['rs'])**3
+        mNFW  = units * (jnp.log(q) - (r/(jnp.exp(params['rs'])+r)))
         return mNFW
 
     @staticmethod
