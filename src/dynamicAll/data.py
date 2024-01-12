@@ -296,6 +296,8 @@ class DCJLData(Data):
                         'h':3.32,'k':3.28}[band]
         return 10.0 ** ((sun_abs_mag - sim.star[band + '_mag']) / 2.5)
 
+    
+
 class MockData(Data):
     def __init__(self,dataSet):
         '''
