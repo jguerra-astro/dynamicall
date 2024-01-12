@@ -904,7 +904,8 @@ class Data(ABC):
         component: str = 'los',
         binfunc  : Callable = histogram,
         bins = 'blocks',
-        clear_cache: bool = False):
+        clear_cache: bool = False,
+        plot=False):
         r'''
         Calculate the dispersion of a given component e.g
 
@@ -963,7 +964,7 @@ class Data(ABC):
 
         if component in self._component_map:
             data = self._component_map[component]
-            out = self.dispersion(*data, component, binfunc=binfunc, bins=bins)
+            out = self.dispersion(*data, component, binfunc=binfunc, bins=bins,plot=False)
             print(out)
             self._cached_dispersion[component] = out
             print('here')
@@ -974,7 +975,76 @@ class Data(ABC):
 
         return None  # Optionally return a value if needed
     
-    def dispersion(self,ri,vi,d_vi,component=None, binfunc: Callable = histogram,bins='blocks'):
+
+    def global_dispersion(self,ri,vi,d_vi,component=None,plot=False):
+        
+        def global_velocity_model(vi, error):
+            # Priors for mean velocity and global dispersion
+            mean_velocity     = numpyro.sample(
+                'mean_velocity', dist.Uniform(-100,100)
+            )
+            global_sigmav = numpyro.sample(
+                'global_sigmav', dist.Uniform(0,100)
+            )
+
+            # Likelihood for each observed velocity
+            with numpyro.plate('data', len(vi)):
+                total_variance = jnp.sqrt(global_sigmav**2 + error**2)
+                numpyro.sample(
+                    'obs', 
+                    dist.Normal(mean_velocity, total_variance), 
+                    obs=vi
+                )
+
+        # MCMC
+        rng_key = random.PRNGKey(0)
+        kernel = NUTS(global_velocity_model)
+        mcmc = MCMC(kernel, num_warmup=500, num_samples=1000, num_chains=1)
+        mcmc.run(rng_key, vi, d_vi)
+        mcmc.print_summary()
+        samples = mcmc.get_samples()
+        self.mean_velocity = samples['mean_velocity']
+        self.global_sigmav = samples['global_sigmav']
+
+        meanv, sigma = jnp.mean(self.mean_velocity), jnp.mean(self.global_sigmav)
+
+        # Plotting
+        if plot:
+            fig,ax = plt.subplots(figsize=(10, 6))
+            # Histogram of velocities
+            N,bin_edges = histogram(vi,bins='blocks')
+            import numpy as np
+            # import matplotlib.pyplot as plt
+            import seaborn as sns
+            from scipy.stats import gaussian_kde
+            sns.histplot(vi, bins=30, kde=False, color='skyblue', stat='density')
+
+            # Density Plot with KDE
+            kde = gaussian_kde(vi, weights=1/(d_vi**2))
+            x = np.linspace(min(vi), max(vi), 1000)
+            kde_values = kde(x)
+            # Confidence interval (e.g., 95%)
+            ci = np.percentile(kde_values, [2.5, 97.5])
+            plt.fill_between(x, kde_values, where=(kde_values >= ci[0]) & (kde_values <= ci[1]), color='gray', alpha=0.5)
+
+            ax.hist(vi, bins=bin_edges, density=True, alpha=0.6, color='g')
+
+            # Best-fit Gaussian curve
+            xmin, xmax = plt.xlim()
+            x = np.linspace(xmin, xmax, 100)
+            p = scipy.stats.norm.pdf(x, meanv, sigma)
+            ax.plot(x, p, 'k', linewidth=2)
+
+            title = "Fit results: mean = {:.2f},  std = {:.2f}".format(meanv, sigma)
+            plt.title(title)
+            plt.xlabel('Velocity')
+            plt.ylabel('Density')
+
+            plt.show()
+        return jnp.mean(self.mean_velocity), jnp.mean(self.global_sigmav)
+    
+
+    def dispersion(self,ri,vi,d_vi,component=None, binfunc: Callable = histogram,bins='blocks',plot=False):
         '''
         calculates the dispersion of velocity component, v_i at radii r
         -- or at project radius R. Also calcualtes the 
@@ -996,24 +1066,83 @@ class Data(ABC):
             _description_
 
         '''
+        
         # first bin positions -- Note: this will only take anytime the first time this function is run -- results are then cached
         N, bin_edges = binfunc(ri,bins = bins)
 
         r_center     = .5*(bin_edges[:-1]+ bin_edges[1:]) # Using the center of the bins seems like an ok method -- a mean or median might be better though
-
-        meanv = jnp.mean(vi) # Probably shouldn't assume that v_{com} = 0
-        # alternatively could do
-        # meamnv,_,bin_numbers   = binned_statistic(ri, vi,'mean',bins=bin_edges)
-        # then calculate dispersion as <v_i**2> - <v_i>**2
-        # calculate velocity dispersion as <(v_i - <v_i>)**2>
-        mu,_,bin_numbers   = binned_statistic(ri,(meanv- vi)**2,'mean',bins=bin_edges)
-        # Estimate errors using bootstrap resampling
-   
-        s2_error = self.dispersion_errors(ri,vi,d_vi,component,bin_edges,1000,N,error=d_vi)
-    
-        s_error = s2_error/2/np.sqrt(mu) # error on the dispersion
         
-        return jnp.array(r_center),jnp.sqrt(mu), jnp.array(s_error),bin_edges
+        # Next get global dispersion and mean velocity
+        meanv,sigma = self.global_dispersion(ri,vi,d_vi,component,plot=True)
+
+        N, _, binnumber = binned_statistic(ri, vi, statistic='count', bins=bin_edges)
+
+        num_bins = len(bin_edges) - 1
+        def velocity_dispersion_model(ri, vi, error, global_dispersion, bin_edges):
+            # Number of bins
+            num_bins = len(bin_edges) - 1
+
+            # Dispersion hyperprior based on global dispersion
+            with numpyro.plate('dispersion_hyperprior', num_bins):
+                dispersion = numpyro.sample('dispersion', dist.HalfNormal(global_dispersion))
+
+
+            # Use binnumber to assign data to bins
+            for i in range(1, num_bins + 1):
+                bin_mask = binnumber == i
+                bin_vi = vi[bin_mask]
+                bin_error = error[bin_mask] 
+
+                with numpyro.plate(f'bin_{i}', len(bin_vi)):
+                            obs_name = f'obs_{i}'
+                            numpyro.sample(obs_name, dist.Normal(meanv, jnp.sqrt(dispersion[i-1]**2+bin_error**2)), obs=bin_vi)
+
+        # MCMC
+        rng_key = random.PRNGKey(0)
+        kernel = NUTS(velocity_dispersion_model)
+        mcmc = MCMC(kernel, num_warmup=500, num_samples=1000, num_chains=1)
+        mcmc.run(rng_key, ri, vi, d_vi, sigma, bin_edges)
+        mcmc.print_summary()
+        samples = mcmc.get_samples()
+        self.dispersion = samples['dispersion']
+        # Assuming 'mcmc' is your MCMC object after running the sampling
+        samples = mcmc.get_samples()
+        dispersion_samples = samples['dispersion']
+        # mean_velocity_samples = samples['mean_velocity']
+        dispersion_means = jnp.mean(dispersion_samples, axis=0)
+
+
+        # Calculate the standard deviation
+        dispersion_std = jnp.std(dispersion_samples, axis=0)
+
+        # Plotting
+        if plot:
+            # Create a new figure and set of subplots
+            fig, ax = plt.subplots(figsize=(10, 6))
+
+            # Histogram of velocities for each bin
+            for i in range(1, num_bins + 1):
+                bin_mask = binnumber == i
+                bin_vi = vi[bin_mask]
+
+                # Plot histogram for each bin
+                ax.hist(bin_vi, bins=30, density=True, alpha=0.6, label=f'Bin {i}')
+
+                # Best-fit Gaussian curve for each bin
+                bin_meanv = meanv  # If mean is constant across bins
+                bin_dispersion = jnp.mean(self.dispersion[i-1])
+                xmin, xmax = min(bin_vi), max(bin_vi)
+                x = np.linspace(xmin, xmax, 100)
+                p = scipy.stats.norm.pdf(x, bin_meanv, bin_dispersion)
+                ax.plot(x, p, linewidth=2)
+
+            ax.set_title("Velocity Histogram and Gaussian Fits for Each Bin")
+            ax.set_xlabel('Velocity')
+            ax.set_ylabel('Density')
+            ax.legend()
+            plt.show()
+            
+        return jnp.array(r_center),dispersion_means, jnp.array(dispersion_std),bin_edges
 
     def dispersion_errors(self,ri,vi,d_vi,component,bin_edges,Nmonte:int,Nbins,error=None):
         '''

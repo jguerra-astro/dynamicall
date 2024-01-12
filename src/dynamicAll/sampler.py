@@ -17,14 +17,8 @@ from . import abel
 from .base import JaxPotential
 from .models import *
 
-x, w = np.polynomial.legendre.leggauss(128) #TODO: Find a better way to set this.
-
-x = jnp.array(x)
-w = jnp.array(w)
 
 #TODO: Write a sampler using jax to speed up calculations.
-
-
 
 class ConditionalSampler:
 
@@ -32,7 +26,8 @@ class ConditionalSampler:
                 dm_component,
                 stellar_component,
                 anisotropy_model,
-                evolve=False):
+                evolve: bool =False):
+        
         self.dm_component      = dm_component
         self.stellar_component = stellar_component
         self.anisotropy_model  = anisotropy_model
@@ -58,30 +53,3 @@ def sample_from_DF(model,N: int,method = 'rejection'):
     Sample from the distribution function of a given model.
     """
     DF = model.DF
-
-
-
-def rejection_sample(model_class, samplesize, r_vr_vt=False, r_v=False, filename=None, brute=True):
-    
-    nX, nV, Xlim, Vlim, = model_class.sampler_input
-    nA = 0
-
-    if nX+nV > 6:
-        print ('We only support a maximum of 6 variables')
-        return
-    if (r_vr_vt and r_v)==True:
-        print ('You cannot have both r_vr_vt AND r_v set to True')
-        return
-    if (Xlim[1] <= Xlim[0] or Vlim[1] <= Vlim[0]):
-        print ('ERROR: rmax <= rmin or vmax<=vmin, please double check the sample limits')
-
-    ans = rejectsample(model_class.DF, Xlim, Vlim, nX, nV, nA,
-                [], [], samplesize, r_vr_vt, r_v, z_vr_vt=False)
-
-    if filename != None:
-        if (r_vr_vt or r_v ):
-            np.savetxt(filename, np.c_[ans])
-        else:
-            np.savetxt(filename, np.c_[np.transpose(ans)])
-
-    return ans

@@ -837,8 +837,11 @@ class Isochrone(JaxPotential):
     def __init__(self,M:float,b:float)-> None:
         '''
         _summary_ 
-        G = 4.30091731e-6 # Gravitational constant units :math:`[$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]`
-
+        # Gravitational constant:
+        :math:`[$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]`
+        
+        G = 4.30091731e-6 
+        
         Parameters
         ----------
         M : float
@@ -999,8 +1002,12 @@ class Isochrone(JaxPotential):
         '''
         x = w[:3]
         v = w[3:]
-        G = 4.300917270036279e-06 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
-        Energy = 0.5 * jnp.dot(v,v) + Isochrone._potential(M,b,jnp.linalg.norm(x))
+        # Gravitational constant: [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
+        G = 4.300917270036279e-06
+        
+        Energy = (0.5 * jnp.dot(v,v) 
+                  + Isochrone._potential(M,b,jnp.linalg.norm(x))
+                 )
         E = -Energy
 
         def E_gt_zero():
@@ -1008,13 +1015,20 @@ class Isochrone(JaxPotential):
 
         def E_lt_zero():
             tE = -Energy * b / (G * M)
-            denominator = jnp.sqrt(2) * (2 * jnp.pi) ** 3 * (G * M * b) ** (3 / 2)
+            denominator = (jnp.sqrt(2) * (2 * jnp.pi) ** 3 * (G * M * b) ** (3 / 2))
             numerator = jnp.sqrt(E) / ((2 * (1 - tE)) ** 4)
         
-            term1 = 27 - 66 * tE + 320 * tE ** 2 - 240 * tE ** 3 + 64 * tE ** 4
+            term1 = (27 
+                     - 66  * tE 
+                     + 320 * tE ** 2 
+                     - 240 * tE ** 3 
+                     + 64  * tE ** 4)
+            
             term2 = 3 * (16 * tE ** 2 + 28 * tE - 9)
         
-            f_I = numerator * term1 + numerator * term2 * jnp.arcsin(jnp.sqrt(E)) / jnp.sqrt(tE * (1 - tE))
+            f_I =(numerator * term1 
+                  + numerator * term2 * jnp.arcsin(jnp.sqrt(E)) 
+                  / jnp.sqrt(tE * (1 - tE)))
             
             return jnp.log(f_I)
         
@@ -1043,10 +1057,6 @@ class Isochrone(JaxPotential):
         float
             distribution function
         '''
-        # x = w[:3]
-        # v = w[3:]
-        # G = 4.300917270036279e-06 # Gravitational constant units [$kpc~km^{2}~M_{\odot}^{-1}~s^{-2}$]
-        # Energy = 0.5 * jnp.dot(v,v) + Isochrone._potential(M,b,jnp.linalg.norm(x))
         Epsilon = -E
         
         M = self._M
@@ -1294,7 +1304,8 @@ class Plummer(JaxPotential):
 
     def sample_R(self,N: int)-> np.ndarray:
         '''
-        Assuming z is the line-of-sight, returs random samples of projection positions
+        Assuming z is the line-of-sight, 
+        returs random samples of projection positions
 
         Parameters
         ----------
@@ -1304,7 +1315,8 @@ class Plummer(JaxPotential):
         Returns
         -------
         np.ndarray
-            Projected sample of objects whose distribution follows as plummer sphere
+            Projected sample of objects 
+            whose distribution follows as plummer sphere
         '''
         r      = self.sample_r(N)    
         xyz    = np.zeros((2,N))
@@ -1364,8 +1376,9 @@ class Plummer(JaxPotential):
                 ) -> np.ndarray:
         '''
         Use emcee to generate samples from a plummer sphere.
-        Since you can easily generate samples from a plummer sphere using different methods, 
-        i'll use this as a test and compare the results between both methods
+        Since you can easily generate samples from a plummer 
+        sphere using different methods, i'll use this as a 
+        test and compare the results between both methods
 
         Parameters
         ----------
