@@ -1073,7 +1073,7 @@ class Data(ABC):
         r_center     = .5*(bin_edges[:-1]+ bin_edges[1:]) # Using the center of the bins seems like an ok method -- a mean or median might be better though
         
         # Next get global dispersion and mean velocity
-        meanv,sigma = self.global_dispersion(ri,vi,d_vi,component,plot=True)
+        meanv,sigma = self.global_dispersion(ri,vi,d_vi,component,plot=plot)
 
         N, _, binnumber = binned_statistic(ri, vi, statistic='count', bins=bin_edges)
 
