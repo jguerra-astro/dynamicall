@@ -36,6 +36,8 @@ import emcee
 from scipy.optimize import curve_fit
 import warnings
 
+
+
 class JaxPotential(ABC):
     '''
     Base class for Potentials.
@@ -858,6 +860,63 @@ class JaxPotential(ABC):
         vectorized_func = jax.vmap(cls.dDdOmega,in_axes=(0,None,None,None))
         return jnp.log10(2*jnp.pi*jnp.sum(wi*vectorized_func(xi,d,rt)*jnp.sin(xi),param_dict)*cls._GeVcm2)
 
+    def __add__(self, other):
+        if not isinstance(other, JaxPotential):
+            return NotImplemented
+        return CompositePotential(self, other)
+
+    def __radd__(self, other):
+        if other == 0:
+            return self
+        return self.__add__(other)
+
+class CompositePotential(JaxPotential):
+    def __init__(self, *potentials):
+        self.potentials = potentials
+        super().__init__()
+
+        # Merge _dm_priors from individual potentials with unique prefixes
+        self._dm_priors = {}
+        for i, p in enumerate(potentials):
+            for key, value in p._dm_priors.items():
+                unique_key = f"{p.__class__.__name__}_{i}_{key}"
+                self._dm_priors[unique_key] = value
+
+    def density(self, r):
+        return jnp.sum(jnp.array([p.density(r) for p in self.potentials]))
+    
+    def mass(self, r):
+        return jnp.sum(jnp.array([p.mass(r) for p in self.potentials]))
+    
+    def potential(self, r):
+        return jnp.sum(jnp.array([p.potential(r) for p in self.potentials]))
+    
+    def __str__(self):
+        description = "CompositePotential combining the following potentials:\n"
+        for i, p in enumerate(self.potentials):
+            description += f"  {i+1}. {p.__class__.__name__} with parameters:\n"
+            for key, value in p._dm_priors.items():
+                prior_str = self._format_prior(value)
+                description += f"      {key}: {prior_str}\n"
+            # Assuming each potential class has a method or attribute to get its parameters
+            if hasattr(p, '_params'):
+                description += f"      parameters: {p._params}\n"
+            else:
+                description += "      parameters: Not available\n"
+        return description
+
+    def _format_prior(self, prior):
+        if isinstance(prior, dist.Uniform):
+            return f"Uniform(low={prior.low}, high={prior.high})"
+        # Add other distributions as needed
+        # elif isinstance(prior, dist.Normal):
+        #     return f"Normal(mean={prior.mean}, std={prior.std})"
+        else:
+            return str(prior)
+
+    def __repr__(self):
+        return (f"<CompositePotential with {len(self.potentials)} potentials: " +
+                ", ".join([p.__class__.__name__ for p in self.potentials]) + ">")
 class Data(ABC):
 
     def __init__(self):
