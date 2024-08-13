@@ -237,6 +237,7 @@ class SphGalaxy:
                     # sub_dictionaries['tracer']['a'] =0.25
                 elif param_name.startswith("dm_"):
                     sub_param_name = param_name[len("dm_") :]
+    
                     sub_dictionaries["dm"][sub_param_name] = samples[param_name]
                 elif param_name.startswith("beta_"):
                     sub_param_name = param_name[len("beta_") :]

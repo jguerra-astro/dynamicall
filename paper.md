@@ -1,5 +1,5 @@
 ---
-title: 'Dynamicall: Spherical Mass Modeling Using Jax and Numpyro'
+title: 'Dynamicall: Tools for Modeling Galaxies Using Jax and Numpyro'
 tags:
   - Python
   - astronomy
