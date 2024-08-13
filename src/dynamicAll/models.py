@@ -413,10 +413,10 @@ class HernquistZhao(JaxPotential):
     @staticmethod
     @jax.jit
     def _density_fit(r, param_dict):
-        q = r / param_dict["rs"]
+        q = r / np.exp(param_dict["rs"])
         nu = (param_dict["a"] - param_dict["c"]) / param_dict["b"]
         return (
-            param_dict["rhos"]
+            np.exp(param_dict["rhos"])
             * q ** -param_dict["a"]
             * (1 + q ** param_dict["b"]) ** (nu)
         )
@@ -500,16 +500,12 @@ class HernquistZhao(JaxPotential):
         float
             Mass enclosed within radius r | units [Mass]
         """
-        q = r / param_dict["rs"]
+        q = r  # / param_dict["rs"]
         xk = 0.5 * q * HernquistZhao._xk + 0.5 * q
         wk = 0.5 * q * HernquistZhao._wk
-        units = 4 * jnp.pi * param_dict["rhos"] * param_dict["rs"] ** 3
+        units = 4 * jnp.pi  # * param_dict["rhos"] * param_dict["rs"] ** 3
         return units * jnp.sum(
-            wk
-            * xk**2
-            * HernquistZhao._density(
-                xk, 1.0, 1.0, param_dict["a"], param_dict["b"], param_dict["c"]
-            ),
+            wk * xk**2 * HernquistZhao._density_fit(xk, param_dict),
             axis=0,
         )
 
@@ -792,6 +788,11 @@ class NFW(JaxPotential):
     def _density(r, rhos: float, rs: float):
         q = r / rs
         return rhos * q ** (-1) * (1 + q) ** (-2)
+
+    @staticmethod
+    def _density_fit(r, params):
+        q = r / jnp.exp(params["rs"])
+        return jnp.exp(params["rhos"]) * q ** (-1) * (1 + q) ** (-2)
 
     @staticmethod
     @jax.jit
