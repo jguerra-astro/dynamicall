@@ -33,8 +33,8 @@ aas-journal: Astrophysical Journal <- The name of the AAS journal.
 Studying the underlying dark matter distribution of dwarf galaxies relies on single kinematic snapshots of the stars in these galaxies i.e. the line-of-sight (usually) velocity distribution at one time.
 Given these observations there have been various methods developed to infer the underlying mass distribution of these galaxies.
 
-We present a new tool, `Dynamicall`, which is built on top of the `Jax` and intented to be use with MCMC samplers like `Numpyro` which are able to take advantage of all the benefits of Jax.
-`Dynamicall' provides a suite of functions for modeling the dynamics of galaxies.
+We present a new tool, `Dynamicall1`, which is built on top of the `Jax` and intented to be use with MCMC samplers like `Numpyro` which are able to take advantage of all the benefits of Jax.
+`Dynamicall` provides a suite of functions for modeling the dynamics of galaxies.
 We provide functions for all the basic dynamical functions like density,mass, potential, distribution functions, actions, J-Factors and D-Factors for a variety of common models used in astronomy.
 We also provide a flexible and extensible framework for users to implement their own models with a minimal amount of code.
 The ability to use `Jax` and `Numpyro` allows for the use of GPU acceleration and automatic differentiation which can greatly speed up the process of fitting models to data.
