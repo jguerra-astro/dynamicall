@@ -13,6 +13,7 @@ import scipy
 import agama
 from scipy.spatial.transform import Rotation
 from astropy.stats import histogram
+
 config.update("jax_enable_x64", True)
 
 import numpyro
@@ -40,14 +41,12 @@ from . import models
 
 
 class Likelihood:
-
     def __init__(self, data: Data, model: Callable):
         self.data = data
         self.model = model
 
-
-    def lnLikelihood(self,theta: jax.Array) -> float:
-        '''
+    def lnLikelihood(self, theta: jax.Array) -> float:
+        """
         log likelihood function for 2+1 dimensional data e.g (x,y,v_{los}) equivalenetly (R,v_{los})
 
         Parameters
@@ -66,22 +65,24 @@ class Likelihood:
         Notes
         -------
 
-        '''
+        """
 
-        q  = data[0]            # projected radii
-        v  = data[1]            # line-of-sight/"radial" velocitiess
-        N  = v.shape[0]         # number of observed stars
-        sigmasq  = model(q,theta) + obs_error**2
-            
+        q = data[0]  # projected radii
+        v = data[1]  # line-of-sight/"radial" velocitiess
+        N = v.shape[0]  # number of observed stars
+        sigmasq = model(q, theta) + obs_error**2
+
         # log of likelihood
-        term1 = - 0.5 * jnp.sum(np.log(sigmasq))
-        term2 = - 0.5 * jnp.sum(v**2/sigmasq)   # This assumes that the velocities are gaussian centered at 0 -- could also fit for this
-        term3 = - 0.5 * N *jnp.log(2*np.pi) # doesnt really need to be here
+        term1 = -0.5 * jnp.sum(np.log(sigmasq))
+        term2 = (
+            -0.5 * jnp.sum(v**2 / sigmasq)
+        )  # This assumes that the velocities are gaussian centered at 0 -- could also fit for this
+        term3 = -0.5 * N * jnp.log(2 * np.pi)  # doesnt really need to be here
 
-        return term1+term2+term3
+        return term1 + term2 + term3
 
-    def lnLikelihood2(self,theta: jax.Array) -> float:
-        '''
+    def lnLikelihood2(self, theta: jax.Array) -> float:
+        """
         Log likelihood assuming 3+1 dimenstional data (R,v_{los},v_{pmr},v_{pmt})
 
         Parameters
@@ -98,14 +99,14 @@ class Likelihood:
         -------
         Ok, so whats up? What does adding positions do
 
-        '''
-        q   = data['R']       # projected radii
-        v1  = data['vlos']    # line-of-sight/"radial" velocitiess
-        v2  = data['vpmr']
-        v3  = data['vpmt']
+        """
+        q = data["R"]  # projected radii
+        v1 = data["vlos"]  # line-of-sight/"radial" velocitiess
+        v2 = data["vpmr"]
+        v3 = data["vpmt"]
 
-        N  = v.shape[0]         # number of observed stars
-        sigmasq  = model(q,theta) + obs_error**2
-        sigmasq  = model(q,theta) + obs_error**2
+        N = v.shape[0]  # number of observed stars
+        sigmasq = model(q, theta) + obs_error**2
+        sigmasq = model(q, theta) + obs_error**2
 
         return -1

@@ -273,12 +273,13 @@ class HernquistZhao(JaxPotential):
 
         q = r / rs
 
-        func = (
-            lambda r: -(r**2)
-            * (q) ** (-a)
-            * sc.hyp2f1((2 - a) / b, -(a - c) / b, 1 + (2 - a) / b, -(q**b))
-            / (-2 + a)
-        )
+        def func(r):
+            return (
+                -(r**2)
+                * q ** (-a)
+                * sc.hyp2f1((2 - a) / b, -(a - c) / b, 1 + (2 - a) / b, -(q**b))
+                / (-2 + a)
+            )
 
         phi_in = -G * self.mass_scipy(r, 1.0, rs, a, b, c) / r
 
