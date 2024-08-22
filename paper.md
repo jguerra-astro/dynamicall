@@ -31,7 +31,7 @@ aas-journal: Astrophysical Journal <- The name of the AAS journal.
 
 # Summary
 Studying the underlying dark matter distribution of dwarf galaxies relies on single snapshots of kinematic tracers (e.g. line-of-sight velocities of individual stars) to probe the velocity distribution of the galaxy
-Various methods have been developed to infer the underlying mass distribution of these galaxies [@Jeans1915-an; @Binney2011-ja; @Mamon2013-bi, @Cappellari2015-jt, @Read2017-nl, @Diakogiannis2019-yd].
+Various methods have been developed to infer the underlying mass distribution of these galaxies [@Jeans1915-an; @Binney2011-ja; @Mamon2013-bi; @Cappellari2015-jt; @Read2017-nl; @Diakogiannis2019-yd].
 
 
 We present a new tool, `Dynamicall`; A pure python package for modeling the dynamics of galaxies using `Jax` and `Numpyro`.
