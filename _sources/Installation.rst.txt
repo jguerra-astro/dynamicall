@@ -2,11 +2,64 @@
 Installation Instructions
 *************************
 
-You'll have two options depending on where you are in your project.
+This guide provides instructions for installing `Dynamicall` using different Python environment management tools.
+We recommend using Mamba for the fastest and most efficient installation, but instructions for Conda and venv are also provided.
 
-1. If you are starting out knowing you'll need to use this package then you could use the the enviroment.yml file provided to create a conda enviroment with all the dependencies.
+Installation
+============
+The recommended way of using `Dynamicall` is to install it in a fresh virtual environment.
 
-2. If you are in the middle of a project and already have a conda enviroment, you may just want to individually install the following dependencies.
+using Mamba
+-----------
+1. if you havent already, install [mamba](https://mamba.readthedocs.io/en/latest/)
+
+.. code-block:: bash
+    mamba create -n dynamicall python=3.10 # or whatever you want to call your environment
+    mamba activate dynamicall
+
+2. Clone the repository and install the dependencies
+
+.. code-block:: bash
+    git clone git@github.com:jguerra-astro/dynamicall.git
+    cd dynamicall
+    mamba env update -f environment.yml
+    pip install .
+
+using Conda
+-----------
+1. if you havent already, install [conda](https://docs.conda.io/en/latest/miniconda.html)
+
+.. code-block:: bash
+    conda create -n dynamicall python=3.10 # or whatever you want to call your environment
+    conda activate dynamicall
+
+2. Clone the repository and install the dependencies
+
+.. code-block:: bash
+    git clone git@github.com:jguerra-astro/dynamicall.git
+    cd dynamicall
+    conda env update -f environment.yml
+    pip install. 
+
+using venv
+-----------
+1. virtual environments are included in the standard library, so you don't need to install anything extra
+
+.. code-block:: bash
+    python -m venv dynamicall
+    source dynamicall/bin/activates
+
+2. Clone the repository and install the dependencies
+
+.. code-block:: bash
+    git clone git@github.com:jguerra-astro/dynamicall.git
+    cd dynamicall
+    pip install -r requirements.txt
+    pip install .
+
+
+If you're not installing in a new environment, you can skip the first step in each of the above methods.
+The main python dependencies are `jax`, `jaxlib`, `jaxopt`, `numpyro`, `emcee`, `corner`, `arviz`, `astroquery`, `pynbody`, `colorcet`, and `agama`.
 
 
 Python Dependencies

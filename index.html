@@ -330,11 +330,10 @@ document.write(`
   <section id="dynamicall">
 <h1>Dynamicall<a class="headerlink" href="#dynamicall" title="Link to this heading">#</a></h1>
 <p>The internal kinematics of dwarf galaxies is a powerful tool to understand their formation and evolution as well as put constraints on dark matter models.</p>
-<p>Dynamicall is an open-source python package that provides a set of tools to analyze the internal kinematics of dwarf galaxies and other dynamical systems.
-It can be used to determine</p>
-<p>It’s main usecase is as a Jeans modeling tool, but it also provides a set of additional tools to analyze the internal kinematics of dwarf galaxies and other dynamical systems.
-The main developments over other similar tools are the use of <a class="reference external" href="https://jax.readthedocs.io/en/latest/#">Jax</a> for all calculations leading to a significant speedup, and the use of <a class="reference external" href="http://num.pyro.ai/en/stable/">Numpyro</a> for the Bayesian inference.
-The use of Jax allows us to use automatic differentiation to calculate the gradients of the posterior probability distribution with respect to the parameters, which is necessary to use <a class="reference external" href="https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo">Hamiltonian Monte Carlo (HMC)</a> methods for the inference.</p>
+<p>Dynamicall is an open-source python package that provides a set of tools to analyze the internal kinematics of dwarf galaxies and other dynamical systems.</p>
+<p>It’s main use case is as a Jeans modeling tool, but it also provides a set of additional tools to analyze the internal kinematics of dwarf galaxies and other dynamical systems.
+The main developments over other similar tools are the use of <a class="reference external" href="https://jax.readthedocs.io/en/latest/#">Jax</a> for all calculations leading to a significant speedup from just-in-time(JIT) compilation and gpu acceleraton, and the use of <a class="reference external" href="http://num.pyro.ai/en/stable/">Numpyro</a> for the Bayesian inference.
+The use of Jax also allows us to use automatic differentiation to calculate the gradients of the posterior probability distribution with respect to the parameters, which is necessary to use <a class="reference external" href="https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo">Hamiltonian Monte Carlo (HMC)</a> methods for the inference, and useful in order to Forecast uncertainties in the parameters using Fisher Matrix methods.</p>
 <div class="toctree-wrapper compound">
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>

@@ -9,11 +9,12 @@ Dynamicall
 The internal kinematics of dwarf galaxies is a powerful tool to understand their formation and evolution as well as put constraints on dark matter models.
 
 Dynamicall is an open-source python package that provides a set of tools to analyze the internal kinematics of dwarf galaxies and other dynamical systems.
-It can be used to determine
 
-It's main usecase is as a Jeans modeling tool, but it also provides a set of additional tools to analyze the internal kinematics of dwarf galaxies and other dynamical systems.
-The main developments over other similar tools are the use of `Jax <https://jax.readthedocs.io/en/latest/#>`__ for all calculations leading to a significant speedup, and the use of `Numpyro <http://num.pyro.ai/en/stable/>`_ for the Bayesian inference.
-The use of Jax allows us to use automatic differentiation to calculate the gradients of the posterior probability distribution with respect to the parameters, which is necessary to use `Hamiltonian Monte Carlo (HMC) <https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo>`__ methods for the inference.
+
+It's main use case is as a Jeans modeling tool, but it also provides a set of additional tools to analyze the internal kinematics of dwarf galaxies and other dynamical systems.
+The main developments over other similar tools are the use of `Jax <https://jax.readthedocs.io/en/latest/#>`__ for all calculations leading to a significant speedup from just-in-time(JIT) compilation and gpu acceleraton, and the use of `Numpyro <http://num.pyro.ai/en/stable/>`_ for the Bayesian inference.
+The use of Jax also allows us to use automatic differentiation to calculate the gradients of the posterior probability distribution with respect to the parameters, which is necessary to use `Hamiltonian Monte Carlo (HMC) <https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo>`__ methods for the inference, and useful in order to Forecast uncertainties in the parameters using Fisher Matrix methods.
+
 
 
 
