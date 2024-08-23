@@ -11,15 +11,18 @@ The recommended way of using `Dynamicall` is to install it in a fresh virtual en
 
 using Mamba
 -----------
+
 1. if you havent already, install [mamba](https://mamba.readthedocs.io/en/latest/)
 
 .. code-block:: bash
+
     mamba create -n dynamicall python=3.10 # or whatever you want to call your environment
     mamba activate dynamicall
 
 2. Clone the repository and install the dependencies
 
 .. code-block:: bash
+
     git clone git@github.com:jguerra-astro/dynamicall.git
     cd dynamicall
     mamba env update -f environment.yml
@@ -30,12 +33,14 @@ using Conda
 1. if you havent already, install [conda](https://docs.conda.io/en/latest/miniconda.html)
 
 .. code-block:: bash
+
     conda create -n dynamicall python=3.10 # or whatever you want to call your environment
     conda activate dynamicall
 
 2. Clone the repository and install the dependencies
 
 .. code-block:: bash
+
     git clone git@github.com:jguerra-astro/dynamicall.git
     cd dynamicall
     conda env update -f environment.yml
@@ -46,12 +51,14 @@ using venv
 1. virtual environments are included in the standard library, so you don't need to install anything extra
 
 .. code-block:: bash
+
     python -m venv dynamicall
     source dynamicall/bin/activates
 
 2. Clone the repository and install the dependencies
 
 .. code-block:: bash
+
     git clone git@github.com:jguerra-astro/dynamicall.git
     cd dynamicall
     pip install -r requirements.txt
