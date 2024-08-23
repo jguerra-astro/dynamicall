@@ -1,0 +1,873 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Tutorial: J-Factors &#8212; dynamicAll 00.00.01 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=d7bb8d4d"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/tutorial_jfactors';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Tutorial: Plummer Model" href="tutorial_plummer.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">dynamicAll 00.00.01 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Installation.html">
+    Installation Instructions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_potential.html">
+    Tutorial: Potentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_plummer.html">
+    Tutorial: Plummer Model
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: J-Factors
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Installation.html">
+    Installation Instructions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_potential.html">
+    Tutorial: Potentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_plummer.html">
+    Tutorial: Plummer Model
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: J-Factors
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Tutorial: J-Factors</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="tutorial-j-factors">
+<h1>Tutorial: J-Factors<a class="headerlink" href="#tutorial-j-factors" title="Link to this heading">#</a></h1>
+<section id="goals">
+<h2>Goals<a class="headerlink" href="#goals" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>Calculate the J-factor for a given density profile</p></li>
+<li><p>Forecast uncertentanties on the J-factor from uncertainties on the density parameters</p></li>
+</ol>
+<div class="cell tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="cell tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Imports</span>
+
+<span class="c1"># third party</span>
+<span class="kn">import</span> <span class="nn">jax</span>
+<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+<span class="kn">from</span> <span class="nn">jax._src.config</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span> 
+<span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">import</span> <span class="nn">numpyro</span>
+<span class="kn">from</span> <span class="nn">numpyro.diagnostics</span> <span class="kn">import</span> <span class="n">hpdi</span>
+<span class="kn">import</span> <span class="nn">numpyro.distributions</span> <span class="k">as</span> <span class="nn">dist</span>
+<span class="kn">from</span> <span class="nn">numpyro</span> <span class="kn">import</span> <span class="n">handlers</span>
+<span class="kn">from</span> <span class="nn">numpyro.infer</span> <span class="kn">import</span> <span class="n">MCMC</span><span class="p">,</span> <span class="n">NUTS</span>
+
+
+<span class="kn">import</span> <span class="nn">astropy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
+<span class="c1">#need to get rid of</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># project</span>
+<span class="kn">from</span> <span class="nn">dynamicAll</span> <span class="kn">import</span> <span class="n">models</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">line</span> <span class="mi">4</span>
+<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="c1"># Imports</span>
+<span class="g g-Whitespace">      </span><span class="mi">2</span> 
+<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="c1"># third party</span>
+<span class="ne">----&gt; </span><span class="mi">4</span> <span class="kn">import</span> <span class="nn">jax</span>
+<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="kn">from</span> <span class="nn">jax._src.config</span> <span class="kn">import</span> <span class="n">config</span>
+
+<span class="ne">ModuleNotFoundError</span>: No module named &#39;jax&#39;
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+<section id="tl-dr">
+<h2>TL;DR<a class="headerlink" href="#tl-dr" title="Link to this heading">#</a></h2>
+<div class="math notranslate nohighlight">
+\[
+J(\Delta\Omega |\Phi_{\rm dm},D,r_{\rm tidal}) = \int_{\Delta\Omega} \int_{\rm los} \rho^2(r) dl d\Omega
+\]</div>
+<ol class="arabic simple">
+<li><p>Define your dark matter density/potential model.
+We’ll use a Hernquist-Zhao profile with NFW-equivalent parameters.</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;rhos&#39;</span> <span class="p">:</span> <span class="mf">6.4e7</span><span class="p">,</span>
+    <span class="s1">&#39;rs&#39;</span>   <span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s1">&#39;a&#39;</span>    <span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s1">&#39;b&#39;</span>    <span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s1">&#39;c&#39;</span>    <span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<span class="n">halo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">HernquistZhao</span><span class="p">(</span><span class="o">**</span><span class="n">param_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Define <strong>distance</strong> to your system and <strong>tidal radius</strong> for the Halo.
+(or maybe just <span class="math notranslate nohighlight">\(r_{200}\)</span>??)</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">r200</span> <span class="o">=</span> <span class="n">halo</span><span class="o">.</span><span class="n">r200</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">r200</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>25.568161066713017
+</pre></div>
+</div>
+</div>
+</div>
+<p>This might be a more relevant quantity if you’re not thinking about MW satellites.
+If you are then the term needed is the tidal radius. In which case you also need to define the distance from MW to the satellite.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">D_mw</span> <span class="o">=</span> <span class="mi">100</span> <span class="c1"># [kpc]</span>
+<span class="n">rtidal</span> <span class="o">=</span> <span class="n">halo</span><span class="o">.</span><span class="n">rtidal</span><span class="p">(</span><span class="n">D_mw</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rtidal</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>11.66805102699065
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d_dracoish</span>  <span class="o">=</span> <span class="mf">50.0</span>    <span class="c1"># So I can compare to Chang et. al. 2020</span>
+<span class="n">rt_dracoish</span> <span class="o">=</span> <span class="mf">100.0</span>  <span class="c1"># kpc (r_200-ish for these scale density/radius values)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Set the angle enclosed usually <span class="math notranslate nohighlight">\(\theta = 0.5\degree\)</span>.</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta0</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="c1"># rad</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>the functions for the J-factor and D-factor are just <code class="docutils literal notranslate"><span class="pre">jFactor</span></code> and <code class="docutils literal notranslate"><span class="pre">dFactor</span></code></p>
+<p>By Default, these will print out in units of <span class="math notranslate nohighlight">\(\log_{10}\left(\rm J/[GeV^2~cm^{-5}]\right)\)</span> and  <span class="math notranslate nohighlight">\(\log_{10}\left(\rm J/[GeV~cm^{-2}]\right)\)</span> respectively</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">J</span> <span class="o">=</span> <span class="n">halo</span><span class="o">.</span><span class="n">jFactor</span><span class="p">(</span><span class="n">theta0</span><span class="p">,</span><span class="n">d_dracoish</span><span class="p">,</span><span class="n">r200</span><span class="p">)</span>
+<span class="n">D</span> <span class="o">=</span> <span class="n">halo</span><span class="o">.</span><span class="n">dFactor</span><span class="p">(</span><span class="n">theta0</span><span class="p">,</span><span class="n">d_dracoish</span><span class="p">,</span><span class="n">r200</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">J</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>19.30357443175167
+18.62579304670184
+</pre></div>
+</div>
+</div>
+</div>
+<p>This matches the results from <a class="reference external" href="https://arxiv.org/abs/1803.03262">Chang et al. 2018</a></p>
+</section>
+<section id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h2>
+<p>J-factor</p>
+<div class="math notranslate nohighlight">
+\[
+J= \int_{} \int_{\rm los} \rho^{2}(r) d\Omega dl
+\]</div>
+<p>In order to calculate the integral numerically, we’ll rewrite it a slightly more useful form</p>
+<p>Start by definiing <span class="math notranslate nohighlight">\(r^2=\ell^2+D^2-2 \ell D \cos \theta\)</span> and <span class="math notranslate nohighlight">\(d\Omega=2\pi\sin\theta d\theta\)</span>.
+Here D is the distance to the system.</p>
+<p>The bounds on the line of sight are <span class="math notranslate nohighlight">\(\ell_{ \pm}=D \cos \theta \pm \sqrt{r_t^2-D^2 \sin ^2 \theta}\)</span>.
+where <span class="math notranslate nohighlight">\(r_t\)</span> is the tidal radius of the system.</p>
+<p>substituting in the integral we get</p>
+<div class="math notranslate nohighlight">
+\[
+J(\theta_{\rm max}) = 2 \pi \int_{0}^{\theta_{\rm max}}\sin\theta d\theta \int_{\ell_{-}}^{\ell_{+}} \left[\rho\left(\sqrt{\ell^2+D^2-2 \ell D \cos \theta}\right)\right]^{2} d\ell .
+\]</div>
+<p>To be consistent perhaps we should follow <a class="reference external" href="https://journals.aps.org/prd/pdf/10.1103/PhysRevD.69.123501">Evans et. al. 2004</a>, where <span class="math notranslate nohighlight">\(r_t\)</span> comes from
+this equation</p>
+<div class="math notranslate nohighlight">
+\[
+\frac{M_{\mathrm{dSph}}\left(r_t\right)}{r_t^3}
+=\frac{M_{\mathrm{MW}}\left(r_{\mathrm{dSph}}-r_t\right)}{\left(r_{\mathrm{dSph}}-r_t\right)^3}.
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(r_{\mathrm{dSph}}\)</span> is the distance between th MW and the dSph.
+This is slightly more annoying to handle…forecasting wise.
+Mostly cause we would have to write down <span class="math notranslate nohighlight">\(M_{\rm MW}(r)\)</span></p>
+<p>However, we can just use the Halo component of the MW, which will make this calculation a lot simpler.
+We can check to make sure our answer doesnt change very much.</p>
+<p>using <span class="math notranslate nohighlight">\(r_{200}\)</span> works just as well and you get almost the same answer (see below).</p>
+</section>
+<section id="sanity-check">
+<h2>Sanity check<a class="headerlink" href="#sanity-check" title="Link to this heading">#</a></h2>
+<p>In <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2016PhRvD..93j3512E/abstract">Evans et. al. 2016</a>, they derive an analytical expression for the J-factor of a NFW profile.</p>
+<p>This is using the approximation that <span class="math notranslate nohighlight">\(d\Omega d\mathcal{l} =\frac{2πRdRdz}{D^{2}}\)</span>, i.e. integrate over a cylinder instead of a cone.However they show that this is a good approximation even for the neartest dSphs at <span class="math notranslate nohighlight">\(D\sim 20-30\)</span> kpc.</p>
+<p>In this limit you can write down</p>
+<div class="math notranslate nohighlight">
+\[
+\mathrm{J(\theta | D,\rho_s,r_s)}
+=\frac{\pi \rho_0^2 r_{\mathrm{s}}^3}{3 D^2 \Delta^4}\left[2 y\left(7 y-4 y^3+3 \pi \Delta^4\right)\right.\left.+6\left(2 \Delta^6-2 \Delta^2-y^4\right) X(y)\right]
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(y=\frac{D\theta}{r_s}\)</span>, <span class="math notranslate nohighlight">\(\Delta=\sqrt{1-y^2}\)</span> and</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+X(s)= \begin{cases}\frac{1}{\sqrt{1-s^2}} \operatorname{Arcsech} s, &amp; 0 \leq s \leq 1 \\ \frac{1}{\sqrt{s^2-1}} \operatorname{Arcsec} s, &amp; s \geq 1.\end{cases}
+\end{split}\]</div>
+<p>Below We compare the results of this analytical expression to our numerical calculation.</p>
+<p>Another simple check:</p>
+<div class="math notranslate nohighlight">
+\[
+\lim_{\theta\to\infty} J(\theta)= \frac{4\pi}{3}\frac{\rho_s^2 r_s^3}{D^2}
+\]</div>
+<div class="cell tag_hide-input docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell source</span>
+<span class="expanded">Hide code cell source</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">chi</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Overkill at the moment,but in case I want to make it more complicated later.</span>
+<span class="sd">    Also note the use of jax.lax.cond.</span>
+<span class="sd">    To be Tested: is this still differentiable?</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s : _type_</span>
+<span class="sd">        _description_</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">s_lt_one</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arccosh</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">s</span><span class="p">)</span><span class="o">/</span><span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">s</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">s_gt_one</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">s</span><span class="p">)</span><span class="o">/</span><span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">s_eq_one</span><span class="p">():</span>
+        <span class="k">return</span> <span class="mf">1.0</span>
+    <span class="k">return</span> <span class="n">jax</span><span class="o">.</span><span class="n">lax</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">s</span><span class="o">&lt;</span> <span class="mi">1</span><span class="p">,</span> <span class="n">s_lt_one</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">jax</span><span class="o">.</span><span class="n">lax</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">s</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">,</span> <span class="n">s_gt_one</span><span class="p">,</span> <span class="n">s_eq_one</span><span class="p">))</span>
+    
+<span class="n">chiv</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">chi</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">J_analytic</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span><span class="n">rhos</span><span class="p">,</span><span class="n">rs</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">rt</span><span class="p">):</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">D</span><span class="o">*</span><span class="n">theta</span><span class="o">/</span><span class="n">rs</span>
+    <span class="n">Delta2</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="n">coeff</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">rhos</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">rs</span><span class="o">**</span><span class="mi">3</span><span class="o">/</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">D</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">Delta2</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">term1</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">y</span><span class="o">*</span><span class="p">(</span><span class="mi">7</span><span class="o">*</span><span class="n">y</span> <span class="o">-</span><span class="mi">4</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">jnp</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">Delta2</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">term2</span> <span class="o">=</span> <span class="mi">6</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">Delta2</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">Delta2</span> <span class="o">-</span><span class="n">y</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span><span class="o">*</span><span class="n">chiv</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">coeff</span><span class="o">*</span><span class="p">(</span><span class="n">term1</span><span class="o">+</span><span class="n">term2</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">J_asymptotic</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span><span class="n">rhos</span><span class="p">,</span><span class="n">rs</span><span class="p">,</span><span class="n">D</span><span class="p">):</span>
+    <span class="n">J_</span> <span class="o">=</span>  <span class="p">(</span><span class="mi">4</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">jnp</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span> <span class="n">rhos</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span><span class="n">rs</span><span class="o">**</span><span class="mi">3</span><span class="o">/</span><span class="n">D</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">J_</span> <span class="o">=</span> <span class="p">(</span><span class="n">J_</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">solMass</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">kpc</span><span class="o">**</span><span class="mi">5</span> <span class="o">*</span><span class="n">const</span><span class="o">.</span><span class="n">c</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">GeV</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">J_</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+<span class="n">logJ_asymptotic</span> <span class="o">=</span> <span class="n">J_asymptotic</span><span class="p">(</span><span class="n">theta0</span><span class="p">,</span><span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;rhos&#39;</span><span class="p">],</span><span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;rs&#39;</span><span class="p">],</span><span class="n">d_dracoish</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span> <span class="o">=</span> <span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">1e-2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+<span class="n">j_vec</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">HernquistZhao</span><span class="o">.</span><span class="n">_jFactor</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">))</span>
+<span class="n">jvec3</span> <span class="o">=</span>  <span class="n">j_vec</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span><span class="n">param_dict</span><span class="p">,</span><span class="n">d_dracoish</span><span class="p">,</span><span class="n">rtidal</span><span class="p">)</span>
+<span class="n">jvec4</span> <span class="o">=</span>  <span class="n">j_vec</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span><span class="n">param_dict</span><span class="p">,</span><span class="n">d_dracoish</span><span class="p">,</span><span class="n">r200</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell tag_hide-input docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell source</span>
+<span class="expanded">Hide code cell source</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># plt.style.use(&#39;/users/Juan/phd/matplotlib/jdefault.mplstyle&#39;)</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">halo</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
+    <span class="n">yscale</span><span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$r$ [kpc]&#39;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\rho(r)~[\rm M_{\odot} kpc^{-3}]$&#39;</span><span class="p">,</span>
+<span class="p">);</span>
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(((</span><span class="n">theta</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="n">jnp</span><span class="o">.</span><span class="n">log10</span><span class="p">((</span><span class="n">J_analytic</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span><span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;rhos&#39;</span><span class="p">],</span><span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;rs&#39;</span><span class="p">],</span><span class="n">d_dracoish</span><span class="p">,</span><span class="n">rt_dracoish</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">solMass</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">kpc</span><span class="o">**</span><span class="mi">5</span> <span class="o">*</span><span class="n">const</span><span class="o">.</span><span class="n">c</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">GeV</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Analytical&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(((</span><span class="n">theta</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="n">jvec3</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;Dynamicall $(r_{\rm tidal})$&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(((</span><span class="n">theta</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="n">jvec4</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-.&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;pink&#39;</span><span class="p">,</span><span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;Dynamicall $(r_</span><span class="si">{200}</span><span class="s1">)$&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">logJ_asymptotic</span><span class="p">,</span>
+            <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\lim_{\theta\to\infty}~J$&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xlabel</span><span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\theta$ [deg]&#39;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\log_</span><span class="si">{10}</span><span class="s1">\left[\rm~J(\theta)/\rm GeV^2 cm^{-5}\right]$&#39;</span><span class="p">,</span>
+    <span class="c1"># xscale=&#39;log&#39;</span>
+<span class="p">);</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<img alt="../_images/ad36a94b35f8a4d11532be2390863a20c21b00e2de222bd248ca3067ec419d17.png" src="../_images/ad36a94b35f8a4d11532be2390863a20c21b00e2de222bd248ca3067ec419d17.png" />
+</div>
+</div>
+<p>Results between the two methods agree!</p>
+</section>
+<section id="inference">
+<h2>Inference<a class="headerlink" href="#inference" title="Link to this heading">#</a></h2>
+<p>If you need to do some sort of inference/MCMC then you’d want to instead use the “Internal functions” i.e. class methods.
+The only diffrerence will be an _ at the beginning of the function name, and that it takes an additional parameter param_dict.
+This function will work within a numpyro model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dynamicAll.models</span> <span class="kn">import</span> <span class="n">HernquistZhao</span>
+<span class="n">J_factor</span> <span class="o">=</span> <span class="n">HernquistZhao</span><span class="o">.</span><span class="n">_jFactor</span><span class="p">(</span><span class="n">theta0</span><span class="p">,</span><span class="n">param_dict</span><span class="p">,</span> <span class="n">d_dracoish</span><span class="p">,</span><span class="n">rt_dracoish</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta0</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="c1"># rad</span>
+<span class="n">d_dracoish</span>  <span class="o">=</span> <span class="mf">50.0</span>    <span class="c1"># So I can compare to Chang et. al. 2020</span>
+<span class="n">rt_dracoish</span> <span class="o">=</span> <span class="mf">25.54</span>  <span class="c1"># kpc (r_200-ish for these scale density/radius values)</span>
+
+<span class="c1"># NFW parameters</span>
+<span class="n">nfw_params</span> <span class="o">=</span> <span class="p">{</span>          
+    <span class="s1">&#39;rhos&#39;</span> <span class="p">:</span> <span class="mf">6.4e7</span><span class="p">,</span>
+    <span class="s1">&#39;rs&#39;</span>   <span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<span class="c1"># Equivalent NFW parameters for gNFW</span>
+
+<span class="n">gNFW_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;rhos&#39;</span> <span class="p">:</span> <span class="mf">6.4e7</span><span class="p">,</span>
+    <span class="s1">&#39;rs&#39;</span>   <span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s1">&#39;gamma&#39;</span>    <span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<span class="c1"># Equivalent NFW parameters for HernquistZhao</span>
+<span class="n">HernquistZhao_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;rhos&#39;</span> <span class="p">:</span> <span class="mf">6.4e7</span><span class="p">,</span>
+    <span class="s1">&#39;rs&#39;</span>   <span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s1">&#39;a&#39;</span>    <span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s1">&#39;b&#39;</span>    <span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s1">&#39;c&#39;</span>    <span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<span class="n">Jfactor_NFW</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">NFW</span><span class="o">.</span><span class="n">_jFactor</span><span class="p">(</span><span class="n">theta0</span><span class="p">,</span><span class="n">nfw_params</span><span class="p">,</span> <span class="n">d_dracoish</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">jFactor_HernquistZhao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">HernquistZhao</span><span class="o">.</span><span class="n">_jFactor</span><span class="p">(</span><span class="n">theta0</span><span class="p">,</span><span class="n">HernquistZhao_params</span><span class="p">,</span> <span class="n">d_dracoish</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">jfactor_gNFW</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">gNFW</span><span class="o">.</span><span class="n">_jFactor</span><span class="p">(</span><span class="n">theta0</span><span class="p">,</span><span class="n">gNFW_params</span><span class="p">,</span> <span class="n">d_dracoish</span><span class="p">,</span><span class="mi">25</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">jFactor_HernquistZhao</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">jfactor_gNFW</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">Jfactor_NFW</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>19.353466495206778
+19.353450072268895
+19.353366699653193
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="tutorial_plummer.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Tutorial: Plummer Model</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#goals">Goals</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tl-dr">TL;DR</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#methods">Methods</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sanity-check">Sanity check</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inference">Inference</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/notebooks/tutorial_jfactors.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023, Juan Guerra.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
