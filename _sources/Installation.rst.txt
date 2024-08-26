@@ -25,7 +25,7 @@ using Mamba
 
     git clone git@github.com:jguerra-astro/dynamicall.git
     cd dynamicall
-    mamba env update -f environment.yml
+    mamba env update -f dynamicall_env.yml
     pip install .
 
 using Conda
@@ -43,7 +43,7 @@ using Conda
 
     git clone git@github.com:jguerra-astro/dynamicall.git
     cd dynamicall
-    conda env update -f environment.yml
+    conda env update -f dynamicall_env.yml
     pip install. 
 
 using venv
