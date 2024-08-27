@@ -1,4 +1,3 @@
-name: test_env
 channels:
   - conda-forge
 dependencies:
@@ -144,4 +143,3 @@ dependencies:
       - dynamical==0.0.0
       - dynamicall==0.0.0
       - jaxopt==0.8.3
-prefix: /Users/juan/miniforge3/envs/test_env

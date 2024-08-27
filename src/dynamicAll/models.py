@@ -896,12 +896,33 @@ class gNFW(JaxPotential):
 
     @staticmethod
     @jax.jit
+    def _density(r, param_dict):
+        gamma = param_dict["gamma"]
+        rhos = param_dict["rhos"]
+        rs = param_dict["rs"]
+        q = r / rs
+        return rhos * q ** (-gamma) * (1 + q) ** (gamma - 3)
+
+    @staticmethod
+    @jax.jit
     def _density_fit(r, param_dict):
         gamma = param_dict["gamma"]
         rhos = jnp.exp(param_dict["rhos"])
         rs = jnp.exp(param_dict["rs"])
         q = r / rs
         return rhos * q ** (-gamma) * (1 + q) ** (gamma - 3)
+
+    @staticmethod
+    @jax.jit
+    def _mass(r, param_dict):
+        q = r
+        xk = 0.5 * q * gNFW._xm + 0.5 * q
+        wk = 0.5 * q * gNFW._wm
+        # units = 4*jnp.pi*param_dict['rhos']*param_dict['rs']**3
+        # param_dict['rhos'] = 1.0
+        # param_dict['rs']   = 1.0
+        units = 4 * jnp.pi
+        return units * jnp.sum(wk * xk**2 * gNFW._density(xk, param_dict), axis=0)
 
     @staticmethod
     @jax.jit
@@ -1275,7 +1296,7 @@ class Plummer(JaxPotential):
         self._a = a
         # calculate density
         self._rho = 3 * self._M / (4 * np.pi * self._a**3)
-        self.G = 4.300917270036279e-06  # kpc km^2 s^-2 Msun^-1
+        # self.G = 4.300917270036279e-06  # kpc km^2 s^-2 Msun^-1
 
         ""
 

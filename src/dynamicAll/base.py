@@ -13,7 +13,6 @@ import agama
 from scipy.spatial.transform import Rotation
 from astropy.stats import histogram
 
-config.update("jax_enable_x64", True)
 
 import numpyro
 import numpyro.distributions as dist
@@ -36,6 +35,8 @@ from typing import Callable
 import emcee
 from scipy.optimize import curve_fit
 import warnings
+
+config.update("jax_enable_x64", True)
 
 
 class JaxPotential(ABC):
@@ -773,6 +774,69 @@ class JaxPotential(ABC):
         L_phi = L_vector[2]
         L = jnp.sqrt(jnp.dot(L_vector, L_vector))
         return L - L_phi
+
+    @classmethod
+    def _mass(cls, r, param_dict, break_radius_param=None):
+        """
+        Calculate the mass enclosed within radius r for a generalized density profile.
+
+        Parameters
+        ----------
+        r : float
+            radius | units [L]
+        param_dict : dict
+            Dictionary containing the profile parameters.
+            Must include 'rhos' (scale density).
+        break_radius_param : str or None, optional
+            The name of the parameter in param_dict to use as the break radius.
+            If None or if the parameter is not in param_dict, a simple integration is used.
+            Default is None.
+
+        Returns
+        -------
+        float
+            Mass enclosed within radius r | units [Mass]
+        """
+        rhos = param_dict["rhos"]
+        break_radius = (
+            param_dict.get(break_radius_param) if break_radius_param else None
+        )
+
+        def integrate_simple():
+            x0, x1 = 0.0, r
+            xi = 0.5 * (x1 - x0) * cls._xk + 0.5 * (x1 + x0)
+            wi = 0.5 * (x1 - x0) * cls._wk
+            return 4 * jnp.pi * jnp.sum(wi * xi**2 * cls._density(xi, param_dict))
+
+        def integrate_split():
+            def less_than_break():
+                x0, x1 = 0.0, r
+                xi = 0.5 * (x1 - x0) * cls._xk + 0.5 * (x1 + x0)
+                wi = 0.5 * (x1 - x0) * cls._wk
+                return 4 * jnp.pi * jnp.sum(wi * xi**2 * cls._density(xi, param_dict))
+
+            def greater_than_break():
+                # Integral from 0 to break_radius
+                x0, x1 = 0.0, break_radius
+                xi = 0.5 * (x1 - x0) * cls._xk + 0.5 * (x1 + x0)
+                wi = 0.5 * (x1 - x0) * cls._wk
+                m_inner = (
+                    4 * jnp.pi * jnp.sum(wi * xi**2 * cls._density(xi, param_dict))
+                )
+
+                # Integral from break_radius to r
+                x2, x3 = break_radius, r
+                xk = 0.5 * (x3 - x2) * cls._xk + 0.5 * (x3 + x2)
+                wk = 0.5 * (x3 - x2) * cls._wk
+                m_outer = (
+                    4 * jnp.pi * jnp.sum(wk * xk**2 * cls._density(xk, param_dict))
+                )
+
+                return m_inner + m_outer
+
+            return jax.lax.cond(r <= break_radius, less_than_break, greater_than_break)
+
+        return jax.lax.cond(break_radius is None, integrate_simple, integrate_split)
 
     @staticmethod
     @jax.jit
