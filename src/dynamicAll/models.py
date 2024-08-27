@@ -414,10 +414,10 @@ class HernquistZhao(JaxPotential):
     @staticmethod
     @jax.jit
     def _density_fit(r, param_dict):
-        q = r / np.exp(param_dict["rs"])
+        q = r / jnp.exp(param_dict["rs"])
         nu = (param_dict["a"] - param_dict["c"]) / param_dict["b"]
         return (
-            np.exp(param_dict["rhos"])
+            jnp.exp(param_dict["rhos"])
             * q ** -param_dict["a"]
             * (1 + q ** param_dict["b"]) ** (nu)
         )
@@ -504,7 +504,7 @@ class HernquistZhao(JaxPotential):
         q = r  # / param_dict["rs"]
         xk = 0.5 * q * HernquistZhao._xk + 0.5 * q
         wk = 0.5 * q * HernquistZhao._wk
-        units = 4 * jnp.pi  # * param_dict["rhos"] * param_dict["rs"] ** 3
+        units = 4 * jnp.pi
         return units * jnp.sum(
             wk * xk**2 * HernquistZhao._density_fit(xk, param_dict),
             axis=0,

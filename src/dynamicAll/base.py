@@ -446,9 +446,10 @@ class JaxPotential(ABC):
         rho_crit = cosmo.critical_density(0).to(u.solMass / u.kpc**3).value
         Delta = 200
 
-        func = (
-            lambda x: self.get_mass(x) / (4 * np.pi * (x**3) / 3) - Delta * rho_crit
-        )  # set average density - 200* rho_crit = 0
+        def func(x):
+            return (
+                self.get_mass(x) / (4 * np.pi * x**3 / 3) - Delta * rho_crit
+            )  # set average density - 200* rho_crit = 0
 
         self._r200 = scipy.optimize.bisect(func, 1e-2, 300)
         self._M200 = self.get_mass(self._r200)
