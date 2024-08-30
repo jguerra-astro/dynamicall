@@ -19,7 +19,7 @@ using Mamba
     mamba create -n dynamicall python=3.10 # or whatever you want to call your environment
     mamba activate dynamicall
 
-2. Clone the repository and install the dependencies
+2. Clone the repository in the directory of your choice and install the dependencies
 
 .. code-block:: bash
 
@@ -37,14 +37,14 @@ using Conda
     conda create -n dynamicall python=3.10 # or whatever you want to call your environment
     conda activate dynamicall
 
-2. Clone the repository and install the dependencies
+2. Clone the repository in the directory of your choice and install the dependencies
 
 .. code-block:: bash
 
     git clone git@github.com:jguerra-astro/dynamicall.git
     cd dynamicall
     conda env update -f dynamicall_env.yml
-    pip install. 
+    pip install . 
 
 using venv
 -----------
@@ -55,7 +55,7 @@ using venv
     python -m venv dynamicall
     source dynamicall/bin/activates
 
-2. Clone the repository and install the dependencies
+2. Clone the repository in the directory of your choice and install the dependencies
 
 .. code-block:: bash
 
