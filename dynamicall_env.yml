@@ -140,6 +140,4 @@ dependencies:
       - agama==1.0
       - cvxopt==1.3.2
       - cython==3.0.11
-      - dynamical==0.0.0
-      - dynamicall==0.0.0
       - jaxopt==0.8.3
