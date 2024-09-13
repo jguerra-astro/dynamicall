@@ -20,6 +20,9 @@ using Mamba
     mamba create -n dynamicall python=3.10 # or whatever you want to call your environment
     mamba activate 
 
+.. note::
+installing agama will require a few "y (or n)" inputs from you some of which may take a few minutes to complete
+
 .. code-block:: bash
     
     pip install jax jaxopt agama emcee corner
@@ -36,10 +39,7 @@ using Mamba
 
     git clone git@github.com:jguerra-astro/dynamicall.git
     cd dynamicall
-
-.. code-block:: bash
-    mamba env update -f dynamicall_env.yml
-    pip install .
+    pip install -e .
 
 using Conda
 -----------
@@ -51,7 +51,6 @@ using Conda
     conda activate dynamicall
 
 .. note::
-
 installing agama will require a few "y (or n)" inputs from you some of which may take a few minutes to complete
 
 .. code-block:: bash
@@ -68,7 +67,7 @@ installing agama will require a few "y (or n)" inputs from you some of which may
 
     git clone git@github.com:jguerra-astro/dynamicall.git
     cd dynamicall
-    pip install .
+    pip install -e .
 
 
 Python Dependencies
