@@ -21,7 +21,7 @@ using Mamba
     mamba activate 
 
 .. note::
-installing agama will require a few "y (or n)" inputs from you some of which may take a few minutes to complete
+    Installing agama will require a few "y (or n)" inputs from you some of which may take a few minutes to complete
 
 .. code-block:: bash
     
@@ -51,7 +51,7 @@ using Conda
     conda activate dynamicall
 
 .. note::
-installing agama will require a few "y (or n)" inputs from you some of which may take a few minutes to complete
+    Installing agama will require a few "y (or n)" inputs from you some of which may take a few minutes to complete
 
 .. code-block:: bash
     
