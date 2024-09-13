@@ -416,6 +416,16 @@ pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </s
 </pre></div>
 </div>
 </section>
+<section id="testing">
+<h3>testing<a class="headerlink" href="#testing" title="Link to this heading">#</a></h3>
+<p>To test the installation run the following commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dynamicAll</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="python-dependencies">
 <h2>Python Dependencies<a class="headerlink" href="#python-dependencies" title="Link to this heading">#</a></h2>
@@ -430,26 +440,6 @@ jax, jaxlib, jaxopt are required as well, but they should be installed as part o
 <p class="admonition-title">Note</p>
 <p>We suggest that you <strong>do not</strong> attempt to install the <em>gpu</em> version of Jax if you are on a mac at this time.</p>
 </div>
-<p>Numpyro should be installable using pip, but if you have issues, they have more detailed installation instructions <a class="reference external" href="https://num.pyro.ai/en/latest/getting_started.html#installation">here</a>.</p>
-<p>Certain methods require Agama, which can be installed by cloning the GitHub repository e.g:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/GalacticDynamics-Oxford/Agama
-<span class="nb">cd</span><span class="w"> </span>Agama
-pip<span class="w"> </span>install<span class="w"> </span>.
-</pre></div>
-</div>
-<p>The installation of this is a bit messy so i’ll eventually get rid of it, but for now it is required.</p>
-<p>Other dependencies include:
-emcee, corner, arviz, astroquery, pynbody, colorcet – all of which can be installed with pip</p>
-<p>Once you are done installing the dependencies, you’re ready to install <code class="docutils literal notranslate"><span class="pre">DynamicAll</span></code>.</p>
-<section id="installing-fron-source">
-<h3>Installing fron source<a class="headerlink" href="#installing-fron-source" title="Link to this heading">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">DynamicAll</span></code> is currently not available on PyPI, but it can be installed by cloning the GitHub repository e.g:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:jguerra-astro/dynamicAll.git
-$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>dynamicAll
-$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
-</pre></div>
-</div>
-</section>
 </section>
 </section>
 
@@ -502,12 +492,10 @@ $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </sp
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-mamba">using Mamba</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-conda">using Conda</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">testing</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-dependencies">Python Dependencies</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-fron-source">Installing fron source</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-dependencies">Python Dependencies</a></li>
 </ul>
   </nav></div>
 
