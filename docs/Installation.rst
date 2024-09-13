@@ -19,12 +19,16 @@ using Mamba
 
     mamba create -n dynamicall python=3.10 # or whatever you want to call your environment
     mamba activate 
+
+.. code-block:: bash
     
+    pip install jax jaxopt agama emcee corner
+
 .. code-block:: bash
 
-    mamba install -c conda-forge jax jaxlib jaxopt
+    mamba install scipy astropy numpyro matplotlib arviz astroquery scikit-learn
+    
 
-.. code-block:: bash 
 
 2. Clone the repository in the directory of your choice and install the dependencies
 
@@ -46,6 +50,10 @@ using Conda
     conda create -n dynamicall python=3.10 # or whatever you want to call your environment
     conda activate dynamicall
 
+.. note::
+
+installing agama will require a few "y (or n)" inputs from you some of which may take a few minutes to complete
+
 .. code-block:: bash
     
     pip install jax jaxopt agama emcee corner
@@ -60,16 +68,7 @@ using Conda
 
     git clone git@github.com:jguerra-astro/dynamicall.git
     cd dynamicall
-
-installing agama will require a few "y (or n)" inputs from you some of which may take a few minutes to complete
-
-.. code-block:: bash
-    
-    pip install jax jaxopt agama emcee corner
-
-.. code-block:: bash
-
-    conda install scipy astropy numpyro matplotlib arviz astroquery scikit-learn
+    pip install .
 
 
 Python Dependencies
