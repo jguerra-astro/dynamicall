@@ -372,7 +372,13 @@ We recommend using Mamba for the fastest and most efficient installation, but in
 <li><p>if you havent already, install [mamba](<a class="reference external" href="https://mamba.readthedocs.io/en/latest/">https://mamba.readthedocs.io/en/latest/</a>)</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mamba<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>dynamicall<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span><span class="c1"># or whatever you want to call your environment</span>
-mamba<span class="w"> </span>activate<span class="w"> </span>dynamicall
+mamba<span class="w"> </span>activate
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mamba<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>jax<span class="w"> </span>jaxlib<span class="w"> </span>jaxopt
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
@@ -380,8 +386,6 @@ mamba<span class="w"> </span>activate<span class="w"> </span>dynamicall
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:jguerra-astro/dynamicall.git
 <span class="nb">cd</span><span class="w"> </span>dynamicall
-mamba<span class="w"> </span>env<span class="w"> </span>update<span class="w"> </span>-f<span class="w"> </span>dynamicall_env.yml
-pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
 </section>
@@ -394,23 +398,10 @@ pip<span class="w"> </span>install<span class="w"> </span>.
 conda<span class="w"> </span>activate<span class="w"> </span>dynamicall
 </pre></div>
 </div>
-<ol class="arabic simple" start="2">
-<li><p>Clone the repository in the directory of your choice and install the dependencies</p></li>
-</ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:jguerra-astro/dynamicall.git
-<span class="nb">cd</span><span class="w"> </span>dynamicall
-conda<span class="w"> </span>env<span class="w"> </span>update<span class="w"> </span>-f<span class="w"> </span>dynamicall_env.yml
-pip<span class="w"> </span>install<span class="w"> </span>.
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>jax<span class="w"> </span>jaxopt<span class="w"> </span>agama<span class="w"> </span>emcee<span class="w"> </span>corner
 </pre></div>
 </div>
-</section>
-<section id="using-venv">
-<h3>using venv<a class="headerlink" href="#using-venv" title="Link to this heading">#</a></h3>
-<ol class="arabic simple">
-<li><p>virtual environments are included in the standard library, so you don’t need to install anything extra</p></li>
-</ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>dynamicall
-<span class="nb">source</span><span class="w"> </span>dynamicall/bin/activates
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>scipy<span class="w"> </span>astropy<span class="w"> </span>numpyro<span class="w"> </span>matplotlib<span class="w"> </span>arviz<span class="w"> </span>astroquery<span class="w"> </span>scikit-learn
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
@@ -418,12 +409,15 @@ pip<span class="w"> </span>install<span class="w"> </span>.
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:jguerra-astro/dynamicall.git
 <span class="nb">cd</span><span class="w"> </span>dynamicall
-pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
-pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
-<p>If you’re not installing in a new environment, you can skip the first step in each of the above methods.
-The main python dependencies are <cite>jax</cite>, <cite>jaxlib</cite>, <cite>jaxopt</cite>, <cite>numpyro</cite>, <cite>emcee</cite>, <cite>corner</cite>, <cite>arviz</cite>, <cite>astroquery</cite>, <cite>pynbody</cite>, <cite>colorcet</cite>, and <cite>agama</cite>.</p>
+<p>installing agama will require a few “y (or n)” inputs from you some of which may take a few minutes to complete</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>jax<span class="w"> </span>jaxopt<span class="w"> </span>agama<span class="w"> </span>emcee<span class="w"> </span>corner
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>scipy<span class="w"> </span>astropy<span class="w"> </span>numpyro<span class="w"> </span>matplotlib<span class="w"> </span>arviz<span class="w"> </span>astroquery<span class="w"> </span>scikit-learn
+</pre></div>
+</div>
 </section>
 </section>
 <section id="python-dependencies">
@@ -511,7 +505,6 @@ $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </sp
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-mamba">using Mamba</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-conda">using Conda</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-venv">using venv</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-dependencies">Python Dependencies</a><ul class="nav section-nav flex-column">

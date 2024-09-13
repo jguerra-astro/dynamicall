@@ -9,6 +9,7 @@ Installation
 ============
 The recommended way of using `Dynamicall` is to install it in a fresh virtual environment.
 
+
 using Mamba
 -----------
 
@@ -17,7 +18,13 @@ using Mamba
 .. code-block:: bash
 
     mamba create -n dynamicall python=3.10 # or whatever you want to call your environment
-    mamba activate dynamicall
+    mamba activate 
+    
+.. code-block:: bash
+
+    mamba install -c conda-forge jax jaxlib jaxopt
+
+.. code-block:: bash 
 
 2. Clone the repository in the directory of your choice and install the dependencies
 
@@ -25,6 +32,8 @@ using Mamba
 
     git clone git@github.com:jguerra-astro/dynamicall.git
     cd dynamicall
+
+.. code-block:: bash
     mamba env update -f dynamicall_env.yml
     pip install .
 
@@ -37,23 +46,13 @@ using Conda
     conda create -n dynamicall python=3.10 # or whatever you want to call your environment
     conda activate dynamicall
 
-2. Clone the repository in the directory of your choice and install the dependencies
+.. code-block:: bash
+    
+    pip install jax jaxopt agama emcee corner
 
 .. code-block:: bash
 
-    git clone git@github.com:jguerra-astro/dynamicall.git
-    cd dynamicall
-    conda env update -f dynamicall_env.yml
-    pip install . 
-
-using venv
------------
-1. virtual environments are included in the standard library, so you don't need to install anything extra
-
-.. code-block:: bash
-
-    python -m venv dynamicall
-    source dynamicall/bin/activates
+    conda install scipy astropy numpyro matplotlib arviz astroquery scikit-learn
 
 2. Clone the repository in the directory of your choice and install the dependencies
 
@@ -61,12 +60,16 @@ using venv
 
     git clone git@github.com:jguerra-astro/dynamicall.git
     cd dynamicall
-    pip install -r requirements.txt
-    pip install .
 
+installing agama will require a few "y (or n)" inputs from you some of which may take a few minutes to complete
 
-If you're not installing in a new environment, you can skip the first step in each of the above methods.
-The main python dependencies are `jax`, `jaxlib`, `jaxopt`, `numpyro`, `emcee`, `corner`, `arviz`, `astroquery`, `pynbody`, `colorcet`, and `agama`.
+.. code-block:: bash
+    
+    pip install jax jaxopt agama emcee corner
+
+.. code-block:: bash
+
+    conda install scipy astropy numpyro matplotlib arviz astroquery scikit-learn
 
 
 Python Dependencies
