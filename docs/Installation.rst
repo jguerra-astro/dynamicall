@@ -70,6 +70,18 @@ installing agama will require a few "y (or n)" inputs from you some of which may
     pip install -e .
 
 
+testing
+-------
+To test the installation run the following commands:
+
+.. code-block:: bash
+
+    python
+
+.. code-block:: python
+
+    import dynamicAll
+
 Python Dependencies
 ===================
 
@@ -82,34 +94,3 @@ jax, jaxlib, jaxopt are required as well, but they should be installed as part o
 
 .. note::
     We suggest that you **do not** attempt to install the *gpu* version of Jax if you are on a mac at this time.
-
-Numpyro should be installable using pip, but if you have issues, they have more detailed installation instructions `here <https://num.pyro.ai/en/latest/getting_started.html#installation>`_.
-
-Certain methods require Agama, which can be installed by cloning the GitHub repository e.g:
-
-.. code-block:: bash
-
-    git clone https://github.com/GalacticDynamics-Oxford/Agama
-    cd Agama    
-    pip install .
-
-The installation of this is a bit messy so i'll eventually get rid of it, but for now it is required.
-
-Other dependencies include:
-emcee, corner, arviz, astroquery, pynbody, colorcet -- all of which can be installed with pip
-
-Once you are done installing the dependencies, you're ready to install ``DynamicAll``.
-
-
-Installing fron source
-----------------------
-
-``DynamicAll`` is currently not available on PyPI, but it can be installed by cloning the GitHub repository e.g:
-
-.. code-block:: bash    
-    
-    $ git clone git@github.com:jguerra-astro/dynamicAll.git    
-    $ cd dynamicAll        
-    $ pip install .
-
-
