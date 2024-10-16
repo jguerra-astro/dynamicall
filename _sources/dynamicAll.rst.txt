@@ -4,14 +4,6 @@ dynamicAll package
 Submodules
 ----------
 
-dynamicAll.abel module
-----------------------
-
-.. automodule:: dynamicAll.abel
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 dynamicAll.base module
 ----------------------
 
