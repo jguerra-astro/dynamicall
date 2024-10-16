@@ -9,7 +9,8 @@ import sys, os
 sys.path.insert(0, os.path.abspath(".."))
 # sys.path.append(os.path.abspath('sphinxext'))
 
-
+html_use_index = True
+html_baseurl = "https://jguerra-astro.github.io/dynamicall/"
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
