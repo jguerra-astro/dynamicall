@@ -27,6 +27,7 @@ jobs:
     - name: Build Sphinx documentation
       run: |
         cd docs  # Adjust this if your Sphinx files are in a different directory
+        make clean  # Start with a clean build
         make html
 
     - name: Deploy to GitHub Pages
