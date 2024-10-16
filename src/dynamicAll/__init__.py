@@ -1,6 +1,5 @@
-__all__ = ["abel","likelihood","models","data","dynamics"]
+__all__ = ["likelihood", "models", "data", "dynamics"]
 
-from . import abel
 from . import likelihood
 from . import models
 from . import data

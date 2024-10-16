@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 setup(
-    name="dynamicAll",
-    packages= ["dynamicAll"],
+    name="dynamicAl",
+    packages=["dynamicAll"],
     package_dir={"": "src/"},
 )

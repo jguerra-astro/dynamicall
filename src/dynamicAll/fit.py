@@ -215,6 +215,7 @@ class SphGalaxy:
         progress_bar=True,
         jfactor=False,
         jfactor_params=None,
+        init_strategy=None,
     ):
         # First get data from data class
         R = data._cached_dispersion["los"][0]
@@ -232,12 +233,10 @@ class SphGalaxy:
                 if param_name.startswith("tracer_"):
                     sub_param_name = param_name[len("tracer_") :]
                     sub_dictionaries["tracer"][sub_param_name] = samples[param_name]
-                    # sub_dictionaries['tracer']['M'] = data.N_star
 
-                    # sub_dictionaries['tracer']['a'] =0.25
                 elif param_name.startswith("dm_"):
                     sub_param_name = param_name[len("dm_") :]
-    
+
                     sub_dictionaries["dm"][sub_param_name] = samples[param_name]
                 elif param_name.startswith("beta_"):
                     sub_param_name = param_name[len("beta_") :]

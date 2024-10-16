@@ -39,11 +39,9 @@ import warnings
 config.update("jax_enable_x64", True)
 
 
-class JaxPotential(ABC):
+class JaxDensity(ABC):
     """
     Base class for Potentials.
-    All Subclasses are implemented using jax.numpy.
-    This allows us to leverage the use of GPUs and automatic differentiation.
 
     Parameters
     ----------
@@ -56,21 +54,33 @@ class JaxPotential(ABC):
         _description_
     """
 
+    # Class variables
+
+    # Priors for the tracer density profile
     _tracer_priors = {}
     _dm_priors = {}
 
-    # So that static methods can do integrals and what not
+    # Integration stuff -- 100 is more than enough for the accuracy we need.
+    # Others are here for mostly for testing purposes
     _xk, _wk = np.polynomial.legendre.leggauss(10)
     _xk, _wk = jnp.array(_xk), jnp.array(_wk)
-    _xm, _wm = np.polynomial.legendre.leggauss(10)
+    _xm, _wm = np.polynomial.legendre.leggauss(128)
     _xm, _wm = jnp.array(_xm), jnp.array(_wm)
-    _G = const.G.to(u.kpc * u.km**2 / u.solMass / u.s**2).value
-    _GeV2cm5 = (1 * u.solMass**2 * u.kpc**-5 * const.c**4).to(u.GeV**2 / u.cm**5).value
-    _GeVcm2 = (1 * u.solMass * u.kpc**-2 * const.c**2).to(u.GeV / u.cm**2).value
+    _x256, _w256 = np.polynomial.legendre.leggauss(256)
+    _x256, _w256 = jnp.array(_x256), jnp.array(_w256)
 
     # Need a different accuracy for the J-factor integral
     _xj, _wj = np.polynomial.legendre.leggauss(1000)
     _xj, _wj = jnp.array(_xj), jnp.array(_wj)
+
+    # unit conversion used in the J-factor calculation
+    _GeV2cm5 = (1 * u.solMass**2 * u.kpc**-5 * const.c**4).to(u.GeV**2 / u.cm**5).value
+    _GeVcm2 = (1 * u.solMass * u.kpc**-2 * const.c**2).to(u.GeV / u.cm**2).value
+
+    # Gravitational constant in units useful units.
+    _G = const.G.to(u.kpc * u.km**2 / u.solMass / u.s**2).value
+    # Gravitational constant in units useful units.
+    G = const.G.to(u.kpc * u.km**2 / u.solMass / u.s**2).value
 
     def __init__(
         self,
@@ -88,9 +98,188 @@ class JaxPotential(ABC):
         xj, wj = np.polynomial.legendre.leggauss(JfactorN)
         self._xj, self._wj = jnp.array(xj), jnp.array(wj)
 
-    @property
-    def G(self):
-        return const.G.to(u.kpc * u.km**2 / u.solMass / u.s**2).value
+    def density(self, r):
+        return self._density(r, self._params)
+
+    def mass(self, r):
+        return self._mass(r, self._params)
+
+    def potential(self, r):
+        return self._potential(r, self._params)
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def dF_helper(cls, eps, params, r_e):
+        r"""
+        Eddington formula for the distribution function of a spherical isotropic system.
+        This is using the standard variable names and definitions from Binney & Tremaine (2008) where
+        :math:`\psi(r) = -\Phi(r) + \Phi_{0}`  and :math:`\mathcal{E} = \psi - \frac{1}{2}v^{2}`.
+        In most cases we'll take \Phi_{0} = 0 in which case :math:`\mathcal{E}` is the binding energy.
+
+        .. math::
+            f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2}\int_{r_\mathcal{E}}^{\infty} \frac{k(r)dr}{\sqrt{\mathcal{E} - \psi(r)}}
+
+        where k(r)
+
+        .. math::
+            k(r) = \frac{r^{2}}{GM(r)}\left[\rho''(r)\ + \rho'(r)\left(\frac{2}{r} - \frac{4\pi r^{2}\rho(r)}{M(r)}\right)\right]
+
+        See the documentation for more details on the derivation and tests.
+
+        Parameters
+        ----------
+        eps : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        """
+        rho = jax.vmap(cls._density, in_axes=(0, None))
+        drho = jax.vmap(jax.grad(rho), in_axes=(0, None))
+        d2rho = jax.vmap(jax.grad(drho), in_axes=(0, None))
+
+        mass = jax.vmap(cls._mass, in_axes=(0, None))
+        phi = jax.vmap(cls._potential, in_axes=(0, None))
+
+        def k(x):
+            term1 = x**2 / cls.G / mass(x)
+            term2 = 2 / x - 4 * jnp.pi * rho(x) * x**2 / mass(x)
+            term3 = d2rho(x) + drho(x) * term2
+            return term1 * term3
+
+        def integrand(x, epsilon):
+            coeff = 1 / jnp.sqrt(8) / jnp.pi**2
+            return coeff * k(x) / jnp.sqrt(epsilon + phi(x))
+
+        coeff = 1 / jnp.sqrt(8) / jnp.pi**2
+
+        def test_integrand(x, epsilon):
+            def small():
+                delta = jnp.abs(x - r_e)
+                term1 = cls.G * mass(x) * delta / x**2
+                term2 = delta**2 * (2 * jnp.pi * rho(x) - cls.G * mass(x) / x**3)
+                dphi = term1 + term2
+                return coeff * k(x) / jnp.sqrt(dphi)
+
+            def large():
+                dphi = epsilon + phi(x)
+                return coeff * k(x) / jnp.sqrt(dphi)
+
+            return jnp.where(x - r_e < 1e-4, small(), large())
+
+        # Integrate from r_epsilon to infinity
+        # use gauss-legendre quadrature
+        # change coor
+        xi, wi = cls._xk, cls._wk
+        r_lim = 1000
+        # x0 = jnp.arcsin(r_e / r_lim)
+        x0 = 0
+        x1 = jnp.pi / 2
+
+        xk = 0.5 * (x1 - x0) * xi + 0.5 * (x1 + x0)
+        wk = 0.5 * (x1 - x0) * wi
+
+        _integrand = test_integrand
+        # _integrand = integrand
+
+        # return r_lim * jnp.sum(wk * _integrand(r_lim * jnp.sin(xk), epsilon) * jnp.cos(xk))
+
+        return r_e * jnp.sum(
+            wk * _integrand(r_e / jnp.sin(xk), eps) * jnp.cos(xk) / jnp.sin(xk) ** 2
+        )
+
+    @classmethod
+    def calculate_re(cls, epsilon, rlim, params):
+        def psi_minus_epsilon(r):
+            potential = cls._potential(r, params)
+            result = -potential - epsilon
+            print(f"r: {r}, potential: {potential}, psi_minus_epsilon: {result}")
+            return result
+
+        # Check function values at bounds
+        lower = 1e-12
+        upper = rlim
+        f_lower = psi_minus_epsilon(lower)
+        f_upper = psi_minus_epsilon(upper)
+        print(f"Function value at lower bound: {f_lower}")
+        print(f"Function value at upper bound: {f_upper}")
+
+        if f_lower * f_upper >= 0:
+            print("Warning: Function does not change sign between bounds!")
+
+        solver = Bisection(
+            psi_minus_epsilon,
+            lower=lower,
+            upper=upper,
+            maxiter=100,
+            tol=1e-20,
+            check_bracket=False,
+        )
+
+        result = solver.run()
+        print(f"Bisection result: {result}")
+        return result.params
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def test_calculate_re(cls, epsilon, params, rlim):
+        phi = cls._potential
+
+        @jax.jit
+        def psi_minus_epsilon(x, eps):
+            return jnp.abs(phi(x, params)) - eps
+
+        def bisection_solver(eps):
+            solver = Bisection(
+                lambda x: psi_minus_epsilon(x, eps),
+                lower=1e-12,
+                upper=rlim,
+                maxiter=100,
+                tol=1e-20,
+                check_bracket=False,
+            )
+            return solver.run().params
+
+        vectorized_bisect = jax.vmap(bisection_solver)
+        r_epsilon = vectorized_bisect(epsilon)
+        return r_epsilon
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def DF(cls, eps, params, **kwargs):
+        """
+        Eddington Formula for the distribution function of an isotropic system
+        """
+
+        def calculate_re(epsilon, rlim):
+            phi = cls._potential
+
+            @jax.jit
+            def psi_minus_epsilon(x, eps):
+                return jnp.abs(phi(x)) - eps
+
+            def bisection_solver(eps):
+                solver = Bisection(
+                    lambda x: psi_minus_epsilon(x, eps),
+                    lower=1e-12,
+                    upper=rlim,
+                    maxiter=100,
+                    tol=1e-20,
+                    check_bracket=False,
+                )
+                return solver.run().params
+
+            vectorized_bisect = jax.vmap(bisection_solver)
+            r_epsilon = vectorized_bisect(epsilon)
+            return r_epsilon
+
+        # get rlim from keyword arguments
+        rlim = kwargs.get("rlim", 1e10)
+        r_e = calculate_re(eps, rlim)
+        return r_e
+        # return cls.dF_helper(eps, params, r_e)
 
     def dJdOmega(self, theta, D, rt):
         r"""
@@ -114,6 +303,7 @@ class JaxPotential(ABC):
     def jFactor(self, theta, d, rt):
         r"""
         J-factor
+
         .. math:
             J= \int\int_{\rm los} \rho^{2}(r) d\Omega dl
 
@@ -223,63 +413,303 @@ class JaxPotential(ABC):
             * self._GeVcm2
         )
 
-    @abstractmethod
-    def density(self, r):
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _density(cls, r, params):
         pass
 
-    def mass(self, r):
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _mass(cls, r, params):
         q = r
-        xk = 0.5 * q * JaxPotential._xj + 0.5 * q
-        wk = 0.5 * q * JaxPotential._wj
-        units = 4 * jnp.pi
-        return units * jnp.sum(wk * xk**2 * self.density(xk), axis=0)
+        rs = params["rs"]
 
-    def potential(self, r):
-        r"""
-                Calculates the potential at a given radius r numerically
+        xi = JaxPotential._x256
+        wi = JaxPotential._w256
 
-                .. math::
-                    \phi(r) = -4\pi G\left[\frac{M}{r}+ \int_{r}^{\infty} \rho(r) r dr \right]
+        def r_le_rs():
+            xk = 0.5 * q * xi + 0.5 * q
+            wk = 0.5 * q * wi
+            return 4 * jnp.pi * jnp.sum(wk * xk**2 * cls._density(xk, params), axis=0)
 
-                Parameters
-                ----------
-                r : _type_
-                    float
-        s
-                Returns
-                -------
-                float
-                    potential at a given radius r | [kpc^{2}~s^{-2}]
+        def r_gt_rs():
+            # first ingrate from 0 to rs
+            # then integrate from rs to r
 
+            x1 = 0.5 * rs * xi + 0.5 * rs
+            w1 = 0.5 * rs * wi
+            m_rs = 4 * jnp.pi * jnp.sum(w1 * x1**2 * cls._density(x1, params), axis=0)
+
+            x2 = 0.5 * (r - rs) * xi + 0.5 * (r + rs)
+            w2 = 0.5 * (r - rs) * wi
+            m_r = 4 * jnp.pi * jnp.sum(w2 * x2**2 * cls._density(x2, params), axis=0)
+
+            return m_rs + m_r
+
+        return jax.lax.cond(
+            r <= rs,
+            r_le_rs,
+            r_gt_rs,
+        )
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def test_mass(cls, r, params):
         """
-        G = 4.300917270036279e-06  # kpc km^2 s^-2 Msun^-1
-        q = r
-        xk = 0.5 * q * JaxPotential._xj + 0.5 * q
-        wk = 0.5 * q * JaxPotential._wj
-        units = 4 * jnp.pi
-        m_r = units * jnp.sum(wk * xk**2 * self.density(xk), axis=0)
-        # phi_in = self.mass(r) / r  # M/r | [Msun kpc**-1]
-        phi_in = m_r / r
-        #! HERE mass must be a vectorized. This works for the Hernquist_zhao formula, but may be an issue for other classes
+        Integration using Gauss-Legendre quadrature + trigonometric substitution, didn't make much of a difference,
+        but i'll leave it around for more testing
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+        params : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        """
+        rs = params["rs"]
+
+        xi = JaxPotential._xk
+        wi = JaxPotential._wk
 
         x0 = 0.0
         x1 = jnp.pi / 2
+        xk = 0.5 * x1 * xi + 0.5 * x1
+        wk = 0.5 * x1 * wi
 
-        xk = 0.5 * (x1 - x0) * JaxPotential._xj + 0.5 * (x1 + x0)
-        wk = 0.5 * (x1 - x0) * JaxPotential._wj
-        phi_out = jnp.sum(
-            wk
-            * self.density(r / jnp.sin(xk))
-            * (r / jnp.sin(xk))
-            * r
-            * jnp.cos(xk)
-            / jnp.sin(xk) ** 2,
-            axis=0,
+        def r_le_rs():
+            return (
+                4
+                * jnp.pi
+                * r
+                * jnp.sum(
+                    wk
+                    * (r * jnp.sin(xk)) ** 2
+                    * cls._density(r * jnp.sin(xk), params)
+                    * jnp.cos(xk),
+                    axis=0,
+                )
+            )
+
+        def r_gt_rs():
+            # first ingrate from 0 to rs
+            # then integrate from rs to r
+            m_rs = (
+                4
+                * jnp.pi
+                * rs
+                * jnp.sum(
+                    wk
+                    * (rs * jnp.sin(xk)) ** 2
+                    * cls._density(rs * jnp.sin(xk), params)
+                    * jnp.cos(xk),
+                    axis=0,
+                )
+            )
+
+            x2 = 0.5 * (x1 - jnp.arcsin(rs / r)) * xi + 0.5 * (x1 + jnp.arcsin(rs / r))
+            w2 = 0.5 * (x1 - jnp.arcsin(rs / r)) * wi
+            m_r = (
+                4
+                * jnp.pi
+                * r
+                * jnp.sum(
+                    w2
+                    * (r * jnp.sin(x2)) ** 2
+                    * cls._density(r * jnp.sin(x2), params)
+                    * jnp.cos(x2),
+                    axis=0,
+                )
+            )
+
+            return m_rs + m_r
+
+        return jax.lax.cond(
+            r <= rs,
+            r_le_rs,
+            r_gt_rs,
         )
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def test_potential(cls, r, params):
+        r"""
+        Calculates the potential at a given radius r numerically
+
+        .. math::
+            \phi(r) = -4\pi G\left[\frac{M}{r}+ \int_{r}^{\infty} \rho(r) r dr \right]
+
+        Parameters
+        ----------
+        r : _type_
+            float
+
+        Returns
+        -------
+        float
+            potential at a given radius r | [kpc^{2}~s^{-2}]
+        """
+        G = JaxPotential.G
+        q = r
+        phi_in = cls._mass(r, params) / r
+
+        # we'll use Jax's flow control to split up integration into two regimes r << rs and r >> rs
+        # this will avoid numerical issues with the trig substitution for r << rs
+        # for r >> rs, the trig substitution is needed in order to turn the integral into a finite integral
+        # TODO: for when there is a limit on the upper bound of the integral we again swith integration schemes - yet to be implemented
+        x, w = cls._xk, cls._wk
+        x0 = 0.0
+        x1 = jnp.pi / 2
+        xk = 0.5 * (x1 - x0) * x + 0.5 * (x1 + x0)
+        wk = 0.5 * (x1 - x0) * w
+
+        def less_than_rs():
+            """
+            for r << rs, (\frac{r}{r_{s}} < 1e-5, depending on the order of the integration) the trig substitution usually used leads to numerical issues.
+            Instead just use regular Gauss-Legendre quadrature from r to rs. then use the trig substitution to
+            """
+            # x0_ = r
+            # x1_ = params["rs"]
+            # xi = 0.5 * (x1_ - x0_) * x + 0.5 * (x1_ + x0_)
+            # wi = 0.5 * (x1_ - x0_) * w
+
+            # # integrate from r to rs
+            # t1 = jnp.sum(wi * cls._density(xi, params) * xi, axis=0)
+            # x0 = jnp.arcsin(r / params["rs"])
+            # x1 = jnp.pi / 2
+
+            xi = 0.5 * (x1 - x0) * x + 0.5 * (x1 + x0)
+            wi = 0.5 * (x1 - x0) * w
+            t1 = r * jnp.sum(
+                wi
+                * cls._density(r / jnp.sin(xi), params)
+                * r
+                * jnp.cos(xi)
+                / jnp.sin(xi) ** 3,
+                axis=0,
+            )
+            # integrate from rs to infinity
+            t2 = params["rs"] * jnp.sum(
+                wk
+                * cls._density(params["rs"] / jnp.sin(xk), params)
+                * params["rs"]
+                * jnp.cos(xk)
+                / jnp.sin(xk) ** 3,
+                axis=0,
+            )  # integrate from rs to infinity
+
+            # sum the two integrals
+            return t1 + t2
+
+        def greater_than_rs():
+            """
+            fro r > rs, the trig substitution behaves well and transforms the infinity integral into a finite one
+            """
+            phi_out = q * jnp.sum(
+                wk
+                * cls._density(q / jnp.sin(xk), params)
+                * q
+                * jnp.cos(xk)
+                / jnp.sin(xk) ** 3,
+                axis=0,
+            )
+            return phi_out
+
+        phi_out = jax.lax.cond(r <= params["rs"], less_than_rs, greater_than_rs)
+
+        return -G * (phi_in + 4 * jnp.pi * phi_out)
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _potential(cls, r, params):
+        G = JaxPotential.G
+        q = r
+        phi_in = cls._mass(r, params) / r
+        x, w = cls._xk, cls._wk
+        x0, x1 = 0.0, jnp.pi / 2
+        xk = 0.5 * (x1 - x0) * x + 0.5 * (x1 + x0)
+        wk = 0.5 * (x1 - x0) * w
+
+        def very_small_r(r, params):
+            """
+            For r < 1e-4, we use a specialized integration technique or approximation
+            """
+            # Implement your integration technique for very small r
+            # This is a placeholder implementation; adjust as needed
+            lambda_ = jnp.log(params["rs"] / r)
+
+            def transformed_integrand(u):
+                y = r * jnp.exp(lambda_ * u)
+                return cls._density(y, params) * y**2 * lambda_
+
+            u_min, u_max = 0, 1
+            u_vals = 0.5 * (u_max - u_min) * (x + 1) + u_min
+            weights = 0.5 * (u_max - u_min) * w
+            t1 = jnp.sum(weights * transformed_integrand(u_vals), axis=0)
+
+            t2 = params["rs"] * jnp.sum(
+                wk
+                * cls._density(params["rs"] / jnp.sin(xk), params)
+                * params["rs"]
+                * jnp.cos(xk)
+                / jnp.sin(xk) ** 3,
+                axis=0,
+            )
+            return t1 + t2
+
+        def less_than_rs(r, params):
+            x0_ = r
+            x1_ = params["rs"]
+            xi = 0.5 * (x1_ - x0_) * x + 0.5 * (x1_ + x0_)
+            wi = 0.5 * (x1_ - x0_) * w
+            t1 = jnp.sum(wi * cls._density(xi, params) * xi, axis=0)
+
+            t2 = params["rs"] * jnp.sum(
+                wk
+                * cls._density(params["rs"] / jnp.sin(xk), params)
+                * params["rs"]
+                * jnp.cos(xk)
+                / jnp.sin(xk) ** 3,
+                axis=0,
+            )
+            return t1 + t2
+
+        def greater_than_rs(r, params):
+            return q * jnp.sum(
+                wk
+                * cls._density(q / jnp.sin(xk), params)
+                * q
+                * jnp.cos(xk)
+                / jnp.sin(xk) ** 3,
+                axis=0,
+            )
+
+        # Nested conditional to handle three cases
+        def inner_condition(r, params):
+            return jax.lax.cond(
+                r <= params["rs"],
+                lambda r, p: less_than_rs(r, p),
+                lambda r, p: greater_than_rs(r, p),
+                r,
+                params,
+            )
+
+        phi_out = jax.lax.cond(
+            r <= 1e-1,
+            lambda r, p: very_small_r(r, p),
+            lambda r, p: inner_condition(r, p),
+            r,
+            params,
+        )
+
         return -G * (phi_in + 4 * jnp.pi * phi_out)
 
     def v_circ(self, r):
-        """
+        r"""
         circular velocity at a given radius r
 
         .. math::
@@ -306,6 +736,7 @@ class JaxPotential(ABC):
         """
         return jnp.sqrt(-2 * self.potential(r))
 
+    # @partial(jax.jit, static_argnums=(0,))
     def total_energy(self, x, v):
         """
         Calculates the total energy per unit mass
@@ -350,6 +781,7 @@ class JaxPotential(ABC):
 
     def r200(self):
         """
+
         Calculate r200 between 1e-2 kpc and 300 kpc
         I'm assuming thats a safe range in which r200 for a dwarf galaxy would be, but I COULD be wrong
 
@@ -384,15 +816,10 @@ class JaxPotential(ABC):
             -----
             This doesnt really belong here -- at least not in this structure
             """
-            x = jnp.atleast_1d(x)
+            # x = jnp.atleast_1d(x)
             rho_crit = 133.3636319527206  # critical density from astropy's WMAP9 with units [solMass/kpc**3]
             Delta = 200.0
-            return self.mass(x)[0] / (4 * jnp.pi * (x[0] ** 3) / 3) - Delta * rho_crit
-
-        # rho_crit = cosmo.critical_density(0).to(u.solMass/u.kpc**3).value
-        # rho_crit = 133.3636319527206 # critical density from astropy's WMAP9 with units [solMass/kpc**3]
-        # Delta    = 200
-        # func     = lambda x: self.get_mass(x)/(4*np.pi*(x**3)/3) - Delta*rho_crit
+            return self.mass(x) / (4 * jnp.pi * (x**3) / 3) - Delta * rho_crit
 
         bisec = Bisection(
             optimality_fun=func, lower=1e-10, upper=300, check_bracket=False
@@ -463,7 +890,7 @@ class JaxPotential(ABC):
         nwalkers: int = 32,
         N_burn: int = 10_000,
     ) -> np.ndarray:
-        """
+        r"""
         Use emcee to generate samples of :math:`vec{w} = (\vec{x},\vec{v}) from the distribution function f(vec{w}) = f(E)`
 
         Parameters
@@ -614,9 +1041,11 @@ class JaxPotential(ABC):
         wk = 0.5 * (x1 - x0) * self._wk
 
         dfunc = jax.vmap(jax.grad(self.project, argnums=0))
+
         # dfunc = jax.vmap(jax.grad(self.projected_density,argnums=0))
         # return dfunc(r)
-        f_abel = lambda y, q: -1 * dfunc(y) / jnp.sqrt(y**2 - q**2) / jnp.pi
+        def f_abel(y, q):
+            return -1 * dfunc(y) / jnp.sqrt(y**2 - q**2) / jnp.pi
 
         return np.sum(
             wk * f_abel(r / jnp.sin(xk), r) * r * jnp.cos(xk) / jnp.sin(xk) ** 2, axis=0
@@ -727,9 +1156,6 @@ class JaxPotential(ABC):
 
         Notes
         -----
-        DONE: get rid of gala -- needed it for testing, but need to get rid of it for numpyro
-        DONE: get rid of quad -- same reason as above
-        TODO: move this to BaseModel
 
         Parameters
         ----------
@@ -747,9 +1173,7 @@ class JaxPotential(ABC):
         x1 = cls._apo(params, x, v)
 
         # Gauss-Legendre integration
-        xi = 0.5 * (x1 - x0) * JaxPotential._xm + 0.5 * (
-            x1 + x0
-        )  # scale from (r,r_{200}) -> (-1,1)
+        xi = 0.5 * (x1 - x0) * JaxPotential._xm + 0.5 * (x1 + x0)
         wi = 0.5 * (x1 - x0) * JaxPotential._wm
 
         L = jnp.linalg.norm(jnp.cross(x, v), axis=0)  # abs(Angular momentum)
@@ -775,69 +1199,6 @@ class JaxPotential(ABC):
         L_phi = L_vector[2]
         L = jnp.sqrt(jnp.dot(L_vector, L_vector))
         return L - L_phi
-
-    @classmethod
-    def _mass(cls, r, param_dict, break_radius_param=None):
-        """
-        Calculate the mass enclosed within radius r for a generalized density profile.
-
-        Parameters
-        ----------
-        r : float
-            radius | units [L]
-        param_dict : dict
-            Dictionary containing the profile parameters.
-            Must include 'rhos' (scale density).
-        break_radius_param : str or None, optional
-            The name of the parameter in param_dict to use as the break radius.
-            If None or if the parameter is not in param_dict, a simple integration is used.
-            Default is None.
-
-        Returns
-        -------
-        float
-            Mass enclosed within radius r | units [Mass]
-        """
-        rhos = param_dict["rhos"]
-        break_radius = (
-            param_dict.get(break_radius_param) if break_radius_param else None
-        )
-
-        def integrate_simple():
-            x0, x1 = 0.0, r
-            xi = 0.5 * (x1 - x0) * cls._xk + 0.5 * (x1 + x0)
-            wi = 0.5 * (x1 - x0) * cls._wk
-            return 4 * jnp.pi * jnp.sum(wi * xi**2 * cls._density(xi, param_dict))
-
-        def integrate_split():
-            def less_than_break():
-                x0, x1 = 0.0, r
-                xi = 0.5 * (x1 - x0) * cls._xk + 0.5 * (x1 + x0)
-                wi = 0.5 * (x1 - x0) * cls._wk
-                return 4 * jnp.pi * jnp.sum(wi * xi**2 * cls._density(xi, param_dict))
-
-            def greater_than_break():
-                # Integral from 0 to break_radius
-                x0, x1 = 0.0, break_radius
-                xi = 0.5 * (x1 - x0) * cls._xk + 0.5 * (x1 + x0)
-                wi = 0.5 * (x1 - x0) * cls._wk
-                m_inner = (
-                    4 * jnp.pi * jnp.sum(wi * xi**2 * cls._density(xi, param_dict))
-                )
-
-                # Integral from break_radius to r
-                x2, x3 = break_radius, r
-                xk = 0.5 * (x3 - x2) * cls._xk + 0.5 * (x3 + x2)
-                wk = 0.5 * (x3 - x2) * cls._wk
-                m_outer = (
-                    4 * jnp.pi * jnp.sum(wk * xk**2 * cls._density(xk, param_dict))
-                )
-
-                return m_inner + m_outer
-
-            return jax.lax.cond(r <= break_radius, less_than_break, greater_than_break)
-
-        return jax.lax.cond(break_radius is None, integrate_simple, integrate_split)
 
     @staticmethod
     @jax.jit
@@ -1015,6 +1376,142 @@ class JaxPotential(ABC):
         if other == 0:
             return self
         return self.__add__(other)
+
+
+class JaxPotential(JaxDensity):
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _potential(cls, r, params):
+        raise NotImplementedError
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _mass(cls, r, params):
+        """
+        Define from potential function
+
+        .. math::
+            M(r) = r^{2} \frac{d\phi}{dr}
+
+        Returns
+        -------
+        _type_
+            _description_
+
+        Raises
+        ------
+        ValueError
+            _description_
+        """
+        dphi_dr = jax.grad(cls._potential)
+        return r**2 * dphi_dr(r, params)
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _density(cls, r, params):
+        """
+        ..math::
+            \rho(r) = -\frac{1}{4\pi G} \nabla^{2} \phi(r)
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+        params : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+
+        Raises
+        ------
+        ValueError
+            _description_
+        """
+        d2phi_dr2 = jax.grad(jax.grad(cls._potential))
+        return -1 / (4 * jnp.pi * cls._G) * d2phi_dr2(r, params)
+
+
+class JaxMass(JaxPotential):
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _mass(cls, r, params):
+        raise NotImplementedError
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _density(cls, r, params):
+        """
+        _summary_
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+        params : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+
+        Raises
+        ------
+        ValueError
+            _description_
+        """
+        dM_dr = jax.grad(cls._mass)
+        return dM_dr(r, params) / (4 * jnp.pi * r**2)
+
+
+class JaxDistribuitionFunction(JaxPotential):
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def df(cls, E, params):
+        """
+        _summary_
+
+        Parameters
+        ----------
+        E : _type_
+            _description_
+        params : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        """
+        raise NotImplementedError
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _potential(cls, r, params):
+        """
+
+        Parameters
+        ----------
+        r : _type_
+            _description_
+        params : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+
+        Raises
+        ------
+        ValueError
+            _description_
+        """
+        raise NotImplementedError
+        pass
 
 
 class CompositePotential(JaxPotential):
@@ -1609,10 +2106,10 @@ class Data(ABC):
         This is done by the following transformations:
         - :math:`r = \sqrt{x^2+y^2+z^2}`
         - :math:`\theta = arccos(z/r)`
-        - :math: `\phi  = arctan2(y,x)  = sign(y)arcos(R/z)
+        - :math: `\phi  = arctan2(y,x)  = sign(y)arcos(R/z)`
         - :math:`v_{r} = \frac{xv_{x}+yv_{y}+zv_{z}}{r}`
         - :math:`v_{\phi}= \frac{yv_{x}-xv_{y}}{R}`
-        - :math:`v_{\theta] =\frac{\frac{zxv_{x}}[R] + \frac{zyv_{y}}{R} - Rv_{z}}{r}
+        - :math:`v_{\theta] =\frac{\frac{zxv_{x}}[R] + \frac{zyv_{y}}{R} - Rv_{z}}{r}`
 
         Returns
         -------
@@ -1688,8 +2185,7 @@ class Data(ABC):
         return samples_1
 
     def mass_estimator(self, estimator: str = "Wolf", rhalf=None) -> float:
-        """
-        Use the average velocity dispersion of your data to estimate the mass at the half-light radius
+        r"""Use the average velocity dispersion of your data to estimate the mass at the half-light radius
         using the estimator of your choice.
 
         For radial velocities, you have the option of Wolf, or Walker.
@@ -1698,19 +2194,18 @@ class Data(ABC):
 
         Parameters
         ----------
-        rhalf : float
-            The half-light radius of your data.
         estimator : str, optional
-            The estimator to use. The default is 'Wolf'.
-            Options are:
-                - Wolf
-                - Walker
-                - Errani
+            The estimator to use for the mass calculation
+            Options: 'Wolf', 'Walker', 'Errani'
+            Defaults to 'Wolf'
+        rhalf : float, optional
+            The half-light radius of the system
+            Defaults to None
 
         Returns
         -------
         float
-            The mass estimate at the half-light radius.
+            The estimated mass at the half-light radius
         """
         # If rhalf is non then check if it is in the data, if not raise an error
         if rhalf is None:

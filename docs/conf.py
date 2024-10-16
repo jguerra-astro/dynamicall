@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath(".."))
 project = "dynamicAll"
 copyright = "2023, Juan Guerra"
 author = "Juan Guerra"
-release = "00.00.01"
+release = "1.00.00"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -36,6 +36,7 @@ extensions = [
     # "sphinx_new_tab_link",
 ]
 nbsphinx_execute = "off"
+nb_execution_mode = "off"
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",
