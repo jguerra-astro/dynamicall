@@ -97,6 +97,7 @@ autodoc_mock_imports = [
     "numpy",
     "numpyro",
     "matplotlib",
-    "arviz" "astroquery",
+    "arviz",
+    "astroquery",
     "sci-kit-learn",
 ]
