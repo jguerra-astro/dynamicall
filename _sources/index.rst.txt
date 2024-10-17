@@ -14,7 +14,7 @@ The use of Jax also allows us to use automatic differentiation to calculate the 
 
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Contents:
    
    Installation
