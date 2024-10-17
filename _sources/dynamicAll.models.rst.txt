@@ -1,0 +1,7 @@
+dynamicAll.models module
+========================
+
+.. automodule:: dynamicAll.models
+   :members:
+   :undoc-members:
+   :show-inheritance:

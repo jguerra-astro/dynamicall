@@ -1,0 +1,7 @@
+dynamicAll.trivial module
+=========================
+
+.. automodule:: dynamicAll.trivial
+   :members:
+   :undoc-members:
+   :show-inheritance:

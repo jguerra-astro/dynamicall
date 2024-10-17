@@ -1,0 +1,7 @@
+dynamicAll.distributions module
+===============================
+
+.. automodule:: dynamicAll.distributions
+   :members:
+   :undoc-members:
+   :show-inheritance:

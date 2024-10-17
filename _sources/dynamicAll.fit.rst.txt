@@ -1,0 +1,7 @@
+dynamicAll.fit module
+=====================
+
+.. automodule:: dynamicAll.fit
+   :members:
+   :undoc-members:
+   :show-inheritance:

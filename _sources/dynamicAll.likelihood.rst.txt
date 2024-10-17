@@ -1,0 +1,7 @@
+dynamicAll.likelihood module
+============================
+
+.. automodule:: dynamicAll.likelihood
+   :members:
+   :undoc-members:
+   :show-inheritance:
