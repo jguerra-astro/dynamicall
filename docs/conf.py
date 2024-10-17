@@ -11,12 +11,13 @@ sys.path.insert(0, os.path.abspath("../src"))
 # sys.path.append(os.path.abspath('sphinxext'))
 
 html_use_index = True
+html_domain_indices = True
 html_baseurl = "https://jguerra-astro.github.io/dynamicall/"
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "dynamicAll"
-copyright = "2023, Juan Guerra"
+copyright = "2024, Juan Guerra"
 author = "Juan Guerra"
 release = "1.00.00"
 
@@ -26,12 +27,13 @@ release = "1.00.00"
 mathjax_path = (
     "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"
 )
+utomodule = "dynamicAll"
 
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
-    "sphinx.ext.autosummary",
+    # "sphinx.ext.autosummary",
     "nbsphinx",
     "sphinx.ext.mathjax",
     "myst_nb",  # myst_nb is a plugin for MyST Markdown that adds support for executing and displaying Jupyter notebooks.
@@ -41,7 +43,7 @@ extensions = [
 nbsphinx_execute = "off"
 nb_execution_mode = "off"
 
-autosummary_generate = True
+# autosummary_generate = True
 autodoc_default_options = {
     "members": True,
     "undoc-members": True,

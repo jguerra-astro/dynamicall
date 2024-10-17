@@ -31,6 +31,8 @@ jobs:
         sphinx-apidoc -f -o . ../src/dynamicAll --separate
         make html
         touch _build/html/.nojekyll  # Create a .nojekyll file to prevent GitHub Pages from ignoring files/folders that start with an underscore
+        touch _build/.nojekyll  # Create a .nojekyll file to prevent GitHub Pages from ignoring files/folders that start with an underscore
+        touch .nojekyll  # Create a .nojekyll file to prevent GitHub Pages from ignoring files/folders that start with an underscore
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
