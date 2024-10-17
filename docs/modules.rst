@@ -1,7 +1,12 @@
-dynamicAll
-==========
+API Reference
+=============
+
+.. automodule:: dynamicAll
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    dynamicAll
