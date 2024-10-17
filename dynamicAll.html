@@ -43,6 +43,8 @@
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=30646c52"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'dynamicAll';</script>
     <link rel="canonical" href="https://jguerra-astro.github.io/dynamicall/dynamicAll.html" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -416,21 +418,280 @@ document.write(`
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="dynamicAll.base.html">dynamicAll.base module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dynamicAll.data.html">dynamicAll.data module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dynamicAll.distributions.html">dynamicAll.distributions module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dynamicAll.dynamics.html">dynamicAll.dynamics module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dynamicAll.fit.html">dynamicAll.fit module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dynamicAll.likelihood.html">dynamicAll.likelihood module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dynamicAll.models.html">dynamicAll.models module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dynamicAll.base.html">dynamicAll.base module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.CompositePotential"><code class="docutils literal notranslate"><span class="pre">CompositePotential</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.CompositePotential.density"><code class="docutils literal notranslate"><span class="pre">CompositePotential.density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.CompositePotential.mass"><code class="docutils literal notranslate"><span class="pre">CompositePotential.mass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.CompositePotential.potential"><code class="docutils literal notranslate"><span class="pre">CompositePotential.potential()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data"><code class="docutils literal notranslate"><span class="pre">Data</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.bspline"><code class="docutils literal notranslate"><span class="pre">Data.bspline()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.bspline_3d"><code class="docutils literal notranslate"><span class="pre">Data.bspline_3d()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.bspline_projected"><code class="docutils literal notranslate"><span class="pre">Data.bspline_projected()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.construct_component_map"><code class="docutils literal notranslate"><span class="pre">Data.construct_component_map()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.cylindrical"><code class="docutils literal notranslate"><span class="pre">Data.cylindrical()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.dispersion"><code class="docutils literal notranslate"><span class="pre">Data.dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.dispersion_errors"><code class="docutils literal notranslate"><span class="pre">Data.dispersion_errors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.dispersion_i"><code class="docutils literal notranslate"><span class="pre">Data.dispersion_i()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.dynamical_mass"><code class="docutils literal notranslate"><span class="pre">Data.dynamical_mass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.fit_gaussian"><code class="docutils literal notranslate"><span class="pre">Data.fit_gaussian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.fit_projection"><code class="docutils literal notranslate"><span class="pre">Data.fit_projection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.fourth_moment"><code class="docutils literal notranslate"><span class="pre">Data.fourth_moment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.gaussian"><code class="docutils literal notranslate"><span class="pre">Data.gaussian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.global_dispersion"><code class="docutils literal notranslate"><span class="pre">Data.global_dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.mass_estimator"><code class="docutils literal notranslate"><span class="pre">Data.mass_estimator()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.plot_dispersion_i"><code class="docutils literal notranslate"><span class="pre">Data.plot_dispersion_i()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.plot_spatial"><code class="docutils literal notranslate"><span class="pre">Data.plot_spatial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.random_rotation"><code class="docutils literal notranslate"><span class="pre">Data.random_rotation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.spatial_density"><code class="docutils literal notranslate"><span class="pre">Data.spatial_density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.spatial_errors"><code class="docutils literal notranslate"><span class="pre">Data.spatial_errors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.spatial_nonpar"><code class="docutils literal notranslate"><span class="pre">Data.spatial_nonpar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.spherical"><code class="docutils literal notranslate"><span class="pre">Data.spherical()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data.to_spherical"><code class="docutils literal notranslate"><span class="pre">Data.to_spherical()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity"><code class="docutils literal notranslate"><span class="pre">JaxDensity</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.DF"><code class="docutils literal notranslate"><span class="pre">JaxDensity.DF()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.G"><code class="docutils literal notranslate"><span class="pre">JaxDensity.G</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.action_phi"><code class="docutils literal notranslate"><span class="pre">JaxDensity.action_phi()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.action_theta"><code class="docutils literal notranslate"><span class="pre">JaxDensity.action_theta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.calculate_re"><code class="docutils literal notranslate"><span class="pre">JaxDensity.calculate_re()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.dDdOmega"><code class="docutils literal notranslate"><span class="pre">JaxDensity.dDdOmega()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.dF_helper"><code class="docutils literal notranslate"><span class="pre">JaxDensity.dF_helper()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.dFactor"><code class="docutils literal notranslate"><span class="pre">JaxDensity.dFactor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.dJdOmega"><code class="docutils literal notranslate"><span class="pre">JaxDensity.dJdOmega()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.density"><code class="docutils literal notranslate"><span class="pre">JaxDensity.density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.deproject"><code class="docutils literal notranslate"><span class="pre">JaxDensity.deproject()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.gamma"><code class="docutils literal notranslate"><span class="pre">JaxDensity.gamma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.get_dm_priors"><code class="docutils literal notranslate"><span class="pre">JaxDensity.get_dm_priors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.get_tracer_priors"><code class="docutils literal notranslate"><span class="pre">JaxDensity.get_tracer_priors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.jFactor"><code class="docutils literal notranslate"><span class="pre">JaxDensity.jFactor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.mass"><code class="docutils literal notranslate"><span class="pre">JaxDensity.mass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.potential"><code class="docutils literal notranslate"><span class="pre">JaxDensity.potential()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.project"><code class="docutils literal notranslate"><span class="pre">JaxDensity.project()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.r200"><code class="docutils literal notranslate"><span class="pre">JaxDensity.r200()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.r200_notjax"><code class="docutils literal notranslate"><span class="pre">JaxDensity.r200_notjax()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.rtidal"><code class="docutils literal notranslate"><span class="pre">JaxDensity.rtidal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.sample_w"><code class="docutils literal notranslate"><span class="pre">JaxDensity.sample_w()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.set_Norder"><code class="docutils literal notranslate"><span class="pre">JaxDensity.set_Norder()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.set_dm_priors"><code class="docutils literal notranslate"><span class="pre">JaxDensity.set_dm_priors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.set_tracer_priors"><code class="docutils literal notranslate"><span class="pre">JaxDensity.set_tracer_priors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.spherical_to_cartesian"><code class="docutils literal notranslate"><span class="pre">JaxDensity.spherical_to_cartesian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.test_calculate_re"><code class="docutils literal notranslate"><span class="pre">JaxDensity.test_calculate_re()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.test_mass"><code class="docutils literal notranslate"><span class="pre">JaxDensity.test_mass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.test_potential"><code class="docutils literal notranslate"><span class="pre">JaxDensity.test_potential()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.total_energy"><code class="docutils literal notranslate"><span class="pre">JaxDensity.total_energy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.v_circ"><code class="docutils literal notranslate"><span class="pre">JaxDensity.v_circ()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity.v_esc"><code class="docutils literal notranslate"><span class="pre">JaxDensity.v_esc()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDistribuitionFunction"><code class="docutils literal notranslate"><span class="pre">JaxDistribuitionFunction</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDistribuitionFunction.df"><code class="docutils literal notranslate"><span class="pre">JaxDistribuitionFunction.df()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxMass"><code class="docutils literal notranslate"><span class="pre">JaxMass</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential"><code class="docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.dlnrho_dlnr_eval"><code class="docutils literal notranslate"><span class="pre">dlnrho_dlnr_eval()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.rho_eval"><code class="docutils literal notranslate"><span class="pre">rho_eval()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dynamicAll.data.html">dynamicAll.data module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.data.html#dynamicAll.data.KeckData"><code class="docutils literal notranslate"><span class="pre">KeckData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.data.html#dynamicAll.data.KeckData.from_name"><code class="docutils literal notranslate"><span class="pre">KeckData.from_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.data.html#dynamicAll.data.KeckData.plot_pos"><code class="docutils literal notranslate"><span class="pre">KeckData.plot_pos()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.data.html#dynamicAll.data.MockData"><code class="docutils literal notranslate"><span class="pre">MockData</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dynamicAll.distributions.html">dynamicAll.distributions module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.distributions.html#dynamicAll.distributions.Plummer"><code class="docutils literal notranslate"><span class="pre">Plummer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.distributions.html#dynamicAll.distributions.Plummer.log_prob"><code class="docutils literal notranslate"><span class="pre">Plummer.log_prob()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dynamicAll.dynamics.html">dynamicAll.dynamics module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.dynamics.html#dynamicAll.dynamics.Anisotropy"><code class="docutils literal notranslate"><span class="pre">Anisotropy</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.dynamics.html#dynamicAll.dynamics.Dynamics"><code class="docutils literal notranslate"><span class="pre">Dynamics</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.dynamics.html#dynamicAll.dynamics.Dynamics.dispersion"><code class="docutils literal notranslate"><span class="pre">Dynamics.dispersion()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.dynamics.html#dynamicAll.dynamics.Priors"><code class="docutils literal notranslate"><span class="pre">Priors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.dynamics.html#dynamicAll.dynamics.Wolf"><code class="docutils literal notranslate"><span class="pre">Wolf()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dynamicAll.fit.html">dynamicAll.fit module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.Priors"><code class="docutils literal notranslate"><span class="pre">Priors</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.Priors.add_from_dict"><code class="docutils literal notranslate"><span class="pre">Priors.add_from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.Priors.add_prior"><code class="docutils literal notranslate"><span class="pre">Priors.add_prior()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.Priors.from_dict"><code class="docutils literal notranslate"><span class="pre">Priors.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.Priors.get_prior"><code class="docutils literal notranslate"><span class="pre">Priors.get_prior()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.Priors.normal"><code class="docutils literal notranslate"><span class="pre">Priors.normal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.Priors.uniform"><code class="docutils literal notranslate"><span class="pre">Priors.uniform()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.SphGalaxy"><code class="docutils literal notranslate"><span class="pre">SphGalaxy</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.SphGalaxy.custom_formatwarning"><code class="docutils literal notranslate"><span class="pre">SphGalaxy.custom_formatwarning()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.SphGalaxy.dispersion"><code class="docutils literal notranslate"><span class="pre">SphGalaxy.dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.SphGalaxy.fit_dSph"><code class="docutils literal notranslate"><span class="pre">SphGalaxy.fit_dSph()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.SphGalaxy.fit_unbinned"><code class="docutils literal notranslate"><span class="pre">SphGalaxy.fit_unbinned()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.SphGalaxy.test_dispersion"><code class="docutils literal notranslate"><span class="pre">SphGalaxy.test_dispersion()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dynamicAll.likelihood.html">dynamicAll.likelihood module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.likelihood.html#dynamicAll.likelihood.Likelihood"><code class="docutils literal notranslate"><span class="pre">Likelihood</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.likelihood.html#dynamicAll.likelihood.Likelihood.lnLikelihood"><code class="docutils literal notranslate"><span class="pre">Likelihood.lnLikelihood()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.likelihood.html#dynamicAll.likelihood.Likelihood.lnLikelihood2"><code class="docutils literal notranslate"><span class="pre">Likelihood.lnLikelihood2()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dynamicAll.models.html">dynamicAll.models module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Anisotropy"><code class="docutils literal notranslate"><span class="pre">Anisotropy</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Anisotropy.beta"><code class="docutils literal notranslate"><span class="pre">Anisotropy.beta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Anisotropy.f_beta"><code class="docutils literal notranslate"><span class="pre">Anisotropy.f_beta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Anisotropy.get_priors"><code class="docutils literal notranslate"><span class="pre">Anisotropy.get_priors()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.BetaConstant"><code class="docutils literal notranslate"><span class="pre">BetaConstant</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.BetaOsipkovMerrit"><code class="docutils literal notranslate"><span class="pre">BetaOsipkovMerrit</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.BetaOsipkovMerrit.beta"><code class="docutils literal notranslate"><span class="pre">BetaOsipkovMerrit.beta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.BetaOsipkovMerrit.f_beta"><code class="docutils literal notranslate"><span class="pre">BetaOsipkovMerrit.f_beta()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.BetaSymmetric"><code class="docutils literal notranslate"><span class="pre">BetaSymmetric</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.BetaSymmetric.beta"><code class="docutils literal notranslate"><span class="pre">BetaSymmetric.beta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.BetaSymmetric.f_beta"><code class="docutils literal notranslate"><span class="pre">BetaSymmetric.f_beta()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Gaussian"><code class="docutils literal notranslate"><span class="pre">Gaussian</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Gaussian.density"><code class="docutils literal notranslate"><span class="pre">Gaussian.density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Gaussian.density_i"><code class="docutils literal notranslate"><span class="pre">Gaussian.density_i()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Gaussian.mass"><code class="docutils literal notranslate"><span class="pre">Gaussian.mass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Gaussian.mass_j"><code class="docutils literal notranslate"><span class="pre">Gaussian.mass_j()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Gaussians"><code class="docutils literal notranslate"><span class="pre">Gaussians</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Gaussians.density"><code class="docutils literal notranslate"><span class="pre">Gaussians.density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Gaussians.density_i"><code class="docutils literal notranslate"><span class="pre">Gaussians.density_i()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Gaussians.mass"><code class="docutils literal notranslate"><span class="pre">Gaussians.mass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Gaussians.mass_j"><code class="docutils literal notranslate"><span class="pre">Gaussians.mass_j()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Hernquist"><code class="docutils literal notranslate"><span class="pre">Hernquist</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Hernquist.density"><code class="docutils literal notranslate"><span class="pre">Hernquist.density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Hernquist.dispersion"><code class="docutils literal notranslate"><span class="pre">Hernquist.dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Hernquist.logDF"><code class="docutils literal notranslate"><span class="pre">Hernquist.logDF()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Hernquist.mass"><code class="docutils literal notranslate"><span class="pre">Hernquist.mass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Hernquist.pdf_r"><code class="docutils literal notranslate"><span class="pre">Hernquist.pdf_r()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Hernquist.potential"><code class="docutils literal notranslate"><span class="pre">Hernquist.potential()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Hernquist.v_circ"><code class="docutils literal notranslate"><span class="pre">Hernquist.v_circ()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.HernquistZhao"><code class="docutils literal notranslate"><span class="pre">HernquistZhao</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.HernquistZhao.density"><code class="docutils literal notranslate"><span class="pre">HernquistZhao.density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.HernquistZhao.mass"><code class="docutils literal notranslate"><span class="pre">HernquistZhao.mass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.HernquistZhao.mass_quad"><code class="docutils literal notranslate"><span class="pre">HernquistZhao.mass_quad()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.HernquistZhao.mass_scipy"><code class="docutils literal notranslate"><span class="pre">HernquistZhao.mass_scipy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.HernquistZhao.potential_scipy"><code class="docutils literal notranslate"><span class="pre">HernquistZhao.potential_scipy()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Isochrone"><code class="docutils literal notranslate"><span class="pre">Isochrone</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Isochrone.action_r"><code class="docutils literal notranslate"><span class="pre">Isochrone.action_r()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Isochrone.actions"><code class="docutils literal notranslate"><span class="pre">Isochrone.actions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Isochrone.apo"><code class="docutils literal notranslate"><span class="pre">Isochrone.apo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Isochrone.density"><code class="docutils literal notranslate"><span class="pre">Isochrone.density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Isochrone.dispersion"><code class="docutils literal notranslate"><span class="pre">Isochrone.dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Isochrone.logDF"><code class="docutils literal notranslate"><span class="pre">Isochrone.logDF()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Isochrone.peri"><code class="docutils literal notranslate"><span class="pre">Isochrone.peri()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Isochrone.potential"><code class="docutils literal notranslate"><span class="pre">Isochrone.potential()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Isochrone.v_circ"><code class="docutils literal notranslate"><span class="pre">Isochrone.v_circ()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Jaffe"><code class="docutils literal notranslate"><span class="pre">Jaffe</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Jaffe.density"><code class="docutils literal notranslate"><span class="pre">Jaffe.density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Jaffe.from_m_rs"><code class="docutils literal notranslate"><span class="pre">Jaffe.from_m_rs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Jaffe.mass"><code class="docutils literal notranslate"><span class="pre">Jaffe.mass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Jaffe.potential"><code class="docutils literal notranslate"><span class="pre">Jaffe.potential()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.King"><code class="docutils literal notranslate"><span class="pre">King</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.King.density"><code class="docutils literal notranslate"><span class="pre">King.density()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.NFW"><code class="docutils literal notranslate"><span class="pre">NFW</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.NFW.J_analytic"><code class="docutils literal notranslate"><span class="pre">NFW.J_analytic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.NFW.cdf"><code class="docutils literal notranslate"><span class="pre">NFW.cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.NFW.density"><code class="docutils literal notranslate"><span class="pre">NFW.density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.NFW.from_M_delta_c"><code class="docutils literal notranslate"><span class="pre">NFW.from_M_delta_c()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.NFW.from_ms_rs"><code class="docutils literal notranslate"><span class="pre">NFW.from_ms_rs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.NFW.mass"><code class="docutils literal notranslate"><span class="pre">NFW.mass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.NFW.pdf"><code class="docutils literal notranslate"><span class="pre">NFW.pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.NFW.potential"><code class="docutils literal notranslate"><span class="pre">NFW.potential()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.NFW_truncated"><code class="docutils literal notranslate"><span class="pre">NFW_truncated</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.NFW_truncated.density"><code class="docutils literal notranslate"><span class="pre">NFW_truncated.density()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer"><code class="docutils literal notranslate"><span class="pre">Plummer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.DF"><code class="docutils literal notranslate"><span class="pre">Plummer.DF()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.bin_centers"><code class="docutils literal notranslate"><span class="pre">Plummer.bin_centers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.density"><code class="docutils literal notranslate"><span class="pre">Plummer.density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.dispersion"><code class="docutils literal notranslate"><span class="pre">Plummer.dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.from_scale_density_radius"><code class="docutils literal notranslate"><span class="pre">Plummer.from_scale_density_radius()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.logDF"><code class="docutils literal notranslate"><span class="pre">Plummer.logDF()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.mass"><code class="docutils literal notranslate"><span class="pre">Plummer.mass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.pdf_proj"><code class="docutils literal notranslate"><span class="pre">Plummer.pdf_proj()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.potential"><code class="docutils literal notranslate"><span class="pre">Plummer.potential()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.prob_func"><code class="docutils literal notranslate"><span class="pre">Plummer.prob_func()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.probability"><code class="docutils literal notranslate"><span class="pre">Plummer.probability()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.projected_density"><code class="docutils literal notranslate"><span class="pre">Plummer.projected_density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.radial_distribution"><code class="docutils literal notranslate"><span class="pre">Plummer.radial_distribution()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.sample_R"><code class="docutils literal notranslate"><span class="pre">Plummer.sample_R()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.sample_r"><code class="docutils literal notranslate"><span class="pre">Plummer.sample_r()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.sample_w"><code class="docutils literal notranslate"><span class="pre">Plummer.sample_w()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.sample_w_conditional"><code class="docutils literal notranslate"><span class="pre">Plummer.sample_w_conditional()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer.sample_xyz"><code class="docutils literal notranslate"><span class="pre">Plummer.sample_xyz()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.PowerLaws"><code class="docutils literal notranslate"><span class="pre">PowerLaws</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.PowerLaws.density"><code class="docutils literal notranslate"><span class="pre">PowerLaws.density()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.TestPotential"><code class="docutils literal notranslate"><span class="pre">TestPotential</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.centre"><code class="docutils literal notranslate"><span class="pre">centre()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.gEinasto"><code class="docutils literal notranslate"><span class="pre">gEinasto</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.gEinasto.density"><code class="docutils literal notranslate"><span class="pre">gEinasto.density()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.gNFW"><code class="docutils literal notranslate"><span class="pre">gNFW</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.gNFW.density"><code class="docutils literal notranslate"><span class="pre">gNFW.density()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="dynamicAll.sampler.html">dynamicAll.sampler module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamicAll.test.html">dynamicAll.test module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dynamicAll.trivial.html">dynamicAll.trivial module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dynamicAll.trivial.html">dynamicAll.trivial module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.trivial.html#dynamicAll.trivial.HarmonicOscillator"><code class="docutils literal notranslate"><span class="pre">HarmonicOscillator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.trivial.html#dynamicAll.trivial.HarmonicOscillator.action"><code class="docutils literal notranslate"><span class="pre">HarmonicOscillator.action()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.trivial.html#dynamicAll.trivial.HarmonicOscillator.energy"><code class="docutils literal notranslate"><span class="pre">HarmonicOscillator.energy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.trivial.html#dynamicAll.trivial.HarmonicOscillator.force"><code class="docutils literal notranslate"><span class="pre">HarmonicOscillator.force()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.trivial.html#dynamicAll.trivial.HarmonicOscillator.potential"><code class="docutils literal notranslate"><span class="pre">HarmonicOscillator.potential()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="module-dynamicAll">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dynamicAll" title="Link to this heading">#</a></h2>
 </section>
 </section>
 
@@ -481,7 +742,7 @@ document.write(`
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-dynamicAll">Module contents</a></li>
 </ul>
   </nav></div>
 

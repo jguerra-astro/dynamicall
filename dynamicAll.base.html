@@ -43,6 +43,8 @@
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=30646c52"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'dynamicAll.base';</script>
     <link rel="canonical" href="https://jguerra-astro.github.io/dynamicall/dynamicAll.base.html" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -413,8 +415,870 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="dynamicall-base-module">
-<h1>dynamicAll.base module<a class="headerlink" href="#dynamicall-base-module" title="Link to this heading">#</a></h1>
+  <section id="module-dynamicAll.base">
+<span id="dynamicall-base-module"></span><h1>dynamicAll.base module<a class="headerlink" href="#module-dynamicAll.base" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="dynamicAll.base.CompositePotential">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">CompositePotential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">potentials</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#CompositePotential"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.CompositePotential" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.CompositePotential.density">
+<span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#CompositePotential.density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.CompositePotential.density" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.CompositePotential.mass">
+<span class="sig-name descname"><span class="pre">mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#CompositePotential.mass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.CompositePotential.mass" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.CompositePotential.potential">
+<span class="sig-name descname"><span class="pre">potential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#CompositePotential.potential"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.CompositePotential.potential" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dynamicAll.base.Data">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">Data</span></span><a class="reference internal" href="_modules/dynamicAll/base.html#Data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.bspline">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bspline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.bspline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.bspline" title="Link to this definition">#</a></dt>
+<dd><p>See e.g. Rehemtulla 2022</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_description_</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>_type_</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>TODO: must make tuning paramaters be an input to this function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.bspline_3d">
+<span class="sig-name descname"><span class="pre">bspline_3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.bspline_3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.bspline_3d" title="Link to this definition">#</a></dt>
+<dd><p>Calculate the density profile of a set of stars
+given their radius r</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>r</strong> (<em>np.ndarray</em>) – _description_</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>np.ndarray</em> – density profile at radius r</p></li>
+<li><p><strong>TODO</strong> (<em>clean up notation on this and projected version</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.bspline_projected">
+<span class="sig-name descname"><span class="pre">bspline_projected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.bspline_projected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.bspline_projected" title="Link to this definition">#</a></dt>
+<dd><p>Calculate the projected density profile of a set of stars
+given their projected radii R</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>R</strong> (<em>np.ndarray</em>) – Projected Radii of stars</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>projected density profile at radius R</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.construct_component_map">
+<span class="sig-name descname"><span class="pre">construct_component_map</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.construct_component_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.construct_component_map" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.cylindrical">
+<span class="sig-name descname"><span class="pre">cylindrical</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.cylindrical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.cylindrical" title="Link to this definition">#</a></dt>
+<dd><p>convert cartesian velocities to cylindrical units</p>
+<div class="math notranslate nohighlight">
+\[(v_x,v_y,v_z) \rightarrow (v_{\rho},v_{\phi},v_{z})\]</div>
+<p class="rubric">Notes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.dispersion">
+<span class="sig-name descname"><span class="pre">dispersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_vi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binfunc:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">histogram&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins='blocks'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.dispersion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.dispersion" title="Link to this definition">#</a></dt>
+<dd><p>calculates the dispersion of velocity component, v_i at radii r
+– or at project radius R. Also calcualtes the
+error (see dispersion_error() for details)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v_i</strong> (<em>_type_</em>) – component of velocity you want to calculate the dispersion of
+e.g vx,vy,vz,vr,vtheta,vphi etc…</p></li>
+<li><p><strong>binfunc</strong> (<em>Callable</em><em>, </em><em>optional</em>)</p></li>
+<li><p><strong>np.histogram</strong> (<em>binning function -- must return two values like</em>)</p></li>
+<li><p><strong>histogram</strong> (<em>by default</em>)</p></li>
+<li><p><strong>bins</strong> (<em>str</em><em>, </em><em>optional</em>) – binning scheme I guess , by default ‘blocks’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.dispersion_errors">
+<span class="sig-name descname"><span class="pre">dispersion_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_vi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_edges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nmonte</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nbins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.dispersion_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.dispersion_errors" title="Link to this definition">#</a></dt>
+<dd><p>Very Basic Error calculation for dispersion</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Nmonte</strong> (<em>int</em>) – Number of times to sample errors  &lt;= Number of observations</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Maybe I should do this using EMCEE instead or Numpyro I guess
+TODO: add observational error as input? atm its just set to 2</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.dispersion_i">
+<span class="sig-name descname"><span class="pre">dispersion_i</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'los'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binfunc:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">histogram&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins='blocks'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clear_cache:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.dispersion_i"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.dispersion_i" title="Link to this definition">#</a></dt>
+<dd><p>Calculate the dispersion of a given component e.g</p>
+<p>r_center,dispersion_i, dispersion_i_err = dispersion_i(‘los’)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component</strong> (<em>str</em><em>, </em><em>optional</em>) – The component for which to calculate the dispersion.
+Available components: ‘radial’, ‘theta’, ‘phi’, ‘los’, ‘pmr’, ‘pmt’.
+Defaults to ‘los’.</p></li>
+<li><p><strong>binfunc</strong> (<em>Callable</em><em>, </em><em>optional</em>) – function used to bin data, by default histogram.
+As in astropy.stats.histogram</p></li>
+<li><p><strong>bins</strong> (<em>int</em><em> or </em><em>sequence</em><em> of </em><em>scalars</em><em> or </em><em>str</em><em>, </em><em>optional</em>) – bin edges, by default ‘blocks’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>result</strong> (<em>tuple</em>)</p></li>
+<li><p><em>A tuple containing three values</em> –</p>
+<ul>
+<li><p>r_center : array
+The center values for the dispersion bins.</p></li>
+<li><p>dispersion_i : array
+The calculated dispersion for the specified component.</p></li>
+<li><p>dispersion_error : array
+The uncertainty associated with the dispersion calculation.</p></li>
+</ul>
+</li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Warning</strong> – If the component type is unknown or missing.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function utilizes caching to store and reuse previously calculated dispersion results.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use mock data set</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataSet</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/gs010_bs050_rcrs025_rarcinf_cusp_0064mpc3_df_1000_3_err.dat&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">dataSet</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># append error to dataSet</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataSet</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">error</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Mockdata</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_center</span><span class="p">,</span> <span class="n">dispersion_i</span><span class="p">,</span> <span class="n">dispersion_error</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">dispersion_i</span><span class="p">(</span><span class="s1">&#39;radial&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_center</span><span class="p">,</span> <span class="n">dispersion_default</span><span class="p">,</span> <span class="n">dispersion_error</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">dispersion_i</span><span class="p">()</span>  <span class="c1"># Calculate dispersion for the default component (&#39;los&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.dynamical_mass">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dynamical_mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_grav=&lt;Quantity</span> <span class="pre">87.</span> <span class="pre">kpc&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.dynamical_mass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.dynamical_mass" title="Link to this definition">#</a></dt>
+<dd><p>Calculate the mass profile of a system using the spherical Jeans equation:</p>
+<div class="math notranslate nohighlight">
+\[M(&lt;r)=-\frac{r \overline{v_r^2}}{G}\left(\frac{\mathrm{d} \ln \rho}{\mathrm{d} \ln r} + \frac{\mathrm{d} \ln \overline{v_r^2}}{\mathrm{~d} \ln r}+2 \beta\right)\]</div>
+<p>All terms in the Equation above are calculated using B-splines</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<a class="reference internal" href="#dynamicAll.base.Data" title="dynamicAll.base.Data"><em>Data</em></a>) – Should be either a KeckData, DCJLData or MockData object (subclasses of Data clas)</p></li>
+<li><p><strong>q_eval</strong> (<em>ndarray</em>) – radii at which to evaluate the mass | units: [kpc]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Mass evaluated at q_eval | units: <span class="math notranslate nohighlight">\([\rm M_{\odot}]\)</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>TODO: Currently only works for the specific DCJL simulated Dwarf’s
+TODO: Need a better way to do this so that I dont have to calculate every term everytime i call this
+TODO: Get rid of Agama and instead use a Jax implementation of of these functions.</p>
+<p class="rubric">References</p>
+<p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2022MNRAS.511.5536R/abstract">Rehemtulla et al. 2022</a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.fit_gaussian">
+<span class="sig-name descname"><span class="pre">fit_gaussian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhalf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.fit_gaussian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.fit_gaussian" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.fit_projection">
+<span class="sig-name descname"><span class="pre">fit_projection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">inf)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.fit_projection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.fit_projection" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.fourth_moment">
+<span class="sig-name descname"><span class="pre">fourth_moment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_vi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binfunc:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">histogram&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins='blocks'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.fourth_moment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.fourth_moment" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.gaussian">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gaussian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhalf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.gaussian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.gaussian" title="Link to this definition">#</a></dt>
+<dd><p>simple numpyro model function for finding the mean velocity of stars</p>
+<div class="math notranslate nohighlight">
+\[P(v|\mu,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}e^{\frac{(v-\mu)^{2}}{2\sigma^{2}}}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>_type_</em>) – presumably velocities</p></li>
+<li><p><strong>error</strong> (<em>It'd be nice if i could use r_{1/2}'s with an</em>) – error on velocities</p></li>
+<li><p><strong>rhalf</strong> (<em>_type_</em><em>, </em><em>optional</em>) – If you want to calculate the Wolf mass, you can supply an r_{1/2}, by default None</p></li>
+<li><p><strong>NOTES</strong></p></li>
+<li><p><strong>-----f</strong></p></li>
+<li><p><strong>from</strong> (<em>Where do  the r_{1/2}'s come</em>)</p></li>
+<li><p><strong>error</strong></p></li>
+<li><p><strong>e.g.</strong></p></li>
+<li><p><strong>numpyro.sample</strong><strong>(</strong><strong>'rhalf'</strong> (<em>rh       =</em>)</p></li>
+<li><p><strong>dist.Normal</strong><strong>(</strong><strong>rhalf</strong></p></li>
+<li><p><strong>drhalf</strong><strong>)</strong><strong>)</strong></p></li>
+<li><p><strong>numpyro.deterministic</strong><strong>(</strong><strong>'mwolf'</strong> (<em>mwolf    =</em>)</p></li>
+<li><p><strong>(</strong><strong>4*rh*sigma**2</strong><strong>)</strong><strong>/</strong><strong>(</strong><strong>3*G</strong><strong>)</strong><strong>)</strong></p></li>
+<li><p><strong>plate</strong> (<em>should add a with numpyro</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.global_dispersion">
+<span class="sig-name descname"><span class="pre">global_dispersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_vi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.global_dispersion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.global_dispersion" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.mass_estimator">
+<span class="sig-name descname"><span class="pre">mass_estimator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Wolf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhalf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.mass_estimator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.mass_estimator" title="Link to this definition">#</a></dt>
+<dd><p>Use the average velocity dispersion of your data to estimate the mass at the half-light radius
+using the estimator of your choice.</p>
+<p>For radial velocities, you have the option of Wolf, or Walker.</p>
+<p>If your data contains proper motions, you can use the estimator proposed in Errani et al. 2018.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>estimator</strong> (<em>str</em><em>, </em><em>optional</em>) – The estimator to use for the mass calculation
+Options: ‘Wolf’, ‘Walker’, ‘Errani’
+Defaults to ‘Wolf’</p></li>
+<li><p><strong>rhalf</strong> (<em>float</em><em>, </em><em>optional</em>) – The half-light radius of the system
+Defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The estimated mass at the half-light radius</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.plot_dispersion_i">
+<span class="sig-name descname"><span class="pre">plot_dispersion_i</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binfunc:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">histogram&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins='blocks'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.plot_dispersion_i"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.plot_dispersion_i" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.plot_spatial">
+<span class="sig-name descname"><span class="pre">plot_spatial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.plot_spatial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.plot_spatial" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.random_rotation">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">random_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.random_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.random_rotation" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.spatial_density">
+<span class="sig-name descname"><span class="pre">spatial_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bin_method:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">histogram&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins='blocks'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.spatial_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.spatial_density" title="Link to this definition">#</a></dt>
+<dd><p>Given a set of N stars with either 2D (default) or 3D(set dim=3),
+compute a spatial density</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bin_method</strong> (<em>Callable</em><em>, </em><em>optional</em>) – binning function (e.g. np.histogram)
+must return just two things so dont use plt.hist
+by default histogram (astropy’s histogram)</p></li>
+<li><p><strong>bins</strong> (<em>str</em><em> or </em><em>ndarray</em><em>, </em><em>optional</em><em>, </em><em>default is 'blocks'</em>) – bin edges – ‘blocks’ only works with astropy’s histogram method</p></li>
+<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Either Calculate, by default 2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.spatial_errors">
+<span class="sig-name descname"><span class="pre">spatial_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Nmonte</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.spatial_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.spatial_errors" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.spatial_nonpar">
+<span class="sig-name descname"><span class="pre">spatial_nonpar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.spatial_nonpar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.spatial_nonpar" title="Link to this definition">#</a></dt>
+<dd><p>_summary_
+TODO: write this lol – see APWs jax implementation maybe?
+:param dims: _description_, by default 2
+:type dims: int, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_description_</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.spherical">
+<span class="sig-name descname"><span class="pre">spherical</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.spherical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.spherical" title="Link to this definition">#</a></dt>
+<dd><p>Convert cartesian coordinates <span class="math notranslate nohighlight">\((x,y,z,vx,vy,vz)\)</span> to spherical coordinates <span class="math notranslate nohighlight">\((r,\theta,\phi,v_{r},v_{\theta},v_{\phi})\)</span></p>
+<p>This is done by the following transformations:
+- <span class="math notranslate nohighlight">\(r = \sqrt{x^2+y^2+z^2}\)</span>
+- <span class="math notranslate nohighlight">\(\theta = arccos(z/r)\)</span>
+- :math: <cite>phi  = arctan2(y,x)  = sign(y)arcos(R/z)</cite>
+- <span class="math notranslate nohighlight">\(v_{r} = \frac{xv_{x}+yv_{y}+zv_{z}}{r}\)</span>
+- <span class="math notranslate nohighlight">\(v_{\phi}= \frac{yv_{x}-xv_{y}}{R}\)</span>
+- <span class="math notranslate nohighlight">\(v_{\theta] =\frac{\frac{zxv_{x}}[R] + \frac{zyv_{y}}{R} - Rv_{z}}{r}\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_description_</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.Data.to_spherical">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_spherical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#Data.to_spherical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.Data.to_spherical" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">JaxDensity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">JfactorN</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Gunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Unit('km2</span> <span class="pre">kpc</span> <span class="pre">/</span> <span class="pre">(solMass</span> <span class="pre">s2)')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for Potentials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ABC</strong> (<em>_type_</em>) – _description_</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.DF">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.DF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.DF" title="Link to this definition">#</a></dt>
+<dd><p>Eddington Formula for the distribution function of an isotropic system</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.G">
+<span class="sig-name descname"><span class="pre">G</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">np.float64(4.300917270036279e-06)</span></em><a class="headerlink" href="#dynamicAll.base.JaxDensity.G" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.action_phi">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_phi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.action_phi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.action_phi" title="Link to this definition">#</a></dt>
+<dd><p>Equation 2.
+Doesn’t depend on the potential</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.action_theta">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Array</span></span></span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.action_theta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.action_theta" title="Link to this definition">#</a></dt>
+<dd><p>Equation 3.
+Doesn’t depend on the potential</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.calculate_re">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calculate_re</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epsilon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.calculate_re"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.calculate_re" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.dDdOmega">
+<span class="sig-name descname"><span class="pre">dDdOmega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.dDdOmega"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.dDdOmega" title="Link to this definition">#</a></dt>
+<dd><p>_summary_</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>d</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>rt</strong> (<em>_type_</em>) – _description_</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.dF_helper">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dF_helper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_e</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.dF_helper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.dF_helper" title="Link to this definition">#</a></dt>
+<dd><p>Eddington formula for the distribution function of a spherical isotropic system.
+This is using the standard variable names and definitions from Binney &amp; Tremaine (2008) where
+<span class="math notranslate nohighlight">\(\psi(r) = -\Phi(r) + \Phi_{0}\)</span>  and <span class="math notranslate nohighlight">\(\mathcal{E} = \psi - \frac{1}{2}v^{2}\)</span>.
+In most cases we’ll take Phi_{0} = 0 in which case <span class="math notranslate nohighlight">\(\mathcal{E}\)</span> is the binding energy.</p>
+<div class="math notranslate nohighlight">
+\[f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2}\int_{r_\mathcal{E}}^{\infty} \frac{k(r)dr}{\sqrt{\mathcal{E} - \psi(r)}}\]</div>
+<p>where k(r)</p>
+<div class="math notranslate nohighlight">
+\[k(r) = \frac{r^{2}}{GM(r)}\left[\rho''(r)\ + \rho'(r)\left(\frac{2}{r} - \frac{4\pi r^{2}\rho(r)}{M(r)}\right)\right]\]</div>
+<p>See the documentation for more details on the derivation and tests.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>eps</strong> (<em>_type_</em>) – _description_</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.dFactor">
+<span class="sig-name descname"><span class="pre">dFactor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.dFactor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.dFactor" title="Link to this definition">#</a></dt>
+<dd><p>Decay Factor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>d</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>rt</strong> (<em>_type_</em>) – _description_</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decay Factor | [<span class="math notranslate nohighlight">\(M_{\odot}~kpc^{-2}]\)</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>TODO: Decide on the units and log10 or not</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.dJdOmega">
+<span class="sig-name descname"><span class="pre">dJdOmega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.dJdOmega"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.dJdOmega" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>theta</strong> (<em>_type_</em>) – _description_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.density">
+<span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.density" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.deproject">
+<span class="sig-name descname"><span class="pre">deproject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.deproject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.deproject" title="Link to this definition">#</a></dt>
+<dd><p>Inverse Abel transform is used to calculate the emission function given a projection, i.e.
+<span class="math notranslate nohighlight">\(F(R(x,y)) \rightarrow f( r(x,y,z) )\)</span></p>
+<div class="math notranslate nohighlight">
+\[f(r)=-\frac{1}{\pi} \int_r^{\infty} \frac{d F}{d y} \frac{d y}{\sqrt{y^2-r^2}}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>Callable</em>) – function of <span class="math notranslate nohighlight">\(r = \sqrt{x^2+y^2+z^2}.\)</span> This must be written in a jax friendly way so that it can be differentiated</p></li>
+<li><p><strong>R</strong> (<em>np.ndarray</em>) – _description_</p></li>
+<li><p><strong>params</strong> (<em>_type_</em>) – _description_</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.gamma">
+<span class="sig-name descname"><span class="pre">gamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.gamma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.gamma" title="Link to this definition">#</a></dt>
+<dd><p>log-slope of density profile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>r</strong> (<em>_type_</em>) – _description_</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.get_dm_priors">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_dm_priors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.get_dm_priors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.get_dm_priors" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.get_tracer_priors">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_tracer_priors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.get_tracer_priors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.get_tracer_priors" title="Link to this definition">#</a></dt>
+<dd><p>TODO: Add instance for Normal distribution</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.jFactor">
+<span class="sig-name descname"><span class="pre">jFactor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.jFactor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.jFactor" title="Link to this definition">#</a></dt>
+<dd><p>J-factor</p>
+<p>where we write r as <span class="math notranslate nohighlight">\(r^2=\ell^2+d^2-2 \ell d \cos \theta\)</span> where <span class="math notranslate nohighlight">\(\ell\)</span> is the distance along the line of sight and d is the distance to the center of the galaxy.
+Spherical symmetry lets us write <span class="math notranslate nohighlight">\(d\Omega=2\pi\sin\theta d\theta\)</span>.</p>
+<p>The bounds on the line of sight are $ell_{ pm}=d cos theta pm sqrt{r_{200}^2-d^2 sin ^2 theta}$.
+where $r_{200}$ is the ‘size’ of the system.</p>
+<p>substituting in the integral we get
+$$
+J(theta_{rm max}) = 2 pi int_{0}^{theta_{rm max}} int_{ell_{-}}^{ell_{+}} left[rholeft(sqrt{ell^2+d^2-2 ell d cos theta}right)right]^{2}sin(theta) dell dtheta
+$$</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>float</em>) – _description_</p></li>
+<li><p><strong>d</strong> (<em>float</em>) – distance to system | [kpc]</p></li>
+<li><p><strong>rt</strong> (<em>float</em>) – tidal radius of system | [kpc]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>J-factor | [<span class="math notranslate nohighlight">\(M_{\odot}^{2}~kpc^{-5}]\)</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Should rt just be r_200? should i just change the bounds on the line of sight part to be -inf to inf?
+Note the Units.
+Maybe I should just return log10(J/[GeV^{2} cm^{-5}]) instead of J?</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.mass">
+<span class="sig-name descname"><span class="pre">mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.mass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.mass" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.potential">
+<span class="sig-name descname"><span class="pre">potential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.potential"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.potential" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.project" title="Link to this definition">#</a></dt>
+<dd><p>Forward Abel transform : Project an optically thin, spherically symmetric function onto a plane.
+<span class="math notranslate nohighlight">\(f(r(x,y,z))\rightarrow F(R(x,y))\)</span></p>
+<div class="math notranslate nohighlight">
+\[F(R)=2 \int_R^{\infty} \frac{f(r) r}{\sqrt{r^2-R^2}} d r\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>Callable</em>) – function of projected (on-sky) radii, R</p></li>
+<li><p><strong>R</strong> (<em>jax.Array</em>) – Projected distance <span class="math notranslate nohighlight">\((R = \sqrt{x^2 +y^2})\)</span></p></li>
+<li><p><strong>params</strong> – parameters for func</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>projected positions</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jax.Array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.r200">
+<span class="sig-name descname"><span class="pre">r200</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.r200"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.r200" title="Link to this definition">#</a></dt>
+<dd><p>Calculate r200 between 1e-2 kpc and 300 kpc
+I’m assuming thats a safe range in which r200 for a dwarf galaxy would be, but I COULD be wrong</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_description_</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>_type_</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>check_bracket = False otherwise the function is not jittable
+This might actually be more useful
+BUG: lower=1e-20 does not work with the NFW class for some reason even though its analytical… must look into this at some point</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.r200_notjax">
+<span class="sig-name descname"><span class="pre">r200_notjax</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.r200_notjax"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.r200_notjax" title="Link to this definition">#</a></dt>
+<dd><p>Radius at which the average density of the halo is equal to 200 times the critical density</p>
+<p class="rubric">Notes</p>
+<p>This one works on models that aren’t jax friendly</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.rtidal">
+<span class="sig-name descname"><span class="pre">rtidal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_dsph</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.rtidal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.rtidal" title="Link to this definition">#</a></dt>
+<dd><p>_summary_</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>r_dsph</strong> (<em>_type_</em>) – _description_</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.sample_w">
+<span class="sig-name descname"><span class="pre">sample_w</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">inf]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nwalkers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_burn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.sample_w"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.sample_w" title="Link to this definition">#</a></dt>
+<dd><p>Use emcee to generate samples of <span class="math notranslate nohighlight">\(vec{w} = (\vec{x},\vec{v}) from the distribution function f(vec{w}) = f(E)\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>N</strong> (<em>int</em>) – _description_</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.set_Norder">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_Norder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.set_Norder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.set_Norder" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.set_dm_priors">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_dm_priors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_priors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.set_dm_priors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.set_dm_priors" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.set_tracer_priors">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_tracer_priors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_priors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.set_tracer_priors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.set_tracer_priors" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.spherical_to_cartesian">
+<span class="sig-name descname"><span class="pre">spherical_to_cartesian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.spherical_to_cartesian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.spherical_to_cartesian" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.test_calculate_re">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">test_calculate_re</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epsilon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.test_calculate_re"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.test_calculate_re" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.test_mass">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">test_mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.test_mass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.test_mass" title="Link to this definition">#</a></dt>
+<dd><p>Integration using Gauss-Legendre quadrature + trigonometric substitution, didn’t make much of a difference,
+but i’ll leave it around for more testing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>params</strong> (<em>_type_</em>) – _description_</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.test_potential">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">test_potential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.test_potential"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.test_potential" title="Link to this definition">#</a></dt>
+<dd><p>Calculates the potential at a given radius r numerically</p>
+<div class="math notranslate nohighlight">
+\[\phi(r) = -4\pi G\left[\frac{M}{r}+ \int_{r}^{\infty} \rho(r) r dr \right]\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>r</strong> (<em>_type_</em>) – float</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>potential at a given radius r | [kpc^{2}~s^{-2}]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.total_energy">
+<span class="sig-name descname"><span class="pre">total_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.total_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.total_energy" title="Link to this definition">#</a></dt>
+<dd><p>Calculates the total energy per unit mass</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>v</strong> (<em>_type_</em>) – _description_</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>total energy per unit mass | [km^{2}~s^{-2}]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.v_circ">
+<span class="sig-name descname"><span class="pre">v_circ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.v_circ"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.v_circ" title="Link to this definition">#</a></dt>
+<dd><p>circular velocity at a given radius r</p>
+<div class="math notranslate nohighlight">
+\[v_{circ} = \sqrt{r\frac{d\phi}{dr}} = \sqrt{\frac{GM(r)}{r}}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>r</strong> (<em>_type_</em>) – _description_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.v_esc">
+<span class="sig-name descname"><span class="pre">v_esc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.v_esc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.v_esc" title="Link to this definition">#</a></dt>
+<dd><p>Calculates the escape velocity at a given radius r</p>
+<div class="math notranslate nohighlight">
+\[v_{esc} = \sqrt{-2\phi(r)}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>r</strong> (<em>_type_</em>) – _description_</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDistribuitionFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">JaxDistribuitionFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">JfactorN</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Gunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Unit('km2</span> <span class="pre">kpc</span> <span class="pre">/</span> <span class="pre">(solMass</span> <span class="pre">s2)')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDistribuitionFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDistribuitionFunction" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDistribuitionFunction.df">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDistribuitionFunction.df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDistribuitionFunction.df" title="Link to this definition">#</a></dt>
+<dd><p>_summary_</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>E</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>params</strong> (<em>_type_</em>) – _description_</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxMass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">JaxMass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">JfactorN</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Gunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Unit('km2</span> <span class="pre">kpc</span> <span class="pre">/</span> <span class="pre">(solMass</span> <span class="pre">s2)')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxMass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxMass" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxPotential">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">JaxPotential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">JfactorN</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Gunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Unit('km2</span> <span class="pre">kpc</span> <span class="pre">/</span> <span class="pre">(solMass</span> <span class="pre">s2)')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxPotential"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxPotential" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamicAll.base.dlnrho_dlnr_eval">
+<span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">dlnrho_dlnr_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#dlnrho_dlnr_eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.dlnrho_dlnr_eval" title="Link to this definition">#</a></dt>
+<dd><p>Calcualtes dlnrho / dlnr
+S(log r) is log of tracer count (intended to be used with agama.splineLogDensity and weights=1)
+r is point or array of points where rho should be evaluated</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamicAll.base.rho_eval">
+<span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">rho_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#rho_eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.rho_eval" title="Link to this definition">#</a></dt>
+<dd><p>Calculates rho(r)
+S(log r) is log of tracer count (intended to be used with agama.splineLogDensity and weights=1)
+r is point or array of points where rho should be evaluated</p>
+</dd></dl>
+
 </section>
 
 
@@ -454,6 +1318,92 @@ document.write(`
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.CompositePotential"><code class="docutils literal notranslate"><span class="pre">CompositePotential</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.CompositePotential.density"><code class="docutils literal notranslate"><span class="pre">CompositePotential.density()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.CompositePotential.mass"><code class="docutils literal notranslate"><span class="pre">CompositePotential.mass()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.CompositePotential.potential"><code class="docutils literal notranslate"><span class="pre">CompositePotential.potential()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data"><code class="docutils literal notranslate"><span class="pre">Data</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.bspline"><code class="docutils literal notranslate"><span class="pre">Data.bspline()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.bspline_3d"><code class="docutils literal notranslate"><span class="pre">Data.bspline_3d()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.bspline_projected"><code class="docutils literal notranslate"><span class="pre">Data.bspline_projected()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.construct_component_map"><code class="docutils literal notranslate"><span class="pre">Data.construct_component_map()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.cylindrical"><code class="docutils literal notranslate"><span class="pre">Data.cylindrical()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.dispersion"><code class="docutils literal notranslate"><span class="pre">Data.dispersion()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.dispersion_errors"><code class="docutils literal notranslate"><span class="pre">Data.dispersion_errors()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.dispersion_i"><code class="docutils literal notranslate"><span class="pre">Data.dispersion_i()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.dynamical_mass"><code class="docutils literal notranslate"><span class="pre">Data.dynamical_mass()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.fit_gaussian"><code class="docutils literal notranslate"><span class="pre">Data.fit_gaussian()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.fit_projection"><code class="docutils literal notranslate"><span class="pre">Data.fit_projection()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.fourth_moment"><code class="docutils literal notranslate"><span class="pre">Data.fourth_moment()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.gaussian"><code class="docutils literal notranslate"><span class="pre">Data.gaussian()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.global_dispersion"><code class="docutils literal notranslate"><span class="pre">Data.global_dispersion()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.mass_estimator"><code class="docutils literal notranslate"><span class="pre">Data.mass_estimator()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.plot_dispersion_i"><code class="docutils literal notranslate"><span class="pre">Data.plot_dispersion_i()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.plot_spatial"><code class="docutils literal notranslate"><span class="pre">Data.plot_spatial()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.random_rotation"><code class="docutils literal notranslate"><span class="pre">Data.random_rotation()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.spatial_density"><code class="docutils literal notranslate"><span class="pre">Data.spatial_density()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.spatial_errors"><code class="docutils literal notranslate"><span class="pre">Data.spatial_errors()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.spatial_nonpar"><code class="docutils literal notranslate"><span class="pre">Data.spatial_nonpar()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.spherical"><code class="docutils literal notranslate"><span class="pre">Data.spherical()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.Data.to_spherical"><code class="docutils literal notranslate"><span class="pre">Data.to_spherical()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity"><code class="docutils literal notranslate"><span class="pre">JaxDensity</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.DF"><code class="docutils literal notranslate"><span class="pre">JaxDensity.DF()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.G"><code class="docutils literal notranslate"><span class="pre">JaxDensity.G</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.action_phi"><code class="docutils literal notranslate"><span class="pre">JaxDensity.action_phi()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.action_theta"><code class="docutils literal notranslate"><span class="pre">JaxDensity.action_theta()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.calculate_re"><code class="docutils literal notranslate"><span class="pre">JaxDensity.calculate_re()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.dDdOmega"><code class="docutils literal notranslate"><span class="pre">JaxDensity.dDdOmega()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.dF_helper"><code class="docutils literal notranslate"><span class="pre">JaxDensity.dF_helper()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.dFactor"><code class="docutils literal notranslate"><span class="pre">JaxDensity.dFactor()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.dJdOmega"><code class="docutils literal notranslate"><span class="pre">JaxDensity.dJdOmega()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.density"><code class="docutils literal notranslate"><span class="pre">JaxDensity.density()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.deproject"><code class="docutils literal notranslate"><span class="pre">JaxDensity.deproject()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.gamma"><code class="docutils literal notranslate"><span class="pre">JaxDensity.gamma()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.get_dm_priors"><code class="docutils literal notranslate"><span class="pre">JaxDensity.get_dm_priors()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.get_tracer_priors"><code class="docutils literal notranslate"><span class="pre">JaxDensity.get_tracer_priors()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.jFactor"><code class="docutils literal notranslate"><span class="pre">JaxDensity.jFactor()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.mass"><code class="docutils literal notranslate"><span class="pre">JaxDensity.mass()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.potential"><code class="docutils literal notranslate"><span class="pre">JaxDensity.potential()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.project"><code class="docutils literal notranslate"><span class="pre">JaxDensity.project()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.r200"><code class="docutils literal notranslate"><span class="pre">JaxDensity.r200()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.r200_notjax"><code class="docutils literal notranslate"><span class="pre">JaxDensity.r200_notjax()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.rtidal"><code class="docutils literal notranslate"><span class="pre">JaxDensity.rtidal()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.sample_w"><code class="docutils literal notranslate"><span class="pre">JaxDensity.sample_w()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.set_Norder"><code class="docutils literal notranslate"><span class="pre">JaxDensity.set_Norder()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.set_dm_priors"><code class="docutils literal notranslate"><span class="pre">JaxDensity.set_dm_priors()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.set_tracer_priors"><code class="docutils literal notranslate"><span class="pre">JaxDensity.set_tracer_priors()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.spherical_to_cartesian"><code class="docutils literal notranslate"><span class="pre">JaxDensity.spherical_to_cartesian()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.test_calculate_re"><code class="docutils literal notranslate"><span class="pre">JaxDensity.test_calculate_re()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.test_mass"><code class="docutils literal notranslate"><span class="pre">JaxDensity.test_mass()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.test_potential"><code class="docutils literal notranslate"><span class="pre">JaxDensity.test_potential()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.total_energy"><code class="docutils literal notranslate"><span class="pre">JaxDensity.total_energy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.v_circ"><code class="docutils literal notranslate"><span class="pre">JaxDensity.v_circ()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.v_esc"><code class="docutils literal notranslate"><span class="pre">JaxDensity.v_esc()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDistribuitionFunction"><code class="docutils literal notranslate"><span class="pre">JaxDistribuitionFunction</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDistribuitionFunction.df"><code class="docutils literal notranslate"><span class="pre">JaxDistribuitionFunction.df()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxMass"><code class="docutils literal notranslate"><span class="pre">JaxMass</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxPotential"><code class="docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.dlnrho_dlnr_eval"><code class="docutils literal notranslate"><span class="pre">dlnrho_dlnr_eval()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.rho_eval"><code class="docutils literal notranslate"><span class="pre">rho_eval()</span></code></a></li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
 

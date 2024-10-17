@@ -43,6 +43,8 @@
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=30646c52"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'modules';</script>
     <link rel="canonical" href="https://jguerra-astro.github.io/dynamicall/modules.html" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -413,19 +415,73 @@ document.write(`
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="dynamicAll.html">dynamicAll package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="dynamicAll.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html">dynamicAll.base module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamicAll.data.html">dynamicAll.data module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamicAll.distributions.html">dynamicAll.distributions module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamicAll.dynamics.html">dynamicAll.dynamics module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamicAll.fit.html">dynamicAll.fit module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamicAll.likelihood.html">dynamicAll.likelihood module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html">dynamicAll.models module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamicAll.sampler.html">dynamicAll.sampler module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamicAll.test.html">dynamicAll.test module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamicAll.trivial.html">dynamicAll.trivial module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.base.html">dynamicAll.base module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.CompositePotential"><code class="docutils literal notranslate"><span class="pre">CompositePotential</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.Data"><code class="docutils literal notranslate"><span class="pre">Data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity"><code class="docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDistribuitionFunction"><code class="docutils literal notranslate"><span class="pre">JaxDistribuitionFunction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxMass"><code class="docutils literal notranslate"><span class="pre">JaxMass</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential"><code class="docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.dlnrho_dlnr_eval"><code class="docutils literal notranslate"><span class="pre">dlnrho_dlnr_eval()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.rho_eval"><code class="docutils literal notranslate"><span class="pre">rho_eval()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="dynamicAll.html#module-contents">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.data.html">dynamicAll.data module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.data.html#dynamicAll.data.KeckData"><code class="docutils literal notranslate"><span class="pre">KeckData</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.data.html#dynamicAll.data.MockData"><code class="docutils literal notranslate"><span class="pre">MockData</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.distributions.html">dynamicAll.distributions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.distributions.html#dynamicAll.distributions.Plummer"><code class="docutils literal notranslate"><span class="pre">Plummer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.dynamics.html">dynamicAll.dynamics module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.dynamics.html#dynamicAll.dynamics.Anisotropy"><code class="docutils literal notranslate"><span class="pre">Anisotropy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.dynamics.html#dynamicAll.dynamics.Dynamics"><code class="docutils literal notranslate"><span class="pre">Dynamics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.dynamics.html#dynamicAll.dynamics.Priors"><code class="docutils literal notranslate"><span class="pre">Priors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.dynamics.html#dynamicAll.dynamics.Wolf"><code class="docutils literal notranslate"><span class="pre">Wolf()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.fit.html">dynamicAll.fit module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.Priors"><code class="docutils literal notranslate"><span class="pre">Priors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.fit.html#dynamicAll.fit.SphGalaxy"><code class="docutils literal notranslate"><span class="pre">SphGalaxy</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.likelihood.html">dynamicAll.likelihood module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.likelihood.html#dynamicAll.likelihood.Likelihood"><code class="docutils literal notranslate"><span class="pre">Likelihood</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.models.html">dynamicAll.models module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Anisotropy"><code class="docutils literal notranslate"><span class="pre">Anisotropy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.BetaConstant"><code class="docutils literal notranslate"><span class="pre">BetaConstant</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.BetaOsipkovMerrit"><code class="docutils literal notranslate"><span class="pre">BetaOsipkovMerrit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.BetaSymmetric"><code class="docutils literal notranslate"><span class="pre">BetaSymmetric</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Gaussian"><code class="docutils literal notranslate"><span class="pre">Gaussian</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Gaussians"><code class="docutils literal notranslate"><span class="pre">Gaussians</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Hernquist"><code class="docutils literal notranslate"><span class="pre">Hernquist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.HernquistZhao"><code class="docutils literal notranslate"><span class="pre">HernquistZhao</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Isochrone"><code class="docutils literal notranslate"><span class="pre">Isochrone</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Jaffe"><code class="docutils literal notranslate"><span class="pre">Jaffe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.King"><code class="docutils literal notranslate"><span class="pre">King</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.NFW"><code class="docutils literal notranslate"><span class="pre">NFW</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.NFW_truncated"><code class="docutils literal notranslate"><span class="pre">NFW_truncated</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.Plummer"><code class="docutils literal notranslate"><span class="pre">Plummer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.PowerLaws"><code class="docutils literal notranslate"><span class="pre">PowerLaws</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.TestPotential"><code class="docutils literal notranslate"><span class="pre">TestPotential</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.centre"><code class="docutils literal notranslate"><span class="pre">centre()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.gEinasto"><code class="docutils literal notranslate"><span class="pre">gEinasto</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.models.html#dynamicAll.models.gNFW"><code class="docutils literal notranslate"><span class="pre">gNFW</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.sampler.html">dynamicAll.sampler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.test.html">dynamicAll.test module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicAll.trivial.html">dynamicAll.trivial module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dynamicAll.trivial.html#dynamicAll.trivial.HarmonicOscillator"><code class="docutils literal notranslate"><span class="pre">HarmonicOscillator</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicAll.html#module-dynamicAll">Module contents</a></li>
 </ul>
 </li>
 </ul>

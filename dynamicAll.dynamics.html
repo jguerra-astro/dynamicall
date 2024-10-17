@@ -43,6 +43,8 @@
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=30646c52"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'dynamicAll.dynamics';</script>
     <link rel="canonical" href="https://jguerra-astro.github.io/dynamicall/dynamicAll.dynamics.html" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -413,8 +415,59 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="dynamicall-dynamics-module">
-<h1>dynamicAll.dynamics module<a class="headerlink" href="#dynamicall-dynamics-module" title="Link to this heading">#</a></h1>
+  <section id="module-dynamicAll.dynamics">
+<span id="dynamicall-dynamics-module"></span><h1>dynamicAll.dynamics module<a class="headerlink" href="#module-dynamicAll.dynamics" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="dynamicAll.dynamics.Anisotropy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.dynamics.</span></span><span class="sig-name descname"><span class="pre">Anisotropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/dynamics.html#Anisotropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.dynamics.Anisotropy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dynamicAll.dynamics.Dynamics">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.dynamics.</span></span><span class="sig-name descname"><span class="pre">Dynamics</span></span><a class="reference internal" href="_modules/dynamicAll/dynamics.html#Dynamics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.dynamics.Dynamics" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.dynamics.Dynamics.dispersion">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dispersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhalf_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/dynamics.html#Dynamics.dispersion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.dynamics.Dynamics.dispersion" title="Link to this definition">#</a></dt>
+<dd><p>simple numpyro model function for finding the mean velocity of stars</p>
+<div class="math notranslate nohighlight">
+\[P(v|\mu,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}e^{\frac{(v-\mu)^{2}}{2\sigma^{2}}}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>_type_</em>) – presumably velocities</p></li>
+<li><p><strong>error</strong> (<em>It'd be nice if i could use r_{1/2}'s with an</em>) – error on velocities</p></li>
+<li><p><strong>rhalf</strong> (<em>_type_</em><em>, </em><em>optional</em>) – If you want to calculate the Wolf mass, you can supply an r_{1/2}, by default None</p></li>
+<li><p><strong>NOTES</strong></p></li>
+<li><p><strong>-----f</strong></p></li>
+<li><p><strong>from</strong> (<em>Where do  the r_{1/2}'s come</em>)</p></li>
+<li><p><strong>error</strong></p></li>
+<li><p><strong>e.g.</strong></p></li>
+<li><p><strong>numpyro.sample</strong><strong>(</strong><strong>'rhalf'</strong> (<em>rh       =</em>)</p></li>
+<li><p><strong>dist.Normal</strong><strong>(</strong><strong>rhalf</strong></p></li>
+<li><p><strong>drhalf</strong><strong>)</strong><strong>)</strong></p></li>
+<li><p><strong>numpyro.deterministic</strong><strong>(</strong><strong>'mwolf'</strong> (<em>mwolf    =</em>)</p></li>
+<li><p><strong>(</strong><strong>4*rh*sigma**2</strong><strong>)</strong><strong>/</strong><strong>(</strong><strong>3*G</strong><strong>)</strong><strong>)</strong></p></li>
+<li><p><strong>plate</strong> (<em>should add a with numpyro</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dynamicAll.dynamics.Priors">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.dynamics.</span></span><span class="sig-name descname"><span class="pre">Priors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictionary</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/dynamics.html#Priors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.dynamics.Priors" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamicAll.dynamics.Wolf">
+<span class="sig-prename descclassname"><span class="pre">dynamicAll.dynamics.</span></span><span class="sig-name descname"><span class="pre">Wolf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yerr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhalf_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/dynamics.html#Wolf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.dynamics.Wolf" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </section>
 
 
@@ -454,6 +507,24 @@ document.write(`
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.dynamics.Anisotropy"><code class="docutils literal notranslate"><span class="pre">Anisotropy</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.dynamics.Dynamics"><code class="docutils literal notranslate"><span class="pre">Dynamics</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.dynamics.Dynamics.dispersion"><code class="docutils literal notranslate"><span class="pre">Dynamics.dispersion()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.dynamics.Priors"><code class="docutils literal notranslate"><span class="pre">Priors</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.dynamics.Wolf"><code class="docutils literal notranslate"><span class="pre">Wolf()</span></code></a></li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
 

@@ -413,8 +413,78 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="dynamicall-fit-module">
-<h1>dynamicAll.fit module<a class="headerlink" href="#dynamicall-fit-module" title="Link to this heading">#</a></h1>
+  <section id="module-dynamicAll.fit">
+<span id="dynamicall-fit-module"></span><h1>dynamicAll.fit module<a class="headerlink" href="#module-dynamicAll.fit" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="dynamicAll.fit.Priors">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.fit.</span></span><span class="sig-name descname"><span class="pre">Priors</span></span><a class="reference internal" href="_modules/dynamicAll/fit.html#Priors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.fit.Priors" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for defining priors for the model</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.fit.Priors.add_from_dict">
+<span class="sig-name descname"><span class="pre">add_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">priors_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/fit.html#Priors.add_from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.fit.Priors.add_from_dict" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.fit.Priors.add_prior">
+<span class="sig-name descname"><span class="pre">add_prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior_dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'one'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/fit.html#Priors.add_prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.fit.Priors.add_prior" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.fit.Priors.from_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">priors_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/fit.html#Priors.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.fit.Priors.from_dict" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.fit.Priors.get_prior">
+<span class="sig-name descname"><span class="pre">get_prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/fit.html#Priors.get_prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.fit.Priors.get_prior" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.fit.Priors.normal">
+<span class="sig-name descname"><span class="pre">normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/fit.html#Priors.normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.fit.Priors.normal" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.fit.Priors.uniform">
+<span class="sig-name descname"><span class="pre">uniform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/fit.html#Priors.uniform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.fit.Priors.uniform" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dynamicAll.fit.SphGalaxy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.fit.</span></span><span class="sig-name descname"><span class="pre">SphGalaxy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracer_model=&lt;class</span> <span class="pre">'dynamicAll.models.Plummer'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dark_model=&lt;class</span> <span class="pre">'dynamicAll.models.gNFW'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anisotropy_model=&lt;class</span> <span class="pre">'dynamicAll.models.BetaConstant'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors:</span> <span class="pre">~dynamicAll.fit.Priors</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/fit.html#SphGalaxy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.fit.SphGalaxy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.fit.SphGalaxy.custom_formatwarning">
+<span class="sig-name descname"><span class="pre">custom_formatwarning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineno</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/fit.html#SphGalaxy.custom_formatwarning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.fit.SphGalaxy.custom_formatwarning" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.fit.SphGalaxy.dispersion">
+<span class="sig-name descname"><span class="pre">dispersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm_param_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr_param_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_param_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/fit.html#SphGalaxy.dispersion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.fit.SphGalaxy.dispersion" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.fit.SphGalaxy.fit_dSph">
+<span class="sig-name descname"><span class="pre">fit_dSph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Array([0,</span> <span class="pre">0],</span> <span class="pre">dtype=uint32)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_warmup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_chains</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jfactor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jfactor_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/fit.html#SphGalaxy.fit_dSph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.fit.SphGalaxy.fit_dSph" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.fit.SphGalaxy.fit_unbinned">
+<span class="sig-name descname"><span class="pre">fit_unbinned</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Array([0,</span> <span class="pre">0],</span> <span class="pre">dtype=uint32)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_warmup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_chains</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/fit.html#SphGalaxy.fit_unbinned"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.fit.SphGalaxy.fit_unbinned" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.fit.SphGalaxy.test_dispersion">
+<span class="sig-name descname"><span class="pre">test_dispersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm_param_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr_param_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_param_dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/dynamicAll/fit.html#SphGalaxy.test_dispersion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.fit.SphGalaxy.test_dispersion" title="Link to this definition">#</a></dt>
+<dd><p>first using the transform y = rcsc(x)
+then using Gauss-Legendre transformation.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -454,6 +524,34 @@ document.write(`
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.fit.Priors"><code class="docutils literal notranslate"><span class="pre">Priors</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.fit.Priors.add_from_dict"><code class="docutils literal notranslate"><span class="pre">Priors.add_from_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.fit.Priors.add_prior"><code class="docutils literal notranslate"><span class="pre">Priors.add_prior()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.fit.Priors.from_dict"><code class="docutils literal notranslate"><span class="pre">Priors.from_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.fit.Priors.get_prior"><code class="docutils literal notranslate"><span class="pre">Priors.get_prior()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.fit.Priors.normal"><code class="docutils literal notranslate"><span class="pre">Priors.normal()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.fit.Priors.uniform"><code class="docutils literal notranslate"><span class="pre">Priors.uniform()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.fit.SphGalaxy"><code class="docutils literal notranslate"><span class="pre">SphGalaxy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.fit.SphGalaxy.custom_formatwarning"><code class="docutils literal notranslate"><span class="pre">SphGalaxy.custom_formatwarning()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.fit.SphGalaxy.dispersion"><code class="docutils literal notranslate"><span class="pre">SphGalaxy.dispersion()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.fit.SphGalaxy.fit_dSph"><code class="docutils literal notranslate"><span class="pre">SphGalaxy.fit_dSph()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.fit.SphGalaxy.fit_unbinned"><code class="docutils literal notranslate"><span class="pre">SphGalaxy.fit_unbinned()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.fit.SphGalaxy.test_dispersion"><code class="docutils literal notranslate"><span class="pre">SphGalaxy.test_dispersion()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
 
