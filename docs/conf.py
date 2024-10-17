@@ -86,18 +86,19 @@ html_theme_options = {
         }
     ]
 }
-autodoc_mock_imports = [
-    "jax",
-    "jaxopt",
-    "agama",
-    "emcee",
-    "corner",
-    "scipy",
-    "astropy",
-    "numpy",
-    "numpyro",
-    "matplotlib",
-    "arviz",
-    "astroquery",
-    "sci-kit-learn",
-]
+autodoc_mock_imports = ["agama"]
+# autodoc_mock_imports = [
+#     "jax",
+#     "jaxopt",
+#     "agama",
+#     "emcee",
+#     "corner",
+#     "scipy",
+#     "astropy",
+#     "numpy",
+#     "numpyro",
+#     "matplotlib",
+#     "arviz",
+#     "astroquery",
+#     "sci-kit-learn",
+# ]
