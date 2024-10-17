@@ -31,6 +31,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
+    "sphinx.ext.autosummary",
     "nbsphinx",
     "sphinx.ext.mathjax",
     "myst_nb",  # myst_nb is a plugin for MyST Markdown that adds support for executing and displaying Jupyter notebooks.
@@ -39,6 +40,13 @@ extensions = [
 ]
 nbsphinx_execute = "off"
 nb_execution_mode = "off"
+
+autosummary_generate = True
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+}
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",
