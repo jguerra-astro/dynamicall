@@ -27,9 +27,10 @@ jobs:
     - name: Build Sphinx documentation
       run: |
         cd docs  # Adjust this if your Sphinx files are in a different directory
-        sphinx-apidoc -o . ../src/dynamicAll
         make clean  # Start with a clean build
+        sphinx-apidoc -f -o . ../src/dynamicAll --separate
         make html
+        touch _build/html/.nojekyll  # Create a .nojekyll file to prevent GitHub Pages from ignoring files/folders that start with an underscore
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
