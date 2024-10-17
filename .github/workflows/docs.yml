@@ -19,7 +19,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install sphinx nbsphinx myst_nb sphinx_copybutton pydata_sphinx_theme
           pip install jax jaxopt emcee corner
-          pip scipy astropy numpyro matplotlib arviz astroquery scikit-learn
+          pip install scipy astropy numpyro matplotlib arviz astroquery scikit-learn
           pip freeze > installed_packages.txt
           cat installed_packages.txt
       - name: Environment Info
