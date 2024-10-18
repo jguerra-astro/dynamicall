@@ -140,9 +140,21 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Note: You dont have to initialize the class in order to use the built in functions.\n",
+    "```{note}\n",
+    "Test note\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "```\n",
+    ".. note::\n",
+    "    You don't have to initialize the class. You can use it in a more functional form by using the class methods.\n",
     "\n",
-    "all that calling plum_test.density(r) does is call the class method _density(r,params). In actual fitting where you're changing the parameters you would always want to use the class methods rather than the instance methods."
+    "    all that calling plum_test.density(r) does is call the class method _density(r,params). In actual fitting where you're changing the parameters you would always want to use the class methods rather than the instance methods.\n",
+    "```"
    ]
   },
   {
