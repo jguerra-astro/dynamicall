@@ -1,7 +1,0 @@
-dynamicAll.dynamics module
-==========================
-
-.. automodule:: dynamicAll.dynamics
-   :members:
-   :undoc-members:
-   :show-inheritance:

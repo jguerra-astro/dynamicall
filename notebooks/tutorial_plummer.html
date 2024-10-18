@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tutorial: Plummer Model &#8212; dynamicAll 1.00.00 documentation</title>
+    <title>Tutorial: Plummer Model &#8212; dynamicAll 1.0 documentation</title>
   
   
   
@@ -37,7 +37,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=795c39da"></script>
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -126,7 +126,7 @@
   
   
   
-    <p class="title logo__title">dynamicAll 1.00.00 documentation</p>
+    <p class="title logo__title">dynamicAll 1.0 documentation</p>
   
 </a></div>
     
@@ -522,15 +522,15 @@ document.write(`
 <h2>Generating data from a Plummer sphere.<a class="headerlink" href="#generating-data-from-a-plummer-sphere" title="Link to this heading">#</a></h2>
 <p>This one is quite simple and there are many examples of sampling from a plummer sphere, but lets go over it anyways.</p>
 <p>The plummer sphere is defined by the density profile</p>
-<div class="amsmath math notranslate nohighlight" id="equation-aab3b3a2-06d4-4c37-9d06-69104e8fc880">
-<span class="eqno">(1)<a class="headerlink" href="#equation-aab3b3a2-06d4-4c37-9d06-69104e8fc880" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-b30ff539-5353-4764-891f-5623e160103c">
+<span class="eqno">(1)<a class="headerlink" href="#equation-b30ff539-5353-4764-891f-5623e160103c" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \rho(r) = \frac{3M}{4\pi a^3}\left(1 + \frac{r^2}{a^2}\right)^{-5/2}
 \end{equation}\]</div>
 <p>For various systems, we’ll have to numerically calculate the distribution function via the Eddington formula, but we’ll start with the Plummer sphere where you can derive it analytically.
 (See B&amp;T for a derivation)</p>
 <p>The distribution function for a Plummer sphere is given by</p>
-<div class="amsmath math notranslate nohighlight" id="equation-43048133-5a72-4632-969d-5b98b9b9a6a7">
-<span class="eqno">(2)<a class="headerlink" href="#equation-43048133-5a72-4632-969d-5b98b9b9a6a7" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-1e4bd9b6-b8d9-4a77-a1bb-5d877a49816d">
+<span class="eqno">(2)<a class="headerlink" href="#equation-1e4bd9b6-b8d9-4a77-a1bb-5d877a49816d" title="Permalink to this equation">#</a></span>\[\begin{equation}
 f(E) =
 \frac{24\sqrt{2}}{7\pi^3}
 \frac{a^2}{G^5 M^4}(-E)^{7/2}
@@ -538,34 +538,34 @@ f(E) =
 <p>Where M is the total mass of the system, and a is the Plummer radius, and <span class="math notranslate nohighlight">\(E=\Phi(r) + \frac{1}{2}v^2\)</span> is the energy of a particle and goes from <span class="math notranslate nohighlight">\(\Phi(r = 0) = -\frac{GM}{a}\)</span> to 0.</p>
 <p>For the purposes of making mock data of a plummer sphere it is useful to remember that the distribution function is the joint probabilty of finding a star in the phase-space volume <span class="math notranslate nohighlight">\(d^{3}\vec{x}d^{3}\vec{w}\)</span> around the position <span class="math notranslate nohighlight">\(\vec{x}\)</span> and velocity <span class="math notranslate nohighlight">\(\vec{w}\)</span>, and that the density is the marginal probability of finding a star in the volume <span class="math notranslate nohighlight">\(d^{3}\vec{x}\)</span> around the position <span class="math notranslate nohighlight">\(\vec{x}\)</span>.</p>
 <p>We can therefore write the conditional probability of finding a star in the volume <span class="math notranslate nohighlight">\(d^{3}\vec{v}\)</span> around the velocity <span class="math notranslate nohighlight">\(\vec{v}\)</span> given that it is at position <span class="math notranslate nohighlight">\(\vec{x}\)</span> using Bayes’ theorem as</p>
-<div class="amsmath math notranslate nohighlight" id="equation-b909bfa3-3910-4b2f-919a-faed184eaa59">
-<span class="eqno">(3)<a class="headerlink" href="#equation-b909bfa3-3910-4b2f-919a-faed184eaa59" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-d3096985-3e63-49f5-86f9-a3fe6f6dcb72">
+<span class="eqno">(3)<a class="headerlink" href="#equation-d3096985-3e63-49f5-86f9-a3fe6f6dcb72" title="Permalink to this equation">#</a></span>\[\begin{equation}
 P(\vec{v}|\vec{x}) = \frac{P(\vec{x},\vec{v})}{P(\vec{x})} = \frac{f(E)}{\rho(\vec{x})}
 \end{equation}\]</div>
 <p>However, none of this is particularly useful, until we start rewriting some stuff.</p>
-<div class="amsmath math notranslate nohighlight" id="equation-1f1e38f8-6d66-476e-a647-6e98e4b202a8">
-<span class="eqno">(4)<a class="headerlink" href="#equation-1f1e38f8-6d66-476e-a647-6e98e4b202a8" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-776b5818-c0e4-4df0-8cd3-7bb59d498266">
+<span class="eqno">(4)<a class="headerlink" href="#equation-776b5818-c0e4-4df0-8cd3-7bb59d498266" title="Permalink to this equation">#</a></span>\[\begin{equation}
 F(E) = f(\vec{x},\vec{v})
 \end{equation}\]</div>
 <p>but because everything is spherical and Isotropic we can instead write down</p>
-<div class="amsmath math notranslate nohighlight" id="equation-409b02d6-34f0-4af6-9b3d-f2b6369364cc">
-<span class="eqno">(5)<a class="headerlink" href="#equation-409b02d6-34f0-4af6-9b3d-f2b6369364cc" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-569a168b-3045-462f-b5fe-5c4f6982c8d9">
+<span class="eqno">(5)<a class="headerlink" href="#equation-569a168b-3045-462f-b5fe-5c4f6982c8d9" title="Permalink to this equation">#</a></span>\[\begin{equation}
 f(r,v)\sim v^{2}r^{2}\left[-\left(\Phi(r)+\frac{1}{2}v^{2}\right)\right]^{7/2}
 \end{equation}\]</div>
 <p>and also</p>
-<div class="amsmath math notranslate nohighlight" id="equation-0716d6f9-81d5-428a-81af-9a43adb55347">
-<span class="eqno">(6)<a class="headerlink" href="#equation-0716d6f9-81d5-428a-81af-9a43adb55347" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-dea7fb53-a375-455d-9d0f-faf6282bbc12">
+<span class="eqno">(6)<a class="headerlink" href="#equation-dea7fb53-a375-455d-9d0f-faf6282bbc12" title="Permalink to this equation">#</a></span>\[\begin{equation}
 p(r) = 4\pi r^{2}\rho(r)
 \end{equation}\]</div>
 <p>(where <span class="math notranslate nohighlight">\(M\equiv 1\)</span>, so thats its <span class="math notranslate nohighlight">\(p(r)\)</span> is normalized)
 and then</p>
-<div class="amsmath math notranslate nohighlight" id="equation-add4f55d-cdfd-45c8-8bcd-c6bc769adfa7">
-<span class="eqno">(7)<a class="headerlink" href="#equation-add4f55d-cdfd-45c8-8bcd-c6bc769adfa7" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-9ed61a6e-ce8d-4b73-8094-82adf61569a3">
+<span class="eqno">(7)<a class="headerlink" href="#equation-9ed61a6e-ce8d-4b73-8094-82adf61569a3" title="Permalink to this equation">#</a></span>\[\begin{equation}
 P(v|r) = \frac{F(r,v)}{p(r)} \sim \frac{v^{2}r^{2}\left[-\left(\Phi(r)+\frac{1}{2}v^{2}\right)\right]^{7/2}}{r^{2}\left(1+\frac{r^{2}}{a^{2}}\right)^{5/2}}
 \end{equation}\]</div>
 <p>However, any coefficient terms depending on r wont really matter since we’re going to normalize it so we can ignore them.</p>
-<div class="amsmath math notranslate nohighlight" id="equation-5b20ed61-614d-4d83-af3b-b1ad00c692f3">
-<span class="eqno">(8)<a class="headerlink" href="#equation-5b20ed61-614d-4d83-af3b-b1ad00c692f3" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-6323a7ac-67b2-425b-ade5-9b0cd88af7cc">
+<span class="eqno">(8)<a class="headerlink" href="#equation-6323a7ac-67b2-425b-ade5-9b0cd88af7cc" title="Permalink to this equation">#</a></span>\[\begin{equation}
 P(v|r)\sim v^{2}\left[-\left(\Phi(r)+\frac{1}{2}v^{2}\right)\right]^{7/2}
 \end{equation}\]</div>
 <p>In order to sample from this, it would be convenient if it was normalized.
@@ -573,8 +573,8 @@ Here what people tend to do is to make another change of variables.
 We define <span class="math notranslate nohighlight">\(q\equiv \frac{v}{v_{\rm esc}}\)</span> where <span class="math notranslate nohighlight">\(v_{\rm esc}\)</span> is the escape velocity at <span class="math notranslate nohighlight">\(r\)</span>.
 since q can only be between 0 and 1, we can easily normalize it by integrating over the range of q.</p>
 <p>Ultimately we can write</p>
-<div class="amsmath math notranslate nohighlight" id="equation-aa7251cf-4d04-4ecc-a61d-81cd911ca3ac">
-<span class="eqno">(9)<a class="headerlink" href="#equation-aa7251cf-4d04-4ecc-a61d-81cd911ca3ac" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-ca04efaf-1902-4e82-80f6-4e27a1644088">
+<span class="eqno">(9)<a class="headerlink" href="#equation-ca04efaf-1902-4e82-80f6-4e27a1644088" title="Permalink to this equation">#</a></span>\[\begin{equation}
 p(q|r) =\frac{512}{7\pi}q^2(1-q^2)^{7/2}
 \end{equation}\]</div>
 <p>which <em>should</em> be easy to sample from. We’ve deceptible seemed to have gotten rid of the dependance of r, but we recover that dependance when we transform back via <span class="math notranslate nohighlight">\(v(r) = q~v_{\rm esc}(r)\)</span></p>

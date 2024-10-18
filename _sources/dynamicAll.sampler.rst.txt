@@ -1,7 +1,0 @@
-dynamicAll.sampler module
-=========================
-
-.. automodule:: dynamicAll.sampler
-   :members:
-   :undoc-members:
-   :show-inheritance:

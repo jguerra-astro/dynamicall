@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>dynamicAll.models module &#8212; dynamicAll 1.00.00 documentation</title>
+    <title>dynamicAll.models module &#8212; dynamicAll 1.0 documentation</title>
   
   
   
@@ -37,7 +37,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="_static/documentation_options.js?v=795c39da"></script>
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,8 +49,7 @@
     <link rel="canonical" href="https://jguerra-astro.github.io/dynamicall/dynamicAll.models.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="dynamicAll.sampler module" href="dynamicAll.sampler.html" />
-    <link rel="prev" title="dynamicAll.likelihood module" href="dynamicAll.likelihood.html" />
+    <link rel="prev" title="dynamicAll.fit module" href="dynamicAll.fit.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -126,7 +125,7 @@
   
   
   
-    <p class="title logo__title">dynamicAll 1.00.00 documentation</p>
+    <p class="title logo__title">dynamicAll 1.0 documentation</p>
   
 </a></div>
     
@@ -359,14 +358,8 @@ document.write(`
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="dynamicAll.html">dynamicAll package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="dynamicAll.base.html">dynamicAll.base module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamicAll.data.html">dynamicAll.data module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamicAll.distributions.html">dynamicAll.distributions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamicAll.dynamics.html">dynamicAll.dynamics module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamicAll.fit.html">dynamicAll.fit module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamicAll.likelihood.html">dynamicAll.likelihood module</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">dynamicAll.models module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamicAll.sampler.html">dynamicAll.sampler module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamicAll.test.html">dynamicAll.test module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamicAll.trivial.html">dynamicAll.trivial module</a></li>
 </ul>
 </details></li>
 </ul>
@@ -542,7 +535,7 @@ and <span class="math notranslate nohighlight">\(\tilde{\beta} = 0\)</span> corr
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.models.Gaussian">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.models.</span></span><span class="sig-name descname"><span class="pre">Gaussian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#Gaussian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.Gaussian" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.models.Gaussian.density">
 <span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#Gaussian.density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.Gaussian.density" title="Link to this definition">#</a></dt>
@@ -568,7 +561,7 @@ and <span class="math notranslate nohighlight">\(\tilde{\beta} = 0\)</span> corr
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.models.Gaussians">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.models.</span></span><span class="sig-name descname"><span class="pre">Gaussians</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#Gaussians"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.Gaussians" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <p>Class for a desribing the density profile as a sum of Gaussians</p>
 <div class="math notranslate nohighlight">
 \[\rho(r) = \sum_{i=1}^{N} \frac{M_i}{(2\pi\sigma_i^2)^{3/2}} \exp\left(-\frac{r^2}{2\sigma_i^2}\right)\]</div>
@@ -605,7 +598,7 @@ and <span class="math notranslate nohighlight">\(\tilde{\beta} = 0\)</span> corr
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.models.Hernquist">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.models.</span></span><span class="sig-name descname"><span class="pre">Hernquist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#Hernquist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.Hernquist" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <p>Hernquist profile</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.models.Hernquist.density">
@@ -677,7 +670,7 @@ This is just meant to be used with the MCMC sampler.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.models.HernquistZhao">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.models.</span></span><span class="sig-name descname"><span class="pre">HernquistZhao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r200'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#HernquistZhao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.HernquistZhao" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <p>Hernquist-Zhao density profile</p>
 <div class="math notranslate nohighlight">
 \[\rho(r) =\frac{\rho_s}{\left(\frac{r}{r_s}\right)^a \left[1+\left(\frac{r}{r_s}\right)^{b}\right]^{\frac{c-a}{b}}}\]</div>
@@ -695,32 +688,11 @@ This is just meant to be used with the MCMC sampler.</p>
 <p class="rubric">Notes</p>
 <p>for <span class="math notranslate nohighlight">\(c \ge 3\)</span> mass diverges as <span class="math notranslate nohighlight">\(r\rightarrow \infty\)</span> therefore default priors on c go from 1 to 3.
 You can get around this, by limiting relevant integrations to a finite radius e.g. <span class="math notranslate nohighlight">\(r_{200}\)</span>.</p>
-<p>Note however</p>
+<p>There are various testing functions that are useful for testing the accuracy of our integration scheme</p>
 <p class="rubric">References</p>
 <p>Baes 2021      : <a class="reference external" href="http://dx.doi.org/10.1093/mnras/stab634">http://dx.doi.org/10.1093/mnras/stab634</a></p>
 <p>An &amp; Zhao 2012 : <a class="reference external" href="http://dx.doi.org/10.1093/mnras/sts175">http://dx.doi.org/10.1093/mnras/sts175</a></p>
 <p>Zhao 1996      : <a class="reference external" href="http://dx.doi.org/10.1093/mnras/278.2.488">http://dx.doi.org/10.1093/mnras/278.2.488</a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="dynamicAll.models.HernquistZhao.density">
-<span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Array</span></span></span><a class="reference internal" href="_modules/dynamicAll/models.html#HernquistZhao.density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.HernquistZhao.density" title="Link to this definition">#</a></dt>
-<dd><p>Hernquist-Zhao density profile</p>
-<div class="math notranslate nohighlight">
-\[\rho(r) =\frac{\rho_s}{\left(\frac{r}{r_s}\right)^a \left[1+\left(\frac{r}{r_s}\right)^{b}\right]^{\frac{c-a}{b}}}\]</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>r</strong> (<em>float</em><em> | </em><em>jax.Array</em>) – <span class="math notranslate nohighlight">\(r = \sqrt{x^2+y^2+z^2}\)</span> | units: [L]</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>float | jax.Array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="dynamicAll.models.HernquistZhao.mass">
-<span class="sig-name descname"><span class="pre">mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#HernquistZhao.mass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.HernquistZhao.mass" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.models.HernquistZhao.mass_quad">
 <span class="sig-name descname"><span class="pre">mass_quad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#HernquistZhao.mass_quad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.HernquistZhao.mass_quad" title="Link to this definition">#</a></dt>
@@ -765,7 +737,7 @@ TODO: write a test for this</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.models.Isochrone">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.models.</span></span><span class="sig-name descname"><span class="pre">Isochrone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#Isochrone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.Isochrone" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.models.Isochrone.action_r">
 <span class="sig-name descname"><span class="pre">action_r</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#Isochrone.action_r"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.Isochrone.action_r" title="Link to this definition">#</a></dt>
@@ -861,7 +833,7 @@ Useful for testing numerical schemes</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.models.Jaffe">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.models.</span></span><span class="sig-name descname"><span class="pre">Jaffe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#Jaffe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.Jaffe" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.models.Jaffe.density">
 <span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#Jaffe.density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.Jaffe.density" title="Link to this definition">#</a></dt>
@@ -902,7 +874,7 @@ Useful for testing numerical schemes</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.models.King">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.models.</span></span><span class="sig-name descname"><span class="pre">King</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#King"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.King" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.models.King.density">
 <span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#King.density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.King.density" title="Link to this definition">#</a></dt>
@@ -913,7 +885,7 @@ Useful for testing numerical schemes</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.models.NFW">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.models.</span></span><span class="sig-name descname"><span class="pre">NFW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#NFW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.NFW" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <p>Spherical Navarro-Frenk-White model
 This will be useful for testing purposes.</p>
 <dl class="field-list simple">
@@ -1103,7 +1075,7 @@ We cut off the integral at <span class="math notranslate nohighlight">\(r_{200}\
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.models.Plummer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.models.</span></span><span class="sig-name descname"><span class="pre">Plummer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#Plummer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.Plummer" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <p>Class for a spherical Plummer model</p>
 <div class="math notranslate nohighlight">
 \[\rho(r) = \frac{3M}{4\pi a^3} \left(1+\frac{r^2}{a^2}\right)^{-5/2}\]</div>
@@ -1329,11 +1301,11 @@ test and compare the results between both methods</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.models.PowerLaws">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.models.</span></span><span class="sig-name descname"><span class="pre">PowerLaws</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R_half</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radial_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Array([0.25,</span> <span class="pre">0.5,</span> <span class="pre">1.,</span> <span class="pre">2.,</span> <span class="pre">4.],</span> <span class="pre">dtype=float64)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#PowerLaws"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.PowerLaws" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <p>See e.g GravSphere</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>JaxPotential</strong> (<em>_type_</em>) – _description_</p>
+<dd class="field-odd"><p><strong>JaxDensity</strong> (<em>_type_</em>) – _description_</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1346,7 +1318,7 @@ test and compare the results between both methods</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.models.TestPotential">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.models.</span></span><span class="sig-name descname"><span class="pre">TestPotential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#TestPotential"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.TestPotential" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -1357,7 +1329,7 @@ test and compare the results between both methods</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.models.gEinasto">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.models.</span></span><span class="sig-name descname"><span class="pre">gEinasto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#gEinasto"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.gEinasto" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <p>Generalized Einasto profile</p>
 <p>Defined by the following density profile:</p>
 <div class="math notranslate nohighlight">
@@ -1393,7 +1365,7 @@ test and compare the results between both methods</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.models.gNFW">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.models.</span></span><span class="sig-name descname"><span class="pre">gNFW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r200'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#gNFW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.gNFW" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="dynamicAll.base.html#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.models.gNFW.density">
 <span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/models.html#gNFW.density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.models.gNFW.density" title="Link to this definition">#</a></dt>
@@ -1414,22 +1386,13 @@ test and compare the results between both methods</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="dynamicAll.likelihood.html"
+       href="dynamicAll.fit.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">dynamicAll.likelihood module</p>
+        <p class="prev-next-title">dynamicAll.fit module</p>
       </div>
-    </a>
-    <a class="right-next"
-       href="dynamicAll.sampler.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">dynamicAll.sampler module</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>
@@ -1491,8 +1454,6 @@ test and compare the results between both methods</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.models.HernquistZhao"><code class="docutils literal notranslate"><span class="pre">HernquistZhao</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.models.HernquistZhao.density"><code class="docutils literal notranslate"><span class="pre">HernquistZhao.density()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.models.HernquistZhao.mass"><code class="docutils literal notranslate"><span class="pre">HernquistZhao.mass()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.models.HernquistZhao.mass_quad"><code class="docutils literal notranslate"><span class="pre">HernquistZhao.mass_quad()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.models.HernquistZhao.mass_scipy"><code class="docutils literal notranslate"><span class="pre">HernquistZhao.mass_scipy()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.models.HernquistZhao.potential_scipy"><code class="docutils literal notranslate"><span class="pre">HernquistZhao.potential_scipy()</span></code></a></li>

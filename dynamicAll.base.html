@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>dynamicAll.base module &#8212; dynamicAll 1.00.00 documentation</title>
+    <title>dynamicAll.base module &#8212; dynamicAll 1.0 documentation</title>
   
   
   
@@ -37,7 +37,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="_static/documentation_options.js?v=795c39da"></script>
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -126,7 +126,7 @@
   
   
   
-    <p class="title logo__title">dynamicAll 1.00.00 documentation</p>
+    <p class="title logo__title">dynamicAll 1.0 documentation</p>
   
 </a></div>
     
@@ -359,14 +359,8 @@ document.write(`
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="dynamicAll.html">dynamicAll package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">dynamicAll.base module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamicAll.data.html">dynamicAll.data module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamicAll.distributions.html">dynamicAll.distributions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamicAll.dynamics.html">dynamicAll.dynamics module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamicAll.fit.html">dynamicAll.fit module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamicAll.likelihood.html">dynamicAll.likelihood module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamicAll.models.html">dynamicAll.models module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamicAll.sampler.html">dynamicAll.sampler module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamicAll.test.html">dynamicAll.test module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamicAll.trivial.html">dynamicAll.trivial module</a></li>
 </ul>
 </details></li>
 </ul>
@@ -435,20 +429,63 @@ document.write(`
 <dt class="sig sig-object py" id="dynamicAll.base.CompositePotential">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">CompositePotential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">potentials</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#CompositePotential"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.CompositePotential" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<p>Composite potential class that combines multiple potentials into a single potential.</p>
+<p>There are two ways to combine potentials:</p>
+<ol class="arabic simple">
+<li><p>Add potentials using the ‘+’ operator.</p></li>
+<li><p>Use the CompositePotential class to combine multiple potentials.</p></li>
+</ol>
+<p>Functions Here just sum the density, mass, and potential of each potential in the composite potential.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.CompositePotential.density">
-<span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#CompositePotential.density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.CompositePotential.density" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Array</span></span></span><a class="reference internal" href="_modules/dynamicAll/base.html#CompositePotential.density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.CompositePotential.density" title="Link to this definition">#</a></dt>
+<dd><p>Sum the density of each potential in the composite potential.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>r</strong> (<em>jnp.ndarray</em>) – radii at which to calculate the density units of [kpc]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>density units of <span class="math notranslate nohighlight">\([ \rm M_{\odot}~kpc^{-3}]\)</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.CompositePotential.mass">
-<span class="sig-name descname"><span class="pre">mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#CompositePotential.mass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.CompositePotential.mass" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Array</span></span></span><a class="reference internal" href="_modules/dynamicAll/base.html#CompositePotential.mass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.CompositePotential.mass" title="Link to this definition">#</a></dt>
+<dd><p>sum of the mass of each potential in the composite potential.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>r</strong> (<em>jnp.ndarray</em>) – radii, units of [kpc]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>mass units of <span class="math notranslate nohighlight">\([ \rm M_{\odot}]\)</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.CompositePotential.potential">
-<span class="sig-name descname"><span class="pre">potential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#CompositePotential.potential"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.CompositePotential.potential" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">potential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Array</span></span></span><a class="reference internal" href="_modules/dynamicAll/base.html#CompositePotential.potential"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.CompositePotential.potential" title="Link to this definition">#</a></dt>
+<dd><p>sum of the potential of each potential in the composite potential.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>r</strong> (<em>jnp.ndarray</em>) – radii, units of [kpc]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>potential units of <span class="math notranslate nohighlight">\([ \rm km^{2}~s^{-2}]\)</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -837,6 +874,12 @@ TODO: write this lol – see APWs jax implementation maybe?
 <dd><p>Eddington Formula for the distribution function of an isotropic system</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.DistributionFunction">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DistributionFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.DistributionFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.DistributionFunction" title="Link to this definition">#</a></dt>
+<dd><p>Eddington Formula for the distribution function of an isotropic system</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.G">
 <span class="sig-name descname"><span class="pre">G</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">np.float64(4.300917270036279e-06)</span></em><a class="headerlink" href="#dynamicAll.base.JaxDensity.G" title="Link to this definition">#</a></dt>
@@ -845,21 +888,44 @@ TODO: write this lol – see APWs jax implementation maybe?
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.action_phi">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_phi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.action_phi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.action_phi" title="Link to this definition">#</a></dt>
-<dd><p>Equation 2.
-Doesn’t depend on the potential</p>
+<dd><p>Azimuthal action</p>
+<div class="math notranslate nohighlight">
+\[J_{\phi}(\boldsymbol{x}, \boldsymbol{v} \mid \Phi)=\frac{1}{2 \pi} \oint p_{\phi} \mathrm{d} \phi=L_{\phi}\]</div>
+<p><span class="math notranslate nohighlight">\(L_{\phi}= xv_{y} - yv_{x}\)</span> is the z-component of the angular momentum</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.action_theta">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Array</span></span></span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.action_theta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.action_theta" title="Link to this definition">#</a></dt>
-<dd><p>Equation 3.
-Doesn’t depend on the potential</p>
+<dd><p>Polar action
+<span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(v\)</span> are the position and velocity vectors in cartesian coordinates</p>
+<div class="math notranslate nohighlight">
+\[J_\theta(\boldsymbol{x}, \boldsymbol{v} \mid \Phi)=L-\left|L_\phi\right|,\]</div>
+<p>where <span class="math notranslate nohighlight">\(L_\phi\)</span> is the azimuthal component of the angular momentum and <span class="math notranslate nohighlight">\(L = |\boldsymbol{x}\times\boldsymbol{v}|\)</span> is the magnitude of the angular momentum</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.calculate_re">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calculate_re</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epsilon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.calculate_re"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.calculate_re" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><blockquote>
+<div><p>Helper function for calculating the distribution function.
+Calculates the radius at which:math:<cite>Psi(r) = epsilon</cite>
+See the documentation for more details on the derivation and tests.</p>
+<dl class="simple">
+<dt>epsilon<span class="classifier">_type_</span></dt><dd><p>:math:<a href="#id1"><span class="problematic" id="id2">`</span></a>epsilon = psi(r) -</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>rac{1}{2}v^{2}`  | [kpc^{2}~s^{-2}]</dt><dd><dl class="simple">
+<dt>rlim<span class="classifier">_type_</span></dt><dd><p>Limit for the radius at which to calculate the distribution function, For small energies, the radius at which the potential is equal to epsilon can get very large.</p>
+</dd>
+<dt>params<span class="classifier">_type_</span></dt><dd><p>parameters for the specific model being used</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.dDdOmega">
@@ -884,7 +950,7 @@ Doesn’t depend on the potential</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.dF_helper">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dF_helper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_e</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.dF_helper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.dF_helper" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dF_helper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_e</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.dF_helper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.dF_helper" title="Link to this definition">#</a></dt>
 <dd><p>Eddington formula for the distribution function of a spherical isotropic system.
 This is using the standard variable names and definitions from Binney &amp; Tremaine (2008) where
 <span class="math notranslate nohighlight">\(\psi(r) = -\Phi(r) + \Phi_{0}\)</span>  and <span class="math notranslate nohighlight">\(\mathcal{E} = \psi - \frac{1}{2}v^{2}\)</span>.
@@ -1149,7 +1215,25 @@ BUG: lower=1e-20 does not work with the NFW class for some reason even though it
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.test_calculate_re">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">test_calculate_re</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epsilon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.test_calculate_re"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.test_calculate_re" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><blockquote>
+<div><p>Helper function for calculating the distribution function.
+Calculates the radius at which:math:<cite>Psi(r) = epsilon</cite>
+See the documentation for more details on the derivation and tests.</p>
+<dl class="simple">
+<dt>epsilon<span class="classifier">_type_</span></dt><dd><p>:math:<a href="#id3"><span class="problematic" id="id4">`</span></a>epsilon = psi(r) -</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>rac{1}{2}v^{2}`  | [kpc^{2}~s^{-2}]</dt><dd><dl class="simple">
+<dt>rlim<span class="classifier">_type_</span></dt><dd><p>Limit for the radius at which to calculate the distribution function, For small energies, the radius at which the potential is equal to epsilon can get very large.</p>
+</dd>
+<dt>params<span class="classifier">_type_</span></dt><dd><p>parameters for the specific model being used</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.test_mass">
@@ -1242,7 +1326,7 @@ but i’ll leave it around for more testing</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDistribuitionFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">JaxDistribuitionFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">JfactorN</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Gunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Unit('km2</span> <span class="pre">kpc</span> <span class="pre">/</span> <span class="pre">(solMass</span> <span class="pre">s2)')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDistribuitionFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDistribuitionFunction" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDistribuitionFunction.df">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDistribuitionFunction.df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDistribuitionFunction.df" title="Link to this definition">#</a></dt>
@@ -1268,7 +1352,7 @@ but i’ll leave it around for more testing</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxMass">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">JaxMass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">JfactorN</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Gunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Unit('km2</span> <span class="pre">kpc</span> <span class="pre">/</span> <span class="pre">(solMass</span> <span class="pre">s2)')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxMass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxMass" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 </dd></dl>
 
 <dl class="py class">
@@ -1375,6 +1459,7 @@ r is point or array of points where rho should be evaluated</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity"><code class="docutils literal notranslate"><span class="pre">JaxDensity</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.DF"><code class="docutils literal notranslate"><span class="pre">JaxDensity.DF()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.DistributionFunction"><code class="docutils literal notranslate"><span class="pre">JaxDensity.DistributionFunction()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.G"><code class="docutils literal notranslate"><span class="pre">JaxDensity.G</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.action_phi"><code class="docutils literal notranslate"><span class="pre">JaxDensity.action_phi()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxDensity.action_theta"><code class="docutils literal notranslate"><span class="pre">JaxDensity.action_theta()</span></code></a></li>

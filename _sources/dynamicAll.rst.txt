@@ -9,14 +9,8 @@ Submodules
 
    dynamicAll.base
    dynamicAll.data
-   dynamicAll.distributions
-   dynamicAll.dynamics
    dynamicAll.fit
-   dynamicAll.likelihood
    dynamicAll.models
-   dynamicAll.sampler
-   dynamicAll.test
-   dynamicAll.trivial
 
 Module contents
 ---------------

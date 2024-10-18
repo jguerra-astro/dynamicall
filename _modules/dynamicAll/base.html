@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dynamicAll.base &#8212; dynamicAll 1.00.00 documentation</title>
+    <title>dynamicAll.base &#8212; dynamicAll 1.0 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../../_static/documentation_options.js?v=795c39da"></script>
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -121,7 +121,7 @@
   
   
   
-    <p class="title logo__title">dynamicAll 1.00.00 documentation</p>
+    <p class="title logo__title">dynamicAll 1.0 documentation</p>
   
 </a></div>
     
@@ -516,11 +516,25 @@ document.write(`
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_potential</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="JaxDensity.DistributionFunction">
+<a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDensity.DistributionFunction">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@partial</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
+    <span class="k">def</span> <span class="nf">DistributionFunction</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Eddington Formula for the distribution function of an isotropic system</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r_e</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">test_calculate_re</span><span class="p">(</span><span class="n">eps</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="mf">1e10</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">dF_helper</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))(</span><span class="n">eps</span><span class="p">,</span> <span class="n">r_e</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
+
+        <span class="c1"># return jax.vmap(cls.dF_helper, in_axes=(0, 0, None))(eps, r_e, params)</span>
+        <span class="c1"># return jax.vmap(lambda e, r: cls.dF_helper(e, r, params))(eps, r_e)</span>
+
 <div class="viewcode-block" id="JaxDensity.dF_helper">
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDensity.dF_helper">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@partial</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
-    <span class="k">def</span> <span class="nf">dF_helper</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">r_e</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">dF_helper</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">r_e</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Eddington formula for the distribution function of a spherical isotropic system.</span>
 <span class="sd">        This is using the standard variable names and definitions from Binney &amp; Tremaine (2008) where</span>
@@ -548,44 +562,43 @@ document.write(`
 <span class="sd">            _description_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rho</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_density</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
-        <span class="n">drho</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">rho</span><span class="p">),</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
-        <span class="n">d2rho</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">drho</span><span class="p">),</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="n">drho</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_density</span><span class="p">),</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="n">d2rho</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_density</span><span class="p">)),</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
 
         <span class="n">mass</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_mass</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
         <span class="n">phi</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_potential</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
 
         <span class="k">def</span> <span class="nf">k</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-            <span class="n">term1</span> <span class="o">=</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="bp">cls</span><span class="o">.</span><span class="n">G</span> <span class="o">/</span> <span class="n">mass</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-            <span class="n">term2</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">rho</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">mass</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-            <span class="n">term3</span> <span class="o">=</span> <span class="n">d2rho</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">drho</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">term2</span>
+            <span class="n">term1</span> <span class="o">=</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="bp">cls</span><span class="o">.</span><span class="n">G</span> <span class="o">/</span> <span class="n">mass</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+            <span class="n">term2</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">rho</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">mass</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+            <span class="n">term3</span> <span class="o">=</span> <span class="n">d2rho</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">+</span> <span class="n">drho</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">*</span> <span class="n">term2</span>
             <span class="k">return</span> <span class="n">term1</span> <span class="o">*</span> <span class="n">term3</span>
 
         <span class="k">def</span> <span class="nf">integrand</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
             <span class="n">coeff</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span>
-            <span class="k">return</span> <span class="n">coeff</span> <span class="o">*</span> <span class="n">k</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">epsilon</span> <span class="o">+</span> <span class="n">phi</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">coeff</span> <span class="o">*</span> <span class="n">k</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">epsilon</span> <span class="o">+</span> <span class="n">phi</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">))</span>
 
         <span class="n">coeff</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span>
 
         <span class="k">def</span> <span class="nf">test_integrand</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
             <span class="k">def</span> <span class="nf">small</span><span class="p">():</span>
                 <span class="n">delta</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">r_e</span><span class="p">)</span>
-                <span class="n">term1</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">G</span> <span class="o">*</span> <span class="n">mass</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">delta</span> <span class="o">/</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span>
-                <span class="n">term2</span> <span class="o">=</span> <span class="n">delta</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">rho</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="bp">cls</span><span class="o">.</span><span class="n">G</span> <span class="o">*</span> <span class="n">mass</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+                <span class="n">term1</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">G</span> <span class="o">*</span> <span class="n">mass</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">*</span> <span class="n">delta</span> <span class="o">/</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span>
+                <span class="n">term2</span> <span class="o">=</span> <span class="n">delta</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span>
+                    <span class="mi">2</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">rho</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">-</span> <span class="bp">cls</span><span class="o">.</span><span class="n">G</span> <span class="o">*</span> <span class="n">mass</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">/</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span>
+                <span class="p">)</span>
                 <span class="n">dphi</span> <span class="o">=</span> <span class="n">term1</span> <span class="o">+</span> <span class="n">term2</span>
                 <span class="k">return</span> <span class="n">coeff</span> <span class="o">*</span> <span class="n">k</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dphi</span><span class="p">)</span>
 
             <span class="k">def</span> <span class="nf">large</span><span class="p">():</span>
-                <span class="n">dphi</span> <span class="o">=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">phi</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">dphi</span> <span class="o">=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">phi</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">coeff</span> <span class="o">*</span> <span class="n">k</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dphi</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">r_e</span> <span class="o">&lt;</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="n">small</span><span class="p">(),</span> <span class="n">large</span><span class="p">())</span>
 
         <span class="c1"># Integrate from r_epsilon to infinity</span>
-        <span class="c1"># use gauss-legendre quadrature</span>
-        <span class="c1"># change coor</span>
-        <span class="n">xi</span><span class="p">,</span> <span class="n">wi</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_xk</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_wk</span>
-        <span class="n">r_lim</span> <span class="o">=</span> <span class="mi">1000</span>
-        <span class="c1"># x0 = jnp.arcsin(r_e / r_lim)</span>
+
+        <span class="n">xi</span><span class="p">,</span> <span class="n">wi</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_xm</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_wm</span>
         <span class="n">x0</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">x1</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
 
@@ -593,9 +606,6 @@ document.write(`
         <span class="n">wk</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="n">wi</span>
 
         <span class="n">_integrand</span> <span class="o">=</span> <span class="n">test_integrand</span>
-        <span class="c1"># _integrand = integrand</span>
-
-        <span class="c1"># return r_lim * jnp.sum(wk * _integrand(r_lim * jnp.sin(xk), epsilon) * jnp.cos(xk))</span>
 
         <span class="k">return</span> <span class="n">r_e</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
             <span class="n">wk</span> <span class="o">*</span> <span class="n">_integrand</span><span class="p">(</span><span class="n">r_e</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">xk</span><span class="p">),</span> <span class="n">eps</span><span class="p">)</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
@@ -606,6 +616,21 @@ document.write(`
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDensity.calculate_re">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">calculate_re</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">rlim</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function for calculating the distribution function.</span>
+<span class="sd">        Calculates the radius at which:math:`\Psi(r) = \epsilon`</span>
+<span class="sd">        See the documentation for more details on the derivation and tests.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        epsilon : _type_</span>
+<span class="sd">            :math:`\epsilon = \psi(r) - \frac{1}{2}v^{2}`  | [kpc^{2}~s^{-2}]</span>
+<span class="sd">        rlim : _type_</span>
+<span class="sd">            Limit for the radius at which to calculate the distribution function, For small energies, the radius at which the potential is equal to epsilon can get very large.</span>
+<span class="sd">        params : _type_</span>
+<span class="sd">            parameters for the specific model being used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">def</span> <span class="nf">psi_minus_epsilon</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
             <span class="n">potential</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_potential</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
             <span class="n">result</span> <span class="o">=</span> <span class="o">-</span><span class="n">potential</span> <span class="o">-</span> <span class="n">epsilon</span>
@@ -642,6 +667,20 @@ document.write(`
     <span class="nd">@classmethod</span>
     <span class="nd">@partial</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
     <span class="k">def</span> <span class="nf">test_calculate_re</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">rlim</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function for calculating the distribution function.</span>
+<span class="sd">        Calculates the radius at which:math:`\Psi(r) = \epsilon`</span>
+<span class="sd">        See the documentation for more details on the derivation and tests.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        epsilon : _type_</span>
+<span class="sd">            :math:`\epsilon = \psi(r) - \frac{1}{2}v^{2}`  | [kpc^{2}~s^{-2}]</span>
+<span class="sd">        rlim : _type_</span>
+<span class="sd">            Limit for the radius at which to calculate the distribution function, For small energies, the radius at which the potential is equal to epsilon can get very large.</span>
+<span class="sd">        params : _type_</span>
+<span class="sd">            parameters for the specific model being used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">phi</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_potential</span>
 
         <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
@@ -848,12 +887,12 @@ document.write(`
 
     <span class="nd">@classmethod</span>
     <span class="nd">@partial</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
-    <span class="k">def</span> <span class="nf">_density</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_density</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="k">pass</span>
 
     <span class="nd">@classmethod</span>
     <span class="nd">@partial</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
-    <span class="k">def</span> <span class="nf">_mass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_mass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">r</span>
         <span class="n">rs</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;rs&quot;</span><span class="p">]</span>
 
@@ -1068,7 +1107,7 @@ document.write(`
         <span class="n">G</span> <span class="o">=</span> <span class="n">JaxPotential</span><span class="o">.</span><span class="n">G</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">r</span>
         <span class="n">phi_in</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_mass</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_xk</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_wk</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_xm</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_wm</span>
         <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">xk</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">+</span> <span class="n">x0</span><span class="p">)</span>
         <span class="n">wk</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="n">w</span>
@@ -1641,6 +1680,9 @@ document.write(`
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Integrand for radial action (B-T 2nd Ed. - eq. 3.224)</span>
 
+<span class="sd">        .. math::</span>
+<span class="sd">            J_{r}(\boldsymbol{x}, \boldsymbol{v} \mid \Phi)=\frac{1}{2 \pi} \oint v_{r} \mathrm{~d} r=\frac{1}{\pi} \int_{r_{-}}^{r_{+}}\left[2(E-\Phi)-\frac{L^{2}}{r^{2}}\right]^{1 / 2} \mathrm{~d} r</span>
+
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 
@@ -1680,9 +1722,14 @@ document.write(`
     <span class="nd">@staticmethod</span>
     <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
     <span class="k">def</span> <span class="nf">action_theta</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">jax</span><span class="o">.</span><span class="n">Array</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">jax</span><span class="o">.</span><span class="n">Array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jax</span><span class="o">.</span><span class="n">Array</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Equation 3.</span>
-<span class="sd">        Doesn&#39;t depend on the potential</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Polar action</span>
+<span class="sd">        :math:`x` and :math:`v` are the position and velocity vectors in cartesian coordinates</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            J_\theta(\boldsymbol{x}, \boldsymbol{v} \mid \Phi)=L-\left|L_\phi\right|,</span>
+
+<span class="sd">        where :math:`L_\phi` is the azimuthal component of the angular momentum and :math:`L = |\boldsymbol{x}\times\boldsymbol{v}|` is the magnitude of the angular momentum</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">L_vector</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
         <span class="n">L_phi</span> <span class="o">=</span> <span class="n">L_vector</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
@@ -1695,9 +1742,13 @@ document.write(`
     <span class="nd">@staticmethod</span>
     <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
     <span class="k">def</span> <span class="nf">action_phi</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Equation 2.</span>
-<span class="sd">        Doesn&#39;t depend on the potential</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Azimuthal action</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            J_{\phi}(\boldsymbol{x}, \boldsymbol{v} \mid \Phi)=\frac{1}{2 \pi} \oint p_{\phi} \mathrm{d} \phi=L_{\phi}</span>
+<span class="sd">        :math:`L_{\phi}= xv_{y} - yv_{x}` is the z-component of the angular momentum</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">L_phi</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">L_phi</span></div>
@@ -1709,6 +1760,7 @@ document.write(`
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        .. math:</span>
 <span class="sd">            \frac{dJ}{d\omega} = \int{\rho^{2}(r) d\ell}</span>
+
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1861,7 +1913,7 @@ document.write(`
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">JaxPotential</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">JaxDensity</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">NotImplemented</span>
         <span class="k">return</span> <span class="n">CompositePotential</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
 
@@ -1933,7 +1985,7 @@ document.write(`
 
 <div class="viewcode-block" id="JaxMass">
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxMass">[docs]</a>
-<span class="k">class</span> <span class="nc">JaxMass</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">JaxMass</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
     <span class="nd">@classmethod</span>
     <span class="nd">@partial</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
     <span class="k">def</span> <span class="nf">_mass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
@@ -1969,7 +2021,7 @@ document.write(`
 
 <div class="viewcode-block" id="JaxDistribuitionFunction">
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDistribuitionFunction">[docs]</a>
-<span class="k">class</span> <span class="nc">JaxDistribuitionFunction</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">JaxDistribuitionFunction</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
 <div class="viewcode-block" id="JaxDistribuitionFunction.df">
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDistribuitionFunction.df">[docs]</a>
     <span class="nd">@classmethod</span>
@@ -2023,6 +2075,17 @@ document.write(`
 <div class="viewcode-block" id="CompositePotential">
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.CompositePotential">[docs]</a>
 <span class="k">class</span> <span class="nc">CompositePotential</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Composite potential class that combines multiple potentials into a single potential.</span>
+
+<span class="sd">    There are two ways to combine potentials:</span>
+
+<span class="sd">    1. Add potentials using the &#39;+&#39; operator.</span>
+<span class="sd">    2. Use the CompositePotential class to combine multiple potentials.</span>
+
+<span class="sd">    Functions Here just sum the density, mass, and potential of each potential in the composite potential.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">potentials</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">potentials</span> <span class="o">=</span> <span class="n">potentials</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -2036,19 +2099,58 @@ document.write(`
 
 <div class="viewcode-block" id="CompositePotential.density">
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.CompositePotential.density">[docs]</a>
-    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sum the density of each potential in the composite potential.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        r : jnp.ndarray</span>
+<span class="sd">            radii at which to calculate the density units of [kpc]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        jnp.ndarray</span>
+<span class="sd">            density units of :math:`[ \\rm M_{\odot}~kpc^{-3}]`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">potentials</span><span class="p">]))</span></div>
 
 
 <div class="viewcode-block" id="CompositePotential.mass">
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.CompositePotential.mass">[docs]</a>
-    <span class="k">def</span> <span class="nf">mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        sum of the mass of each potential in the composite potential.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        r : jnp.ndarray</span>
+<span class="sd">            radii, units of [kpc]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        jnp.ndarray</span>
+<span class="sd">            mass units of :math:`[ \\rm M_{\odot}]`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">potentials</span><span class="p">]))</span></div>
 
 
 <div class="viewcode-block" id="CompositePotential.potential">
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.CompositePotential.potential">[docs]</a>
-    <span class="k">def</span> <span class="nf">potential</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">potential</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        sum of the potential of each potential in the composite potential.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        r : jnp.ndarray</span>
+<span class="sd">            radii, units of [kpc]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        jnp.ndarray</span>
+<span class="sd">            potential units of :math:`[ \\rm km^{2}~s^{-2}]`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">potentials</span><span class="p">]))</span></div>
 
 

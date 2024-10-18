@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dynamicAll.models &#8212; dynamicAll 1.00.00 documentation</title>
+    <title>dynamicAll.models &#8212; dynamicAll 1.0 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../../_static/documentation_options.js?v=795c39da"></script>
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -121,7 +121,7 @@
   
   
   
-    <p class="title logo__title">dynamicAll 1.00.00 documentation</p>
+    <p class="title logo__title">dynamicAll 1.0 documentation</p>
   
 </a></div>
     
@@ -414,7 +414,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">numpyro.infer</span> <span class="kn">import</span> <span class="n">MCMC</span><span class="p">,</span> <span class="n">NUTS</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">JaxPotential</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">JaxDensity</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 
 <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
@@ -433,7 +433,7 @@ document.write(`
 
 <div class="viewcode-block" id="TestPotential">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.TestPotential">[docs]</a>
-<span class="k">class</span> <span class="nc">TestPotential</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">TestPotential</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhos</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rs</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rhos</span> <span class="o">=</span> <span class="n">rhos</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rs</span> <span class="o">=</span> <span class="n">rs</span>
@@ -446,7 +446,7 @@ document.write(`
 <span class="c1"># MARK: Hernquist</span>
 <div class="viewcode-block" id="Hernquist">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.Hernquist">[docs]</a>
-<span class="k">class</span> <span class="nc">Hernquist</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Hernquist</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Hernquist profile</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -581,7 +581,7 @@ document.write(`
 <span class="c1"># MARK: Jaffe</span>
 <div class="viewcode-block" id="Jaffe">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.Jaffe">[docs]</a>
-<span class="k">class</span> <span class="nc">Jaffe</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Jaffe</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhos</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rs</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rhos</span> <span class="o">=</span> <span class="n">rhos</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rs</span> <span class="o">=</span> <span class="n">rs</span>
@@ -655,7 +655,7 @@ document.write(`
 
 <div class="viewcode-block" id="NFW">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.NFW">[docs]</a>
-<span class="k">class</span> <span class="nc">NFW</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">NFW</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    NFW(rhos: float,rs: float)</span>
 
@@ -1014,7 +1014,7 @@ document.write(`
 
 <div class="viewcode-block" id="HernquistZhao">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.HernquistZhao">[docs]</a>
-<span class="k">class</span> <span class="nc">HernquistZhao</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">HernquistZhao</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Hernquist-Zhao density profile</span>
 
@@ -1039,7 +1039,7 @@ document.write(`
 <span class="sd">    for :math:`c \ge 3` mass diverges as :math:`r\rightarrow \infty` therefore default priors on c go from 1 to 3.</span>
 <span class="sd">    You can get around this, by limiting relevant integrations to a finite radius e.g. :math:`r_{200}`.</span>
 
-<span class="sd">    Note however</span>
+<span class="sd">    There are various testing functions that are useful for testing the accuracy of our integration scheme</span>
 
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
@@ -1093,40 +1093,42 @@ document.write(`
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-<div class="viewcode-block" id="HernquistZhao.density">
-<a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.HernquistZhao.density">[docs]</a>
-    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">jax</span><span class="o">.</span><span class="n">Array</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">jax</span><span class="o">.</span><span class="n">Array</span><span class="p">]:</span>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@partial</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
+    <span class="k">def</span> <span class="nf">_density</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Hernquist-Zhao density profile</span>
-
-<span class="sd">        .. math::</span>
-<span class="sd">            \rho(r) =\frac{\rho_s}{\left(\frac{r}{r_s}\right)^a \left[1+\left(\frac{r}{r_s}\right)^{b}\right]^{\frac{c-a}{b}}}</span>
+<span class="sd">        Hernquist-zhao density profile.. at least thats what i call it</span>
+<span class="sd">        Useful for both dark matter and stellar distributions</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        r : float | jax.Array</span>
-<span class="sd">            :math:`r = \sqrt{x^2+y^2+z^2}` | units: [L]</span>
+<span class="sd">        r : _type_</span>
+<span class="sd">            _description_</span>
+<span class="sd">        rhos : float</span>
+<span class="sd">            _description_</span>
+<span class="sd">        rs : float</span>
+<span class="sd">            _description_</span>
+<span class="sd">        a : float</span>
+<span class="sd">            _description_</span>
+<span class="sd">        b : float</span>
+<span class="sd">            _description_</span>
+<span class="sd">        c : float</span>
+<span class="sd">            _description_</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        float | jax.Array</span>
+<span class="sd">        _type_</span>
+<span class="sd">            _description_</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Im writing these as static functions for a couple of reasons, but mainly because i want to be able to use them</span>
+<span class="sd">        as fitting functions</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">HernquistZhao</span><span class="o">.</span><span class="n">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="HernquistZhao.mass">
-<a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.HernquistZhao.mass">[docs]</a>
-    <span class="k">def</span> <span class="nf">mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
-        <span class="c1"># r = jnp.atleast_1d(r)</span>
-
-        <span class="k">return</span> <span class="n">HernquistZhao</span><span class="o">.</span><span class="n">_mass</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">)</span></div>
-
-        <span class="c1"># vec_mass = jax.vmap(</span>
-        <span class="c1">#     HernquistZhao._mass, in_axes=(0, None, None, None, None, None)</span>
-        <span class="c1"># )</span>
-        <span class="c1"># return HernquistZhao._mass(r,self._rhos,self._rs, self._a, self._b, self._c)</span>
-        <span class="c1"># return vec_mass(r, self._rhos, self._rs, self._a, self._b, self._c)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">r</span> <span class="o">/</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;rs&quot;</span><span class="p">]</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;rhos&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">q</span> <span class="o">**</span> <span class="o">-</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">q</span> <span class="o">**</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="p">(</span><span class="n">nu</span><span class="p">)</span>
 
 <div class="viewcode-block" id="HernquistZhao.potential_scipy">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.HernquistZhao.potential_scipy">[docs]</a>
@@ -1180,230 +1182,6 @@ document.write(`
         <span class="k">return</span> <span class="n">phi_in</span> <span class="o">+</span> <span class="n">phi_out</span></div>
 
 
-    <span class="c1"># def potential(self, r):</span>
-    <span class="c1">#     r&quot;&quot;&quot;</span>
-    <span class="c1">#     Potential for Hernquist-Zhao density profile</span>
-
-    <span class="c1">#     .. math::</span>
-    <span class="c1">#         \phi(r) = -4\pi G\left[\frac{M}{r}+ \int_{r}^{\infty} \rho(r) r dr \right]</span>
-
-    <span class="c1">#     Must be calculated numerically.</span>
-
-    <span class="c1">#     Parameters</span>
-    <span class="c1">#     ----------</span>
-    <span class="c1">#     r : float | array</span>
-    <span class="c1">#         array of radii | units: [L]</span>
-
-    <span class="c1">#     Returns</span>
-    <span class="c1">#     -------</span>
-    <span class="c1">#     float| array</span>
-    <span class="c1">#         potential | units: :math:`km^{2} s^{-2}`</span>
-
-    <span class="c1">#     &quot;&quot;&quot;</span>
-    <span class="c1">#     # for readability</span>
-    <span class="c1">#     G = self._G</span>
-    <span class="c1">#     a = self._a</span>
-    <span class="c1">#     b = self._b</span>
-    <span class="c1">#     c = self._c</span>
-    <span class="c1">#     rs = self._rs  # kpc</span>
-    <span class="c1">#     rhos = self._rhos  # Msun/kpc^3</span>
-
-    <span class="c1">#     # vec_mass  = jax.vmap(HernquistZhao._mass,in_axes=(0, None,None,None, None,None))</span>
-    <span class="c1">#     q = r / rs  # always convenient to make all integrals dimensionless</span>
-    <span class="c1">#     # phi_in  = rs*vec_mass(q,1.0,1.0,a,b,c)/r  # M/r</span>
-    <span class="c1">#     phi_in = rs * self._mass(q, 1.0, 1.0, a, b, c) / r  # M/r</span>
-
-    <span class="c1">#     # integration points and weights for Gauss-Legendre quadrature + trig substitution</span>
-    <span class="c1">#     x, w = self._xj, self._wj</span>
-    <span class="c1">#     x0 = 0.0</span>
-    <span class="c1">#     x1 = jnp.pi / 2</span>
-    <span class="c1">#     xk = 0.5 * (x1 - x0) * x + 0.5 * (x1 + x0)</span>
-    <span class="c1">#     wk = 0.5 * (x1 - x0) * w</span>
-
-    <span class="c1">#     # we&#39;ll use Jax&#39;s flow control to split up integration into two regimes r &lt;&lt; rs and r &gt;&gt; rs</span>
-    <span class="c1">#     # this will avoid numerical issues with the trig substitution for r &lt;&lt; rs</span>
-    <span class="c1">#     # for r &gt;&gt; rs, the trig substitution is needed in order to turn the integral into a finite integral</span>
-    <span class="c1">#     # TODO: for when there is a limit on the upper bound of the integral we again swith integration schemes - yet to be implemented</span>
-
-    <span class="c1">#     def less_than_rs():</span>
-    <span class="c1">#         &quot;&quot;&quot;</span>
-    <span class="c1">#         for r &lt;&lt; rs, (\frac{r}{r_{s}} &lt; 1e-5, depending on the order of the integration) the trig substitution usually used leads to numerical issues.</span>
-    <span class="c1">#         Instead just use regular Gauss-Legendre quadrature from r to rs. then use the trig substitution to</span>
-    <span class="c1">#         &quot;&quot;&quot;</span>
-    <span class="c1">#         x0 = q</span>
-    <span class="c1">#         x1 = 1</span>
-    <span class="c1">#         xi = 0.5 * (x1 - x0) * x + 0.5 * (x1 + x0)</span>
-    <span class="c1">#         wi = 0.5 * (x1 - x0) * w</span>
-
-    <span class="c1">#         t1 = jnp.sum(</span>
-    <span class="c1">#             wi * HernquistZhao._density(xi, 1.0, 1.0, a, b, c) * xi, axis=0</span>
-    <span class="c1">#         )  # integrate from r to rs</span>
-
-    <span class="c1">#         t2 = 1 * jnp.sum(</span>
-    <span class="c1">#             wk</span>
-    <span class="c1">#             * HernquistZhao._density(1 / jnp.sin(xk), 1.0, 1.0, a, b, c)</span>
-    <span class="c1">#             * 1</span>
-    <span class="c1">#             * jnp.cos(xk)</span>
-    <span class="c1">#             / jnp.sin(xk) ** 3,</span>
-    <span class="c1">#             axis=0,</span>
-    <span class="c1">#         )  # integrate from rs to infinity</span>
-
-    <span class="c1">#         # sum the two integrals</span>
-    <span class="c1">#         return t1 + t2</span>
-
-    <span class="c1">#     def greater_than_rs():</span>
-    <span class="c1">#         &quot;&quot;&quot;</span>
-    <span class="c1">#         fro r &gt; rs, the trig substitution behaves well and transforms the infinity integral into a finite one</span>
-    <span class="c1">#         &quot;&quot;&quot;</span>
-    <span class="c1">#         phi_out = q * jnp.sum(</span>
-    <span class="c1">#             wk</span>
-    <span class="c1">#             * HernquistZhao._density(q / jnp.sin(xk), 1.0, 1.0, a, b, c)</span>
-    <span class="c1">#             * q</span>
-    <span class="c1">#             * jnp.cos(xk)</span>
-    <span class="c1">#             / jnp.sin(xk) ** 3,</span>
-    <span class="c1">#             axis=0,</span>
-    <span class="c1">#         )</span>
-    <span class="c1">#         return phi_out</span>
-
-    <span class="c1">#     phi_out = jax.lax.cond(r &lt;= rs, less_than_rs, greater_than_rs)</span>
-
-    <span class="c1">#     return -G * rhos * rs**2 * (phi_in + 4 * jnp.pi * phi_out)</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
-    <span class="k">def</span> <span class="nf">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Hernquist-zhao density profile.. at least thats what i call it</span>
-<span class="sd">        Useful for both dark matter and stellar distributions</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        r : _type_</span>
-<span class="sd">            _description_</span>
-<span class="sd">        rhos : float</span>
-<span class="sd">            _description_</span>
-<span class="sd">        rs : float</span>
-<span class="sd">            _description_</span>
-<span class="sd">        a : float</span>
-<span class="sd">            _description_</span>
-<span class="sd">        b : float</span>
-<span class="sd">            _description_</span>
-<span class="sd">        c : float</span>
-<span class="sd">            _description_</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        _type_</span>
-<span class="sd">            _description_</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        Im writing these as static functions for a couple of reasons, but mainly because i want to be able to use them</span>
-<span class="sd">        as fitting functions</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">q</span> <span class="o">=</span> <span class="n">r</span> <span class="o">/</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;rs&quot;</span><span class="p">]</span>
-        <span class="n">nu</span> <span class="o">=</span> <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;rhos&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">q</span> <span class="o">**</span> <span class="o">-</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">q</span> <span class="o">**</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="p">(</span><span class="n">nu</span><span class="p">)</span>
-
-        <span class="c1"># @staticmethod</span>
-        <span class="c1"># @jax.jit</span>
-        <span class="c1"># def _potential(r, params):</span>
-        <span class="c1">#     &quot;&quot;&quot;</span>
-        <span class="c1">#     Potential for Hernquist-Zhao density profile</span>
-
-        <span class="c1">#     .. math::</span>
-        <span class="c1">#         \phi(r) = -4\pi G\left[\frac{M}{r}+ \int_{r}^{\infty} \rho(r) r dr \right]</span>
-
-        <span class="c1">#     Must be calculated numerically.</span>
-
-        <span class="c1">#     Parameters</span>
-        <span class="c1">#     ----------</span>
-        <span class="c1">#     r : float | array</span>
-        <span class="c1">#         array of radii | units: [L]</span>
-
-        <span class="c1">#     Returns</span>
-        <span class="c1">#     -------</span>
-        <span class="c1">#     float| array</span>
-        <span class="c1">#         potential | units: :math:`km^{2} s^{-2}`</span>
-
-        <span class="c1">#     &quot;&quot;&quot;</span>
-        <span class="c1">#     # for readability</span>
-        <span class="c1">#     G = HernquistZhao.G</span>
-        <span class="c1">#     a = params[&quot;a&quot;]</span>
-        <span class="c1">#     b = params[&quot;b&quot;]</span>
-        <span class="c1">#     c = params[&quot;c&quot;]</span>
-        <span class="c1">#     rhos = params[&quot;rhos&quot;]</span>
-        <span class="c1">#     rs = params[&quot;rs&quot;]</span>
-
-        <span class="c1">#     # vec_mass  = jax.vmap(HernquistZhao._mass,in_axes=(0, None,None,None, None,None))</span>
-        <span class="c1">#     q = r / rs  # always convenient to make all integrals dimensionless</span>
-        <span class="c1">#     # phi_in  = rs*vec_mass(q,1.0,1.0,a,b,c)/r  # M/r</span>
-        <span class="c1">#     phi_in = rs * HernquistZhao._mass(q, 1.0, 1.0, a, b, c) / r  # M/r</span>
-
-        <span class="c1">#     # integration points and weights for Gauss-Legendre quadrature + trig substitution</span>
-        <span class="c1">#     x, w = HernquistZhao._xk, HernquistZhao._wk</span>
-        <span class="c1">#     x0 = 0.0</span>
-        <span class="c1">#     x1 = jnp.pi / 2</span>
-        <span class="c1">#     xk = 0.5 * (x1 - x0) * x + 0.5 * (x1 + x0)</span>
-        <span class="c1">#     wk = 0.5 * (x1 - x0) * w</span>
-
-        <span class="c1">#     # we&#39;ll use Jax&#39;s flow control to split up integration into two regimes r &lt;&lt; rs and r &gt;&gt; rs</span>
-        <span class="c1">#     # this will avoid numerical issues with the trig substitution for r &lt;&lt; rs</span>
-        <span class="c1">#     # for r &gt;&gt; rs, the trig substitution is needed in order to turn the integral into a finite integral</span>
-
-        <span class="c1">#     def less_than_rs():</span>
-        <span class="c1">#         &quot;&quot;&quot;</span>
-        <span class="c1">#         for r &lt;&lt; rs, (\frac{r}{r_{s}} &lt; 1e-5, depending on the order of the integration) the trig substitution usually used leads to numerical issues.</span>
-        <span class="c1">#         Instead just use regular Gauss-Legendre quadrature from r to rs. then use the trig substitution to</span>
-        <span class="c1">#         &quot;&quot;&quot;</span>
-        <span class="c1">#         x0 = jnp.arcsin(q)</span>
-        <span class="c1">#         x1 = jnp.pi / 2</span>
-        <span class="c1">#         xi = 0.5 * (x1 - x0) * x + 0.5 * (x1 + x0)</span>
-        <span class="c1">#         wi = 0.5 * (x1 - x0) * w</span>
-
-        <span class="c1">#         # t1 = jnp.sum(</span>
-        <span class="c1">#         #     wi * HernquistZhao._density(xi, 1.0, 1.0, a, b, c) * xi, axis=0</span>
-        <span class="c1">#         # )  # integrate from r to rs</span>
-
-        <span class="c1">#         t1 = jnp.sum(</span>
-        <span class="c1">#             wi</span>
-        <span class="c1">#             * HernquistZhao._density(1 / jnp.sin(xi), 1.0, 1.0, a, b, c)</span>
-        <span class="c1">#             * jnp.cos(xi)</span>
-        <span class="c1">#             / jnp.sin(xi) ** 3,</span>
-        <span class="c1">#             axis=0,</span>
-        <span class="c1">#         )</span>
-
-        <span class="c1">#         t2 = 1 * jnp.sum(</span>
-        <span class="c1">#             wk</span>
-        <span class="c1">#             * HernquistZhao._density(1 / jnp.sin(xk), 1.0, 1.0, a, b, c)</span>
-        <span class="c1">#             * 1</span>
-        <span class="c1">#             * jnp.cos(xk)</span>
-        <span class="c1">#             / jnp.sin(xk) ** 3,</span>
-        <span class="c1">#             axis=0,</span>
-        <span class="c1">#         )  # integrate from rs to infinity</span>
-
-        <span class="c1">#         # sum the two integrals</span>
-        <span class="c1">#         return t1 + t2</span>
-
-        <span class="c1">#     def greater_than_rs():</span>
-        <span class="c1">#         &quot;&quot;&quot;</span>
-        <span class="c1">#         fro r &gt; rs, the trig substitution behaves well and transforms the infinity integral into a finite one</span>
-        <span class="c1">#         &quot;&quot;&quot;</span>
-        <span class="c1">#         phi_out = q * jnp.sum(</span>
-        <span class="c1">#             wk</span>
-        <span class="c1">#             * HernquistZhao._density(q / jnp.sin(xk), 1.0, 1.0, a, b, c)</span>
-        <span class="c1">#             * q</span>
-        <span class="c1">#             * jnp.cos(xk)</span>
-        <span class="c1">#             / jnp.sin(xk) ** 3,</span>
-        <span class="c1">#             axis=0,</span>
-        <span class="c1">#         )</span>
-        <span class="c1">#         return phi_out</span>
-
-        <span class="c1"># phi_out = jax.lax.cond(r &lt;= rs, less_than_rs, greater_than_rs)</span>
-
-        <span class="c1"># return -G * rhos * rs**2 * (phi_in + 4 * jnp.pi * phi_out)</span>
-
     <span class="nd">@staticmethod</span>
     <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
     <span class="k">def</span> <span class="nf">_density_fit</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">):</span>
@@ -1442,8 +1220,6 @@ document.write(`
 <div class="viewcode-block" id="HernquistZhao.mass_quad">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.HernquistZhao.mass_quad">[docs]</a>
     <span class="k">def</span> <span class="nf">mass_quad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
-        <span class="c1"># get mass enclosed within radius r using scipy quad</span>
-        <span class="c1"># r = jnp.atleast_1d(r)</span>
         <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">quad</span>
 
         <span class="k">def</span> <span class="nf">temp_func</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
@@ -1456,39 +1232,6 @@ document.write(`
 
         <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">quad</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ri</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">ri</span> <span class="ow">in</span> <span class="n">r</span><span class="p">])</span></div>
 
-
-    <span class="c1"># @staticmethod</span>
-    <span class="c1"># @jax.jit</span>
-    <span class="c1"># def _mass(r: float, rhos: float, rs: float, a: float, b: float, c: float) -&gt; float:</span>
-    <span class="c1">#     r&quot;&quot;&quot;</span>
-
-    <span class="c1">#     Parameters</span>
-    <span class="c1">#     ----------</span>
-    <span class="c1">#     r : float</span>
-    <span class="c1">#         radius | units [L]</span>
-    <span class="c1">#     rhos : float</span>
-    <span class="c1">#         scale densisty | units [Mass * L**-3]</span>
-    <span class="c1">#     rs : float</span>
-    <span class="c1">#         scale radius | units [L]</span>
-    <span class="c1">#     a : float</span>
-    <span class="c1">#         inner slope | unitless</span>
-    <span class="c1">#     b : float</span>
-    <span class="c1">#         smoothness of transition from inner to outer slope | unitless</span>
-    <span class="c1">#     c : float</span>
-    <span class="c1">#         outer slope | unitless</span>
-
-    <span class="c1">#     Returns</span>
-    <span class="c1">#     -------</span>
-    <span class="c1">#     float</span>
-    <span class="c1">#         Mass enclosed within radius r | units [Mass]</span>
-    <span class="c1">#     &quot;&quot;&quot;</span>
-    <span class="c1">#     q = r / rs</span>
-    <span class="c1">#     xk = 0.5 * q * HernquistZhao._xk + 0.5 * q</span>
-    <span class="c1">#     wk = 0.5 * q * HernquistZhao._wk</span>
-    <span class="c1">#     units = 4 * jnp.pi * rhos * rs**3</span>
-    <span class="c1">#     return units * jnp.sum(</span>
-    <span class="c1">#         wk * xk**2 * HernquistZhao._density(xk, 1.0, 1.0, a, b, c), axis=0</span>
-    <span class="c1">#     )</span>
 
     <span class="nd">@staticmethod</span>
     <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
@@ -1604,7 +1347,7 @@ document.write(`
 
 <div class="viewcode-block" id="gNFW">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.gNFW">[docs]</a>
-<span class="k">class</span> <span class="nc">gNFW</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">gNFW</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
     <span class="n">_dm_priors</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;dm_gamma&quot;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span>
         <span class="s2">&quot;dm_rhos&quot;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
@@ -1681,7 +1424,7 @@ document.write(`
 
 <div class="viewcode-block" id="Isochrone">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.Isochrone">[docs]</a>
-<span class="k">class</span> <span class="nc">Isochrone</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Isochrone</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        _summary_</span>
@@ -1951,7 +1694,7 @@ document.write(`
 
 <div class="viewcode-block" id="Gaussians">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.Gaussians">[docs]</a>
-<span class="k">class</span> <span class="nc">Gaussians</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Gaussians</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for a desribing the density profile as a sum of Gaussians</span>
 
@@ -2026,7 +1769,7 @@ document.write(`
 
 <div class="viewcode-block" id="Gaussian">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.Gaussian">[docs]</a>
-<span class="k">class</span> <span class="nc">Gaussian</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Gaussian</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_M</span> <span class="o">=</span> <span class="n">M</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span> <span class="o">=</span> <span class="n">sigma</span>
@@ -2071,7 +1814,7 @@ document.write(`
 
 <div class="viewcode-block" id="Plummer">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.Plummer">[docs]</a>
-<span class="k">class</span> <span class="nc">Plummer</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Plummer</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for a spherical Plummer model</span>
 
@@ -2098,9 +1841,9 @@ document.write(`
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">rs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_M</span> <span class="o">=</span> <span class="n">M</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_a</span> <span class="o">=</span> <span class="n">rs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rs</span> <span class="o">=</span> <span class="n">rs</span>
         <span class="c1"># calculate density</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_rhos</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_M</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rhos</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_M</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rs</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
         <span class="c1"># self.G = 4.300917270036279e-06  # kpc km^2 s^-2 Msun^-1</span>
         <span class="s2">&quot;&quot;</span>
 
@@ -2163,7 +1906,7 @@ document.write(`
 <span class="sd">        np.ndarray</span>
 <span class="sd">            _description_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Plummer</span><span class="o">.</span><span class="n">_mass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Plummer</span><span class="o">.</span><span class="n">_mass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rs</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Plummer.potential">
@@ -2185,7 +1928,7 @@ document.write(`
 <span class="sd">        jax.Array</span>
 <span class="sd">            _description_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Plummer</span><span class="o">.</span><span class="n">_potential</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Plummer</span><span class="o">.</span><span class="n">_potential</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Plummer.projected_density">
@@ -2416,7 +2159,8 @@ document.write(`
 <span class="sd">            \frac{a^2}{G^5 M^4}(-E)^{7/2}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">term1</span> <span class="o">=</span> <span class="mi">24</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rs</span><span class="o">**</span><span class="mi">2</span>
-        <span class="n">term2</span> <span class="o">=</span> <span class="n">Plummer</span><span class="o">.</span><span class="n">G</span><span class="o">**</span><span class="mi">5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_M</span><span class="o">**</span><span class="mi">4</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">3</span></div>
+        <span class="n">term2</span> <span class="o">=</span> <span class="mi">7</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">3</span> <span class="o">*</span> <span class="n">Plummer</span><span class="o">.</span><span class="n">G</span><span class="o">**</span><span class="mi">5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_M</span><span class="o">**</span><span class="mi">4</span>
+        <span class="k">return</span> <span class="n">term1</span> <span class="o">*</span> <span class="p">(</span><span class="n">E</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">term2</span></div>
 
 
 <div class="viewcode-block" id="Plummer.logDF">
@@ -2638,7 +2382,7 @@ document.write(`
 
 <div class="viewcode-block" id="King">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.King">[docs]</a>
-<span class="k">class</span> <span class="nc">King</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">King</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
     <span class="n">_dm_priors</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">_tracer_priors</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -2682,7 +2426,7 @@ document.write(`
 
 <div class="viewcode-block" id="gEinasto">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.gEinasto">[docs]</a>
-<span class="k">class</span> <span class="nc">gEinasto</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">gEinasto</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generalized Einasto profile</span>
 
@@ -2788,13 +2532,13 @@ document.write(`
 
 <div class="viewcode-block" id="PowerLaws">
 <a class="viewcode-back" href="../../dynamicAll.models.html#dynamicAll.models.PowerLaws">[docs]</a>
-<span class="k">class</span> <span class="nc">PowerLaws</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">PowerLaws</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    See e.g GravSphere</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    JaxPotential : _type_</span>
+<span class="sd">    JaxDensity : _type_</span>
 <span class="sd">        _description_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 

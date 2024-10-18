@@ -86,7 +86,8 @@ Python Dependencies
 ===================
 
 We suggest you look at the `installation instructions for Jax <https://github.com/google/jax#installation>`_ to minimize errors.
-Specially since installation instructions will vary depending on whether you have a gpu or not.
+Specially if you are planning on using the gpu version of Jax.
+
 jax, jaxlib, jaxopt are required as well, but they should be installed as part of installing jax.
 
 .. warning::
