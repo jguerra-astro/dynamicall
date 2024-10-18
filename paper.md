@@ -53,7 +53,7 @@ Additionally the ability to calculate the gradients of likelihood functions lead
 This has  been tradionally done with finite difference methods which can require a lot of computational time, but can also be very sensitive to the choice of step size.
 The use of automatic differentiation allows for the calculation of the gradients of the likelihood function with respect to the model parameters to be done with machine precision and in a fraction of the time as it would not require various call to the likelihood function with different step sizes.
 
-We provide spherical mass modeling as a first example of the capabilities of `Dynamicall` but the framework is flexible enough to be extended to other models.
+We provide spherical mass modeling as a built in example of the capabilities of `Dynamicall` but the framework is also flexible enough to be extended to other models.
 
 # software citations
 `Dynamicall` uses the following software packages:
@@ -61,13 +61,13 @@ We provide spherical mass modeling as a first example of the capabilities of `Dy
 - `Jax` [@jax2018github]
 - `Numpyro` [@phan2019composable; @bingham2019pyro]
 - `matplotlib` [@Hunter:2007]
+- `emcee` [@emcee]
 - `corner` [@corner]
 - `arviz` [@arviz_2019]
 - `astropy` [@astropy:2013; @astropy:2018; @astropy:2022]
 - `pytest` [@pytestx.y]
-- `agama` [@Vasiliev2019-xx]
+- `agama` [@Vasiliev2019-aa]
 
 # Acknowledgements
-
 
 # References
