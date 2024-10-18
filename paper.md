@@ -2,18 +2,18 @@
 title: 'Dynamicall: Tools for Modeling Resolved Galaxies Using Jax and Numpyro'
 tags:
   - Python
-  - astronomy
-  - dynamics
-  - galactic dynamics
-  - dwarf galaxies
+  - Astronomy
+  - Dynamics
+  - Galactic Dynamics
+  - Dwarf Galaxies
 authors:
   - name: Juan Guerra
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-7600-5110
     # equal-contrib: true
     affiliation: '1' # (Multiple affiliations must be quoted)
 
   - name: Marla Geha
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-7007-9725
     affiliation: '1'
 
 affiliations:
@@ -23,10 +23,10 @@ affiliations:
 date:  20 September 2024
 bibliography: paper.bib
 
-# Optional fields if submitting to a AAS journal too, see this blog post:
-# https://blog.joss.theoj.org/2018/12/a-new-collaboration-with-aas-publishing
-aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
-aas-journal: Astrophysical Journal <- The name of the AAS journal.
+# # Optional fields if submitting to a AAS journal too, see this blog post:
+# # https://blog.joss.theoj.org/2018/12/a-new-collaboration-with-aas-publishing
+# aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
+# aas-journal: Astrophysical Journal <- The name of the AAS journal.
 ---
 
 # Summary
@@ -65,9 +65,9 @@ We provide spherical mass modeling as a first example of the capabilities of `Dy
 - `arviz` [@arviz_2019]
 - `astropy` [@astropy:2013; @astropy:2018; @astropy:2022]
 - `pytest` [@pytestx.y]
+- `agama` [@Vasiliev2019-xx]
 
 # Acknowledgements
-We would like to thank..
 
 
 # References

@@ -109,7 +109,18 @@ class JaxDensity(ABC):
 
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
-    def dF_helper(cls, eps, params, r_e):
+    def DistributionFunction(cls, eps: jnp.ndarray, params):
+        """
+        Eddington Formula for the distribution function of an isotropic system
+        """
+        r_e = cls.test_calculate_re(eps, params, 1e10)
+        return jax.vmap(cls.dF_helper, in_axes=(0, 0, None))(eps, r_e, params)
+        # return jax.vmap(cls.dF_helper, in_axes=(0, 0, None))(eps, r_e, params)
+        # return jax.vmap(lambda e, r: cls.dF_helper(e, r, params))(eps, r_e)
+
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def dF_helper(cls, eps, r_e, params):
         r"""
         Eddington formula for the distribution function of a spherical isotropic system.
         This is using the standard variable names and definitions from Binney & Tremaine (2008) where
@@ -137,44 +148,43 @@ class JaxDensity(ABC):
             _description_
         """
         rho = jax.vmap(cls._density, in_axes=(0, None))
-        drho = jax.vmap(jax.grad(rho), in_axes=(0, None))
-        d2rho = jax.vmap(jax.grad(drho), in_axes=(0, None))
+        drho = jax.vmap(jax.grad(cls._density), in_axes=(0, None))
+        d2rho = jax.vmap(jax.grad(jax.grad(cls._density)), in_axes=(0, None))
 
         mass = jax.vmap(cls._mass, in_axes=(0, None))
         phi = jax.vmap(cls._potential, in_axes=(0, None))
 
         def k(x):
-            term1 = x**2 / cls.G / mass(x)
-            term2 = 2 / x - 4 * jnp.pi * rho(x) * x**2 / mass(x)
-            term3 = d2rho(x) + drho(x) * term2
+            term1 = x**2 / cls.G / mass(x, params)
+            term2 = 2 / x - 4 * jnp.pi * rho(x, params) * x**2 / mass(x, params)
+            term3 = d2rho(x, params) + drho(x, params) * term2
             return term1 * term3
 
         def integrand(x, epsilon):
             coeff = 1 / jnp.sqrt(8) / jnp.pi**2
-            return coeff * k(x) / jnp.sqrt(epsilon + phi(x))
+            return coeff * k(x, params) / jnp.sqrt(epsilon + phi(x, params))
 
         coeff = 1 / jnp.sqrt(8) / jnp.pi**2
 
         def test_integrand(x, epsilon):
             def small():
                 delta = jnp.abs(x - r_e)
-                term1 = cls.G * mass(x) * delta / x**2
-                term2 = delta**2 * (2 * jnp.pi * rho(x) - cls.G * mass(x) / x**3)
+                term1 = cls.G * mass(x, params) * delta / x**2
+                term2 = delta**2 * (
+                    2 * jnp.pi * rho(x, params) - cls.G * mass(x, params) / x**3
+                )
                 dphi = term1 + term2
                 return coeff * k(x) / jnp.sqrt(dphi)
 
             def large():
-                dphi = epsilon + phi(x)
+                dphi = epsilon + phi(x, params)
                 return coeff * k(x) / jnp.sqrt(dphi)
 
             return jnp.where(x - r_e < 1e-4, small(), large())
 
         # Integrate from r_epsilon to infinity
-        # use gauss-legendre quadrature
-        # change coor
-        xi, wi = cls._xk, cls._wk
-        r_lim = 1000
-        # x0 = jnp.arcsin(r_e / r_lim)
+
+        xi, wi = cls._xm, cls._wm
         x0 = 0
         x1 = jnp.pi / 2
 
@@ -182,9 +192,6 @@ class JaxDensity(ABC):
         wk = 0.5 * (x1 - x0) * wi
 
         _integrand = test_integrand
-        # _integrand = integrand
-
-        # return r_lim * jnp.sum(wk * _integrand(r_lim * jnp.sin(xk), epsilon) * jnp.cos(xk))
 
         return r_e * jnp.sum(
             wk * _integrand(r_e / jnp.sin(xk), eps) * jnp.cos(xk) / jnp.sin(xk) ** 2
@@ -192,6 +199,21 @@ class JaxDensity(ABC):
 
     @classmethod
     def calculate_re(cls, epsilon, rlim, params):
+        """
+        Helper function for calculating the distribution function.
+        Calculates the radius at which:math:`\Psi(r) = \epsilon`
+        See the documentation for more details on the derivation and tests.
+
+        Parameters
+        ----------
+        epsilon : _type_
+            :math:`\epsilon = \psi(r) - \frac{1}{2}v^{2}`  | [kpc^{2}~s^{-2}]
+        rlim : _type_
+            Limit for the radius at which to calculate the distribution function, For small energies, the radius at which the potential is equal to epsilon can get very large.
+        params : _type_
+            parameters for the specific model being used
+        """
+
         def psi_minus_epsilon(r):
             potential = cls._potential(r, params)
             result = -potential - epsilon
@@ -225,6 +247,20 @@ class JaxDensity(ABC):
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
     def test_calculate_re(cls, epsilon, params, rlim):
+        """
+        Helper function for calculating the distribution function.
+        Calculates the radius at which:math:`\Psi(r) = \epsilon`
+        See the documentation for more details on the derivation and tests.
+
+        Parameters
+        ----------
+        epsilon : _type_
+            :math:`\epsilon = \psi(r) - \frac{1}{2}v^{2}`  | [kpc^{2}~s^{-2}]
+        rlim : _type_
+            Limit for the radius at which to calculate the distribution function, For small energies, the radius at which the potential is equal to epsilon can get very large.
+        params : _type_
+            parameters for the specific model being used
+        """
         phi = cls._potential
 
         @jax.jit
@@ -415,12 +451,12 @@ class JaxDensity(ABC):
 
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
-    def _density(cls, r, params):
+    def _density(cls, r: float, params):
         pass
 
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
-    def _mass(cls, r, params):
+    def _mass(cls, r: float, params):
         q = r
         rs = params["rs"]
 
@@ -629,7 +665,7 @@ class JaxDensity(ABC):
         G = JaxPotential.G
         q = r
         phi_in = cls._mass(r, params) / r
-        x, w = cls._xk, cls._wk
+        x, w = cls._xm, cls._wm
         x0, x1 = 0.0, jnp.pi / 2
         xk = 0.5 * (x1 - x0) * x + 0.5 * (x1 + x0)
         wk = 0.5 * (x1 - x0) * w
@@ -1154,6 +1190,9 @@ class JaxDensity(ABC):
         """
         Integrand for radial action (B-T 2nd Ed. - eq. 3.224)
 
+        .. math::
+            J_{r}(\boldsymbol{x}, \boldsymbol{v} \mid \Phi)=\frac{1}{2 \pi} \oint v_{r} \mathrm{~d} r=\frac{1}{\pi} \int_{r_{-}}^{r_{+}}\left[2(E-\Phi)-\frac{L^{2}}{r^{2}}\right]^{1 / 2} \mathrm{~d} r
+
         Notes
         -----
 
@@ -1191,9 +1230,14 @@ class JaxDensity(ABC):
     @staticmethod
     @jax.jit
     def action_theta(x: jax.Array, v: jax.Array) -> jax.Array:
-        """
-        Equation 3.
-        Doesn't depend on the potential
+        r"""
+        Polar action
+        :math:`x` and :math:`v` are the position and velocity vectors in cartesian coordinates
+
+        .. math::
+            J_\theta(\boldsymbol{x}, \boldsymbol{v} \mid \Phi)=L-\left|L_\phi\right|,
+
+        where :math:`L_\phi` is the azimuthal component of the angular momentum and :math:`L = |\boldsymbol{x}\times\boldsymbol{v}|` is the magnitude of the angular momentum
         """
         L_vector = jnp.cross(x, v)
         L_phi = L_vector[2]
@@ -1203,9 +1247,13 @@ class JaxDensity(ABC):
     @staticmethod
     @jax.jit
     def action_phi(x, v):
-        """
-        Equation 2.
-        Doesn't depend on the potential
+        r"""
+        Azimuthal action
+
+        .. math::
+            J_{\phi}(\boldsymbol{x}, \boldsymbol{v} \mid \Phi)=\frac{1}{2 \pi} \oint p_{\phi} \mathrm{d} \phi=L_{\phi}
+        :math:`L_{\phi}= xv_{y} - yv_{x}` is the z-component of the angular momentum
+
         """
         L_phi = x[0] * v[1] - x[1] * v[0]
         return L_phi
@@ -1216,6 +1264,7 @@ class JaxDensity(ABC):
         r"""
         .. math:
             \frac{dJ}{d\omega} = \int{\rho^{2}(r) d\ell}
+
 
         Parameters
         ----------
@@ -1368,7 +1417,7 @@ class JaxDensity(ABC):
         )
 
     def __add__(self, other):
-        if not isinstance(other, JaxPotential):
+        if not isinstance(other, JaxDensity):
             return NotImplemented
         return CompositePotential(self, other)
 
@@ -1434,7 +1483,7 @@ class JaxPotential(JaxDensity):
         return -1 / (4 * jnp.pi * cls._G) * d2phi_dr2(r, params)
 
 
-class JaxMass(JaxPotential):
+class JaxMass(JaxDensity):
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
     def _mass(cls, r, params):
@@ -1467,7 +1516,7 @@ class JaxMass(JaxPotential):
         return dM_dr(r, params) / (4 * jnp.pi * r**2)
 
 
-class JaxDistribuitionFunction(JaxPotential):
+class JaxDistribuitionFunction(JaxDensity):
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
     def df(cls, E, params):
@@ -1515,6 +1564,17 @@ class JaxDistribuitionFunction(JaxPotential):
 
 
 class CompositePotential(JaxPotential):
+    """
+    Composite potential class that combines multiple potentials into a single potential.
+
+    There are two ways to combine potentials:
+
+    1. Add potentials using the '+' operator.
+    2. Use the CompositePotential class to combine multiple potentials.
+
+    Functions Here just sum the density, mass, and potential of each potential in the composite potential.
+    """
+
     def __init__(self, *potentials):
         self.potentials = potentials
         super().__init__()
@@ -1526,13 +1586,52 @@ class CompositePotential(JaxPotential):
                 unique_key = f"{p.__class__.__name__}_{i}_{key}"
                 self._dm_priors[unique_key] = value
 
-    def density(self, r):
+    def density(self, r: jnp.ndarray) -> jnp.ndarray:
+        """
+        Sum the density of each potential in the composite potential.
+
+        Parameters
+        ----------
+        r : jnp.ndarray
+            radii at which to calculate the density units of [kpc]
+
+        Returns
+        -------
+        jnp.ndarray
+            density units of :math:`[ \\rm M_{\odot}~kpc^{-3}]`
+        """
         return jnp.sum(jnp.array([p.density(r) for p in self.potentials]))
 
-    def mass(self, r):
+    def mass(self, r: jnp.ndarray) -> jnp.ndarray:
+        """
+        sum of the mass of each potential in the composite potential.
+
+        Parameters
+        ----------
+        r : jnp.ndarray
+            radii, units of [kpc]
+
+        Returns
+        -------
+        jnp.ndarray
+            mass units of :math:`[ \\rm M_{\odot}]`
+        """
         return jnp.sum(jnp.array([p.mass(r) for p in self.potentials]))
 
-    def potential(self, r):
+    def potential(self, r: jnp.ndarray) -> jnp.ndarray:
+        """
+        sum of the potential of each potential in the composite potential.
+
+        Parameters
+        ----------
+        r : jnp.ndarray
+            radii, units of [kpc]
+
+        Returns
+        -------
+        jnp.ndarray
+            potential units of :math:`[ \\rm km^{2}~s^{-2}]`
+        """
         return jnp.sum(jnp.array([p.potential(r) for p in self.potentials]))
 
     def __str__(self):

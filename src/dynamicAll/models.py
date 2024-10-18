@@ -16,7 +16,7 @@ from jax import random
 from numpyro.infer import MCMC, NUTS
 
 # project
-from .base import JaxPotential
+from .base import JaxDensity
 from functools import partial
 
 config.update("jax_enable_x64", True)
@@ -30,7 +30,7 @@ def centre(r: float, x0: jax.Array, v0: jax.Array, M: float, b: float) -> float:
     return 2 * r**2 * (energy - Isochrone._potential(M, b, r)) - jnp.dot(L, L)
 
 
-class TestPotential(JaxPotential):
+class TestPotential(JaxDensity):
     def __init__(self, rhos: float, rs: float, a: float):
         self._rhos = rhos
         self._rs = rs
@@ -40,7 +40,7 @@ class TestPotential(JaxPotential):
 
 
 # MARK: Hernquist
-class Hernquist(JaxPotential):
+class Hernquist(JaxDensity):
     """
     Hernquist profile
     """
@@ -151,7 +151,7 @@ class Hernquist(JaxPotential):
 
 # endmark
 # MARK: Jaffe
-class Jaffe(JaxPotential):
+class Jaffe(JaxDensity):
     def __init__(self, rhos: float, rs: float):
         self._rhos = rhos
         self._rs = rs
@@ -210,7 +210,7 @@ class Jaffe(JaxPotential):
         return Jaffe(rhos, rs)
 
 
-class NFW(JaxPotential):
+class NFW(JaxDensity):
     r"""
     NFW(rhos: float,rs: float)
 
@@ -542,7 +542,7 @@ class NFW(JaxPotential):
         return NFW(rhos, rs, rlim=r_delta)
 
 
-class HernquistZhao(JaxPotential):
+class HernquistZhao(JaxDensity):
     r"""
     Hernquist-Zhao density profile
 
@@ -567,7 +567,7 @@ class HernquistZhao(JaxPotential):
     for :math:`c \ge 3` mass diverges as :math:`r\rightarrow \infty` therefore default priors on c go from 1 to 3.
     You can get around this, by limiting relevant integrations to a finite radius e.g. :math:`r_{200}`.
 
-    Note however
+    There are various testing functions that are useful for testing the accuracy of our integration scheme
 
     References
     ----------
@@ -621,34 +621,42 @@ class HernquistZhao(JaxPotential):
 
         super().__init__()
 
-    def density(self, r: Union[float, jax.Array]) -> Union[float, jax.Array]:
+    @classmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _density(cls, r, params):
         r"""
-        Hernquist-Zhao density profile
-
-        .. math::
-            \rho(r) =\frac{\rho_s}{\left(\frac{r}{r_s}\right)^a \left[1+\left(\frac{r}{r_s}\right)^{b}\right]^{\frac{c-a}{b}}}
+        Hernquist-zhao density profile.. at least thats what i call it
+        Useful for both dark matter and stellar distributions
 
         Parameters
         ----------
-        r : float | jax.Array
-            :math:`r = \sqrt{x^2+y^2+z^2}` | units: [L]
+        r : _type_
+            _description_
+        rhos : float
+            _description_
+        rs : float
+            _description_
+        a : float
+            _description_
+        b : float
+            _description_
+        c : float
+            _description_
 
         Returns
         -------
-        float | jax.Array
+        _type_
+            _description_
+
+        Notes
+        -----
+        Im writing these as static functions for a couple of reasons, but mainly because i want to be able to use them
+        as fitting functions
 
         """
-        return HernquistZhao._density(r, self._params)
-
-    def mass(self, r):
-        # r = jnp.atleast_1d(r)
-
-        return HernquistZhao._mass(r, self._params)
-        # vec_mass = jax.vmap(
-        #     HernquistZhao._mass, in_axes=(0, None, None, None, None, None)
-        # )
-        # return HernquistZhao._mass(r,self._rhos,self._rs, self._a, self._b, self._c)
-        # return vec_mass(r, self._rhos, self._rs, self._a, self._b, self._c)
+        q = r / params["rs"]
+        nu = (params["a"] - params["c"]) / params["b"]
+        return params["rhos"] * q ** -params["a"] * (1 + q ** params["b"]) ** (nu)
 
     def potential_scipy(self, r):
         r"""
@@ -699,230 +707,6 @@ class HernquistZhao(JaxPotential):
         phi_out = -(4 * np.pi * G * rhos * (func(1e20) - func(r)))
         return phi_in + phi_out
 
-    # def potential(self, r):
-    #     r"""
-    #     Potential for Hernquist-Zhao density profile
-
-    #     .. math::
-    #         \phi(r) = -4\pi G\left[\frac{M}{r}+ \int_{r}^{\infty} \rho(r) r dr \right]
-
-    #     Must be calculated numerically.
-
-    #     Parameters
-    #     ----------
-    #     r : float | array
-    #         array of radii | units: [L]
-
-    #     Returns
-    #     -------
-    #     float| array
-    #         potential | units: :math:`km^{2} s^{-2}`
-
-    #     """
-    #     # for readability
-    #     G = self._G
-    #     a = self._a
-    #     b = self._b
-    #     c = self._c
-    #     rs = self._rs  # kpc
-    #     rhos = self._rhos  # Msun/kpc^3
-
-    #     # vec_mass  = jax.vmap(HernquistZhao._mass,in_axes=(0, None,None,None, None,None))
-    #     q = r / rs  # always convenient to make all integrals dimensionless
-    #     # phi_in  = rs*vec_mass(q,1.0,1.0,a,b,c)/r  # M/r
-    #     phi_in = rs * self._mass(q, 1.0, 1.0, a, b, c) / r  # M/r
-
-    #     # integration points and weights for Gauss-Legendre quadrature + trig substitution
-    #     x, w = self._xj, self._wj
-    #     x0 = 0.0
-    #     x1 = jnp.pi / 2
-    #     xk = 0.5 * (x1 - x0) * x + 0.5 * (x1 + x0)
-    #     wk = 0.5 * (x1 - x0) * w
-
-    #     # we'll use Jax's flow control to split up integration into two regimes r << rs and r >> rs
-    #     # this will avoid numerical issues with the trig substitution for r << rs
-    #     # for r >> rs, the trig substitution is needed in order to turn the integral into a finite integral
-    #     # TODO: for when there is a limit on the upper bound of the integral we again swith integration schemes - yet to be implemented
-
-    #     def less_than_rs():
-    #         """
-    #         for r << rs, (\frac{r}{r_{s}} < 1e-5, depending on the order of the integration) the trig substitution usually used leads to numerical issues.
-    #         Instead just use regular Gauss-Legendre quadrature from r to rs. then use the trig substitution to
-    #         """
-    #         x0 = q
-    #         x1 = 1
-    #         xi = 0.5 * (x1 - x0) * x + 0.5 * (x1 + x0)
-    #         wi = 0.5 * (x1 - x0) * w
-
-    #         t1 = jnp.sum(
-    #             wi * HernquistZhao._density(xi, 1.0, 1.0, a, b, c) * xi, axis=0
-    #         )  # integrate from r to rs
-
-    #         t2 = 1 * jnp.sum(
-    #             wk
-    #             * HernquistZhao._density(1 / jnp.sin(xk), 1.0, 1.0, a, b, c)
-    #             * 1
-    #             * jnp.cos(xk)
-    #             / jnp.sin(xk) ** 3,
-    #             axis=0,
-    #         )  # integrate from rs to infinity
-
-    #         # sum the two integrals
-    #         return t1 + t2
-
-    #     def greater_than_rs():
-    #         """
-    #         fro r > rs, the trig substitution behaves well and transforms the infinity integral into a finite one
-    #         """
-    #         phi_out = q * jnp.sum(
-    #             wk
-    #             * HernquistZhao._density(q / jnp.sin(xk), 1.0, 1.0, a, b, c)
-    #             * q
-    #             * jnp.cos(xk)
-    #             / jnp.sin(xk) ** 3,
-    #             axis=0,
-    #         )
-    #         return phi_out
-
-    #     phi_out = jax.lax.cond(r <= rs, less_than_rs, greater_than_rs)
-
-    #     return -G * rhos * rs**2 * (phi_in + 4 * jnp.pi * phi_out)
-
-    @staticmethod
-    @jax.jit
-    def _density(r, params):
-        r"""
-        Hernquist-zhao density profile.. at least thats what i call it
-        Useful for both dark matter and stellar distributions
-
-        Parameters
-        ----------
-        r : _type_
-            _description_
-        rhos : float
-            _description_
-        rs : float
-            _description_
-        a : float
-            _description_
-        b : float
-            _description_
-        c : float
-            _description_
-
-        Returns
-        -------
-        _type_
-            _description_
-
-        Notes
-        -----
-        Im writing these as static functions for a couple of reasons, but mainly because i want to be able to use them
-        as fitting functions
-
-        """
-        q = r / params["rs"]
-        nu = (params["a"] - params["c"]) / params["b"]
-        return params["rhos"] * q ** -params["a"] * (1 + q ** params["b"]) ** (nu)
-
-        # @staticmethod
-        # @jax.jit
-        # def _potential(r, params):
-        #     """
-        #     Potential for Hernquist-Zhao density profile
-
-        #     .. math::
-        #         \phi(r) = -4\pi G\left[\frac{M}{r}+ \int_{r}^{\infty} \rho(r) r dr \right]
-
-        #     Must be calculated numerically.
-
-        #     Parameters
-        #     ----------
-        #     r : float | array
-        #         array of radii | units: [L]
-
-        #     Returns
-        #     -------
-        #     float| array
-        #         potential | units: :math:`km^{2} s^{-2}`
-
-        #     """
-        #     # for readability
-        #     G = HernquistZhao.G
-        #     a = params["a"]
-        #     b = params["b"]
-        #     c = params["c"]
-        #     rhos = params["rhos"]
-        #     rs = params["rs"]
-
-        #     # vec_mass  = jax.vmap(HernquistZhao._mass,in_axes=(0, None,None,None, None,None))
-        #     q = r / rs  # always convenient to make all integrals dimensionless
-        #     # phi_in  = rs*vec_mass(q,1.0,1.0,a,b,c)/r  # M/r
-        #     phi_in = rs * HernquistZhao._mass(q, 1.0, 1.0, a, b, c) / r  # M/r
-
-        #     # integration points and weights for Gauss-Legendre quadrature + trig substitution
-        #     x, w = HernquistZhao._xk, HernquistZhao._wk
-        #     x0 = 0.0
-        #     x1 = jnp.pi / 2
-        #     xk = 0.5 * (x1 - x0) * x + 0.5 * (x1 + x0)
-        #     wk = 0.5 * (x1 - x0) * w
-
-        #     # we'll use Jax's flow control to split up integration into two regimes r << rs and r >> rs
-        #     # this will avoid numerical issues with the trig substitution for r << rs
-        #     # for r >> rs, the trig substitution is needed in order to turn the integral into a finite integral
-
-        #     def less_than_rs():
-        #         """
-        #         for r << rs, (\frac{r}{r_{s}} < 1e-5, depending on the order of the integration) the trig substitution usually used leads to numerical issues.
-        #         Instead just use regular Gauss-Legendre quadrature from r to rs. then use the trig substitution to
-        #         """
-        #         x0 = jnp.arcsin(q)
-        #         x1 = jnp.pi / 2
-        #         xi = 0.5 * (x1 - x0) * x + 0.5 * (x1 + x0)
-        #         wi = 0.5 * (x1 - x0) * w
-
-        #         # t1 = jnp.sum(
-        #         #     wi * HernquistZhao._density(xi, 1.0, 1.0, a, b, c) * xi, axis=0
-        #         # )  # integrate from r to rs
-
-        #         t1 = jnp.sum(
-        #             wi
-        #             * HernquistZhao._density(1 / jnp.sin(xi), 1.0, 1.0, a, b, c)
-        #             * jnp.cos(xi)
-        #             / jnp.sin(xi) ** 3,
-        #             axis=0,
-        #         )
-
-        #         t2 = 1 * jnp.sum(
-        #             wk
-        #             * HernquistZhao._density(1 / jnp.sin(xk), 1.0, 1.0, a, b, c)
-        #             * 1
-        #             * jnp.cos(xk)
-        #             / jnp.sin(xk) ** 3,
-        #             axis=0,
-        #         )  # integrate from rs to infinity
-
-        #         # sum the two integrals
-        #         return t1 + t2
-
-        #     def greater_than_rs():
-        #         """
-        #         fro r > rs, the trig substitution behaves well and transforms the infinity integral into a finite one
-        #         """
-        #         phi_out = q * jnp.sum(
-        #             wk
-        #             * HernquistZhao._density(q / jnp.sin(xk), 1.0, 1.0, a, b, c)
-        #             * q
-        #             * jnp.cos(xk)
-        #             / jnp.sin(xk) ** 3,
-        #             axis=0,
-        #         )
-        #         return phi_out
-
-        # phi_out = jax.lax.cond(r <= rs, less_than_rs, greater_than_rs)
-
-        # return -G * rhos * rs**2 * (phi_in + 4 * jnp.pi * phi_out)
-
     @staticmethod
     @jax.jit
     def _density_fit(r, param_dict):
@@ -956,8 +740,6 @@ class HernquistZhao(JaxPotential):
         return coeff * gauss * units
 
     def mass_quad(self, r):
-        # get mass enclosed within radius r using scipy quad
-        # r = jnp.atleast_1d(r)
         from scipy.integrate import quad
 
         def temp_func(r, params):
@@ -969,39 +751,6 @@ class HernquistZhao(JaxPotential):
             return 4 * jnp.pi * temp_func(x, self._params) * x**2
 
         return jnp.array([quad(func, 0, ri)[0] for ri in r])
-
-    # @staticmethod
-    # @jax.jit
-    # def _mass(r: float, rhos: float, rs: float, a: float, b: float, c: float) -> float:
-    #     r"""
-
-    #     Parameters
-    #     ----------
-    #     r : float
-    #         radius | units [L]
-    #     rhos : float
-    #         scale densisty | units [Mass * L**-3]
-    #     rs : float
-    #         scale radius | units [L]
-    #     a : float
-    #         inner slope | unitless
-    #     b : float
-    #         smoothness of transition from inner to outer slope | unitless
-    #     c : float
-    #         outer slope | unitless
-
-    #     Returns
-    #     -------
-    #     float
-    #         Mass enclosed within radius r | units [Mass]
-    #     """
-    #     q = r / rs
-    #     xk = 0.5 * q * HernquistZhao._xk + 0.5 * q
-    #     wk = 0.5 * q * HernquistZhao._wk
-    #     units = 4 * jnp.pi * rhos * rs**3
-    #     return units * jnp.sum(
-    #         wk * xk**2 * HernquistZhao._density(xk, 1.0, 1.0, a, b, c), axis=0
-    #     )
 
     @staticmethod
     @jax.jit
@@ -1114,7 +863,7 @@ class HernquistZhao(JaxPotential):
         return mass_calc
 
 
-class gNFW(JaxPotential):
+class gNFW(JaxDensity):
     _dm_priors = {
         "dm_gamma": dist.Uniform(-1.0, 2.0),
         "dm_rhos": dist.Uniform(5, 30),
@@ -1185,7 +934,7 @@ class gNFW(JaxPotential):
         return units * jnp.sum(wk * xk**2 * gNFW._density_fit(xk, param_dict), axis=0)
 
 
-class Isochrone(JaxPotential):
+class Isochrone(JaxDensity):
     def __init__(self, M: float, b: float) -> None:
         r"""
         _summary_
@@ -1425,7 +1174,7 @@ class Isochrone(JaxPotential):
         return jnp.log(f_I)
 
 
-class Gaussians(JaxPotential):
+class Gaussians(JaxDensity):
     r"""
     Class for a desribing the density profile as a sum of Gaussians
 
@@ -1485,7 +1234,7 @@ class Gaussians(JaxPotential):
         return jnp.sum(m_vec(r, M, sigma), axis=1)
 
 
-class Gaussian(JaxPotential):
+class Gaussian(JaxDensity):
     def __init__(self, M, sigma):
         self._M = M
         self._sigma = sigma
@@ -1515,7 +1264,7 @@ class Gaussian(JaxPotential):
         )
 
 
-class Plummer(JaxPotential):
+class Plummer(JaxDensity):
     r"""
     Class for a spherical Plummer model
 
@@ -1542,9 +1291,9 @@ class Plummer(JaxPotential):
 
     def __init__(self, M, rs):
         self._M = M
-        self._a = rs
+        self._rs = rs
         # calculate density
-        self._rhos = 3 * self._M / (4 * jnp.pi * self._a**3)
+        self._rhos = 3 * self._M / (4 * jnp.pi * self._rs**3)
         # self.G = 4.300917270036279e-06  # kpc km^2 s^-2 Msun^-1
         ""
 
@@ -1599,7 +1348,7 @@ class Plummer(JaxPotential):
         np.ndarray
             _description_
         """
-        return Plummer._mass(self._M, self._a, r)
+        return Plummer._mass(self._M, self._rs, r)
 
     def potential(self, r: jax.Array) -> jax.Array:
         r"""
@@ -1618,7 +1367,7 @@ class Plummer(JaxPotential):
         jax.Array
             _description_
         """
-        return Plummer._potential(r, self._M, self._a)
+        return Plummer._potential(r, self._M, self._rs)
 
     def projected_density(self, R: np.ndarray) -> np.ndarray:
         r"""
@@ -1822,7 +1571,8 @@ class Plummer(JaxPotential):
             \frac{a^2}{G^5 M^4}(-E)^{7/2}
         """
         term1 = 24 * jnp.sqrt(2) * self._rs**2
-        term2 = Plummer.G**5 * self._M**4 * 7 * jnp.pi**3
+        term2 = 7 * jnp.pi**3 * Plummer.G**5 * self._M**4
+        return term1 * (E) ** (7 / 2) / term2
 
     def logDF(self, E):
         r"""
@@ -2025,7 +1775,7 @@ class Plummer(JaxPotential):
         return r_center, nu, bin_edges, v_shell
 
 
-class King(JaxPotential):
+class King(JaxDensity):
     _dm_priors = {}
     _tracer_priors = {}
 
@@ -2063,7 +1813,7 @@ class King(JaxPotential):
         return term1 * term2
 
 
-class gEinasto(JaxPotential):
+class gEinasto(JaxDensity):
     r"""
     Generalized Einasto profile
 
@@ -2157,13 +1907,13 @@ class NFW_truncated(NFW):
         return jax.lax.cond(r <= self._rt, r_lteq_rt, r_gt_rt)
 
 
-class PowerLaws(JaxPotential):
+class PowerLaws(JaxDensity):
     r"""
     See e.g GravSphere
 
     Parameters
     ----------
-    JaxPotential : _type_
+    JaxDensity : _type_
         _description_
     """
 

@@ -1,5 +1,3 @@
-# Configuration file for the Sphinx documentation builder.
-#
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
@@ -8,7 +6,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.abspath("../src"))
-# sys.path.append(os.path.abspath('sphinxext'))
+
 
 html_use_index = True
 html_domain_indices = True
@@ -19,7 +17,7 @@ html_baseurl = "https://jguerra-astro.github.io/dynamicall/"
 project = "dynamicAll"
 copyright = "2024, Juan Guerra"
 author = "Juan Guerra"
-release = "1.00.00"
+release = "1.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

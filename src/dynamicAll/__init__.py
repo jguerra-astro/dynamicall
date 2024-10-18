@@ -1,6 +1,5 @@
-__all__ = ["likelihood", "models", "data", "dynamics"]
+__all__ = ["models", "data", "base"]
 
-from . import likelihood
 from . import models
 from . import data
-from . import dynamics
+from . import base
