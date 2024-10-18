@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tutorial: Data &#8212; dynamicAll 1.0 documentation</title>
+    <title>Tutorial: Numpyro &#8212; dynamicAll 1.0 documentation</title>
   
   
   
@@ -47,6 +47,8 @@
     <link rel="canonical" href="https://jguerra-astro.github.io/dynamicall/notebooks/tutorial_dracoish.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dynamicAll" href="../modules.html" />
+    <link rel="prev" title="Tutorial: J-Factors" href="tutorial_jfactors.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -164,12 +166,27 @@
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../modules.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: Numpyro
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../modules.html">
     dynamicAll
   </a>
 </li>
 
+                </ul>
+            </li>
+            
   </ul>
 </nav></div>
       
@@ -255,9 +272,7 @@ document.write(`
       
       
       
-        
-      
-      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+      <div class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -296,6 +311,13 @@ document.write(`
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="tutorial_jfactors.html">
     Tutorial: J-Factors
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: Numpyro
   </a>
 </li>
 
@@ -348,6 +370,15 @@ document.write(`
     
   </div>
   
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
   </div>
@@ -380,7 +411,7 @@ document.write(`
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page">Tutorial: Data</li>
+    <li class="breadcrumb-item active" aria-current="page">Tutorial: Numpyro</li>
   </ul>
 </nav>
 </div>
@@ -397,8 +428,10 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="tutorial-data">
-<h1>Tutorial: Data<a class="headerlink" href="#tutorial-data" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="tutorial-numpyro">
+<h1>Tutorial: Numpyro<a class="headerlink" href="#tutorial-numpyro" title="Link to this heading">#</a></h1>
+<section id="fitting-a-draco-like-galaxy-with-a-plummer-profile-embedded-in-a-dark-matter-halo">
+<h2>Fitting a Draco-like galaxy with a plummer profile embedded in a dark matter halo<a class="headerlink" href="#fitting-a-draco-like-galaxy-with-a-plummer-profile-embedded-in-a-dark-matter-halo" title="Link to this heading">#</a></h2>
 <div class="cell tag_hide-cell docutils container">
 <details class="hide above-input">
 <summary aria-label="Toggle hidden content">
@@ -408,12 +441,6 @@ document.write(`
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> autoreload
 <span class="o">%</span><span class="k">autoreload</span> 2
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The autoreload extension is already loaded. To reload it, use:
-  %reload_ext autoreload
 </pre></div>
 </div>
 </div>
@@ -427,11 +454,14 @@ document.write(`
 </summary>
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;XLA_FLAGS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;--xla_force_host_platform_device_count=2&#39;</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;XLA_FLAGS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;--xla_force_host_platform_device_count=2&quot;</span>
 <span class="kn">import</span> <span class="nn">numpyro</span>
+
 <span class="n">numpyro</span><span class="o">.</span><span class="n">enable_x64</span><span class="p">()</span>
 <span class="kn">import</span> <span class="nn">jax</span>
 <span class="kn">from</span> <span class="nn">jax._src.config</span> <span class="kn">import</span> <span class="n">config</span>
+
 <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
 
@@ -447,21 +477,21 @@ He’re i’ll show an example of how to write a simple subclass that will then 
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dynamicAll</span>
-<span class="kn">from</span> <span class="nn">dynamicAll</span> <span class="kn">import</span> <span class="n">data</span><span class="p">,</span><span class="n">models</span>
+<span class="kn">from</span> <span class="nn">dynamicAll</span> <span class="kn">import</span> <span class="n">data</span><span class="p">,</span> <span class="n">models</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_path</span> <span class="o">=</span> <span class="s1">&#39;/Users/juan/Desktop/dracoish.txt&#39;</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_path</span> <span class="o">=</span> <span class="s2">&quot;/Users/juan/Desktop/dracoish.txt&quot;</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span> <span class="c1"># drop all nan values</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>  <span class="c1"># drop all nan values</span>
 </pre></div>
 </div>
 </div>
@@ -702,9 +732,9 @@ He’re i’ll show an example of how to write a simple subclass that will then 
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">R</span>     <span class="o">=</span> <span class="n">input_data</span><span class="p">[</span><span class="s1">&#39;RPROJ&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-<span class="n">vlos</span>  <span class="o">=</span> <span class="n">input_data</span><span class="p">[</span><span class="s1">&#39;VMEAS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-<span class="n">error</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">[</span><span class="s1">&#39;VERR&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">R</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">[</span><span class="s2">&quot;RPROJ&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">vlos</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">[</span><span class="s2">&quot;VMEAS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">error</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">[</span><span class="s2">&quot;VERR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 </pre></div>
 </div>
 </div>
@@ -723,8 +753,8 @@ He’re i’ll show an example of how to write a simple subclass that will then 
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">vlos</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">vlos</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -752,16 +782,18 @@ He’re i’ll show an example of how to write a simple subclass that will then 
 <img alt="../_images/3741aff424fa674fdbf211f8e518fe8a1b9f17ec85d06238406f4c9bc344f962.png" src="../_images/3741aff424fa674fdbf211f8e518fe8a1b9f17ec85d06238406f4c9bc344f962.png" />
 </div>
 </div>
+</section>
+<section id="define-your-custom-data-set">
+<h2>Define your custom Data set<a class="headerlink" href="#define-your-custom-data-set" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Dsphsim</span><span class="p">(</span><span class="n">dynamicAll</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Data</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">table</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="n">table</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_R</span>     <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;RPROJ&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_vlos</span>  <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;VMEAS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">d_vlos</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;VERR&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_R</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;RPROJ&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vlos</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;VMEAS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_vlos</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;VERR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -774,8 +806,10 @@ He’re i’ll show an example of how to write a simple subclass that will then 
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>UserWarning: The &#39;_r&#39; component is not defined.\nOnly projected moments may be available.
-UserWarning: &#39;pmr&#39; and &#39;pmt&#39; components are not defined.\nVelocity dispersion for these components will not be available.\n only &#39;los&#39; moment will be available
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/Users/juan/phd/projects/dynamicAll/src/dynamicAll/base.py:1671: UserWarning: The &#39;_r&#39; component is not defined.\nOnly projected moments may be available.
+  warnings.warn(
+/Users/juan/phd/projects/dynamicAll/src/dynamicAll/base.py:1676: UserWarning: &#39;pmr&#39; and &#39;pmt&#39; components are not defined.\nVelocity dispersion for these components will not be available.\n only &#39;los&#39; moment will be available
+  warnings.warn(
 </pre></div>
 </div>
 </div>
@@ -810,12 +844,14 @@ UserWarning: &#39;pmr&#39; and &#39;pmt&#39; components are not defined.\nVeloci
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># R_center,los_disp,dlos_disp,bin_edges = dataSet.dispersion_i(&#39;los&#39;,binfunc=np.histogram,bins=&#39;auto&#39;,clear_cache=True)</span>
-<span class="n">R_center</span><span class="p">,</span><span class="n">los_disp</span><span class="p">,</span><span class="n">dlos_disp</span><span class="p">,</span><span class="n">bin_edges</span> <span class="o">=</span> <span class="n">dataSet</span><span class="o">.</span><span class="n">dispersion_i</span><span class="p">(</span><span class="s1">&#39;los&#39;</span><span class="p">,</span><span class="n">clear_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="c1">#binfunc=np.histogram,bins=&#39;auto&#39;,clear_cache=True)</span>
+<span class="n">R_center</span><span class="p">,</span> <span class="n">los_disp</span><span class="p">,</span> <span class="n">dlos_disp</span><span class="p">,</span> <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">dataSet</span><span class="o">.</span><span class="n">dispersion_i</span><span class="p">(</span>
+    <span class="s2">&quot;los&quot;</span><span class="p">,</span> <span class="n">clear_cache</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>  <span class="c1"># binfunc=np.histogram,bins=&#39;auto&#39;,clear_cache=True)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>sample: 100%|██████████| 1500/1500 [00:01&lt;00:00, 867.29it/s, 1 steps of size 4.76e-01. acc. prob=0.93] 
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>sample: 100%|██████████| 1500/1500 [00:01&lt;00:00, 976.68it/s, 1 steps of size 4.76e-01. acc. prob=0.93] 
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                     mean       std    median      5.0%     95.0%     n_eff     r_hat
@@ -825,7 +861,7 @@ UserWarning: &#39;pmr&#39; and &#39;pmt&#39; components are not defined.\nVeloci
 Number of divergences: 0
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>sample: 100%|██████████| 1500/1500 [00:02&lt;00:00, 588.97it/s, 7 steps of size 6.69e-01. acc. prob=0.86] 
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>sample: 100%|██████████| 1500/1500 [00:02&lt;00:00, 638.12it/s, 7 steps of size 6.69e-01. acc. prob=0.86] 
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                    mean       std    median      5.0%     95.0%     n_eff     r_hat
@@ -868,7 +904,7 @@ here
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataSet</span><span class="o">.</span><span class="n">_component_map</span><span class="p">[</span><span class="s1">&#39;los&#39;</span><span class="p">]</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataSet</span><span class="o">.</span><span class="n">_component_map</span><span class="p">[</span><span class="s2">&quot;los&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -883,25 +919,35 @@ here
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="n">fig</span><span class="p">,</span><span class="n">ax</span>  <span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 
 <span class="c1"># First plot error bars</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">R_center</span><span class="p">,</span><span class="n">los_disp</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">dlos_disp</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span><span class="n">capsize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">elinewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span>
+    <span class="n">R_center</span><span class="p">,</span> <span class="n">los_disp</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">dlos_disp</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">capsize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">elinewidth</span><span class="o">=</span><span class="mf">1.5</span>
+<span class="p">)</span>
 
 <span class="c1"># plot step function -- Note ax.step is a bit misleading so we&#39;ll do it a bit more carefully.</span>
 
 <span class="n">step_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">step_edges</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">los_disp</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Binned Data&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">step</span><span class="p">(</span>
+    <span class="n">step_edges</span><span class="p">,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">los_disp</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="n">where</span><span class="o">=</span><span class="s2">&quot;post&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Binned Data&quot;</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">bin_edges</span><span class="p">:</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;pink&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
 
 <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\sigma_{\rm los}(R) $&#39;</span><span class="p">,</span>
-    <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;R&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\sigma_{\rm los}(R) $&quot;</span><span class="p">,</span>
+    <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -921,18 +967,18 @@ here
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define function you want to fit the data to</span>
 <span class="n">func</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Plummer</span><span class="o">.</span><span class="n">_projection</span>
 <span class="c1"># plot curve_fit of curve</span>
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span><span class="n">popt</span><span class="p">,</span><span class="n">pcov</span> <span class="o">=</span> <span class="n">dataSet</span><span class="o">.</span><span class="n">fit_projection</span><span class="p">(</span><span class="n">func</span><span class="p">,</span><span class="n">p0</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1e3</span><span class="p">,</span><span class="mf">0.25</span><span class="p">])</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">dataSet</span><span class="o">.</span><span class="n">fit_projection</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="p">[</span><span class="mf">1e3</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">])</span>
 
 <span class="c1"># plot B-spline fit</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">R_center</span><span class="p">,</span><span class="n">dataSet</span><span class="o">.</span><span class="n">bspline_projected</span><span class="p">(</span><span class="n">R_center</span><span class="p">),</span>
-    <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-.&#39;</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;B-spline fit&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">R_center</span><span class="p">,</span> <span class="n">dataSet</span><span class="o">.</span><span class="n">bspline_projected</span><span class="p">(</span><span class="n">R_center</span><span class="p">),</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-.&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;B-spline fit&quot;</span>
+<span class="p">)</span>
 <span class="c1"># # plot truth</span>
 <span class="c1"># ax.plot(R_center,models.Plummer.projection(R_center,1e3,0.25),</span>
 <span class="c1">#     label=&#39;truth&#39;,</span>
 <span class="c1">#     linestyle =&#39;--&#39;)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">popt</span><span class="p">,</span><span class="n">pcov</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -954,21 +1000,20 @@ here
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">numpyro</span> <span class="kn">import</span> <span class="n">distributions</span> <span class="k">as</span> <span class="n">dist</span>
+
 <span class="n">priors</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">Priors</span><span class="p">()</span>
 <span class="n">tracer_priors</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;tracer_M&#39;</span><span class="p">:</span><span class="n">dist</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mf">1e4</span><span class="p">,</span><span class="mi">100</span><span class="p">),</span> <span class="c1">#update thats based on the fit above</span>
-    <span class="s1">&#39;tracer_a&#39;</span><span class="p">:</span><span class="n">dist</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mf">.226</span><span class="p">,</span><span class="mf">.01</span><span class="p">),</span>
+    <span class="s2">&quot;tracer_M&quot;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mf">1e4</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>  <span class="c1"># update thats based on the fit above</span>
+    <span class="s2">&quot;tracer_a&quot;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mf">0.226</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">),</span>
 <span class="p">}</span>
 
 <span class="n">dm_priors</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;dm_gamma&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span>
-    <span class="s1">&#39;dm_rhos&#39;</span> <span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span>  <span class="c1"># These are in logspace</span>
-    <span class="s1">&#39;dm_rs&#39;</span>   <span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># These are in logspace</span>
+    <span class="s2">&quot;dm_gamma&quot;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span>
+    <span class="s2">&quot;dm_rhos&quot;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>  <span class="c1"># These are in logspace</span>
+    <span class="s2">&quot;dm_rs&quot;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>  <span class="c1"># These are in logspace</span>
 <span class="p">}</span>
 
-<span class="n">anisotropy_priors</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;beta_0&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-    <span class="p">}</span>
+<span class="n">anisotropy_priors</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;beta_0&quot;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)}</span>
 
 
 <span class="n">priors</span><span class="o">.</span><span class="n">add_from_dict</span><span class="p">(</span><span class="n">tracer_priors</span><span class="p">)</span>
@@ -995,7 +1040,7 @@ Parameter: beta_0, Distribution: Uniform, Bounds: (-1.00e+00, 1.00e+00)
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">system</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">SphGalaxy</span><span class="p">(</span><span class="n">priors</span> <span class="o">=</span> <span class="n">priors</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">system</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">SphGalaxy</span><span class="p">(</span><span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1017,14 +1062,17 @@ using default BetaConstant model
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span> 
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
 <span class="n">theta</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
-<span class="n">d_dracoish</span>  <span class="o">=</span> <span class="mf">50.0</span>    <span class="c1"># So I can compare to Chang et. al. 2020</span>
+<span class="n">d_dracoish</span> <span class="o">=</span> <span class="mf">50.0</span>  <span class="c1"># So I can compare to Chang et. al. 2020</span>
 <span class="n">rt_dracoish</span> <span class="o">=</span> <span class="mf">25.54</span>  <span class="c1"># kpc (r_200-ish for these scale density/radius values)</span>
 
-<span class="n">j_factor_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;theta&#39;</span><span class="p">:</span><span class="n">theta</span><span class="p">,</span><span class="s1">&#39;D&#39;</span><span class="p">:</span><span class="n">d_dracoish</span><span class="p">,</span><span class="s1">&#39;rt&#39;</span><span class="p">:</span><span class="n">rt_dracoish</span><span class="p">}</span>
+<span class="n">j_factor_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;theta&quot;</span><span class="p">:</span> <span class="n">theta</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">:</span> <span class="n">d_dracoish</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">:</span> <span class="n">rt_dracoish</span><span class="p">}</span>
 
-<span class="n">mcmc</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">fit_dSph</span><span class="p">(</span><span class="n">dataSet</span><span class="p">,</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span><span class="n">jfactor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">jfactor_params</span><span class="o">=</span><span class="n">j_factor_params</span><span class="p">)</span>
+<span class="n">mcmc</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">fit_dSph</span><span class="p">(</span>
+    <span class="n">dataSet</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">jfactor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">jfactor_params</span><span class="o">=</span><span class="n">j_factor_params</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1037,11 +1085,12 @@ Parameter: dm_rs, Distribution: Uniform, Bounds: (-1.00e+01, 1.00e+01)
 Parameter: beta_0, Distribution: Uniform, Bounds: (-1.00e+00, 1.00e+00)
 </pre></div>
 </div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "20387b28450a476f94171b8baee34da9", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "c849c233962548c99808baab6e0bbd0b", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "dcd61ba3e61148b8b82faf670a96ffb2", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "4e150964650e48eea703b576e3e8574a", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span>
+
 <span class="n">inf_data</span> <span class="o">=</span> <span class="n">arviz</span><span class="o">.</span><span class="n">from_numpyro</span><span class="p">(</span><span class="n">mcmc</span><span class="p">)</span>
 <span class="n">arviz</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">inf_data</span><span class="p">)</span>
 </pre></div>
@@ -1169,8 +1218,9 @@ Parameter: beta_0, Distribution: Uniform, Bounds: (-1.00e+00, 1.00e+00)
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">corner</span>
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span><span class="n">ncols</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-<span class="n">corner</span><span class="o">.</span><span class="n">corner</span><span class="p">(</span><span class="n">inf_data</span><span class="p">,</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span><span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.84</span><span class="p">],</span><span class="n">show_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">corner</span><span class="o">.</span><span class="n">corner</span><span class="p">(</span><span class="n">inf_data</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.84</span><span class="p">],</span> <span class="n">show_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 <span class="c1"># ax[12].set(</span>
 <span class="c1">#     yscale=&#39;log&#39;,</span>
@@ -1189,6 +1239,7 @@ Parameter: beta_0, Distribution: Uniform, Bounds: (-1.00e+00, 1.00e+00)
 </div>
 </div>
 </section>
+</section>
 
 
                 </article>
@@ -1200,6 +1251,24 @@ Parameter: beta_0, Distribution: Uniform, Bounds: (-1.00e+00, 1.00e+00)
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="tutorial_jfactors.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Tutorial: J-Factors</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../modules.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">dynamicAll</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -1209,6 +1278,19 @@ Parameter: beta_0, Distribution: Uniform, Bounds: (-1.00e+00, 1.00e+00)
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-a-draco-like-galaxy-with-a-plummer-profile-embedded-in-a-dark-matter-halo">Fitting a Draco-like galaxy with a plummer profile embedded in a dark matter halo</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-your-custom-data-set">Define your custom Data set</a></li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
 

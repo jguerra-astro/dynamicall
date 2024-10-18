@@ -168,11 +168,26 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="modules.html">
+  <a class="nav-link nav-internal" href="notebooks/tutorial_dracoish.html">
+    Tutorial: Numpyro
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="modules.html">
     dynamicAll
   </a>
 </li>
 
+                </ul>
+            </li>
+            
   </ul>
 </nav></div>
       
@@ -304,6 +319,13 @@ document.write(`
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="notebooks/tutorial_dracoish.html">
+    Tutorial: Numpyro
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="modules.html">
     dynamicAll
   </a>
@@ -378,8 +400,8 @@ document.write(`
 <h1>Dynamicall<a class="headerlink" href="#dynamicall" title="Link to this heading">#</a></h1>
 <p>The internal kinematics of dwarf galaxies is a powerful tool to understand their formation and evolution as well as put constraints on dark matter models.</p>
 <p>Dynamicall is an open-source python package that provides a set of tools to analyze the internal kinematics of dwarf galaxies and other dynamical systems.</p>
-<p>It’s main use case is as a Jeans modeling tool, but it also provides a set of additional tools to analyze the internal kinematics of dwarf galaxies and other dynamical systems.
-The main developments over other similar tools are the use of <a class="reference external" href="https://jax.readthedocs.io/en/latest/#">Jax</a> for all calculations leading to a significant speedup from just-in-time(JIT) compilation and gpu acceleraton, and the use of <a class="reference external" href="http://num.pyro.ai/en/stable/">Numpyro</a> for the Bayesian inference.
+<p>The author’s use case is as a Jeans modeling tool, but it also provides a flexbile set of additional tools to analyze the internal kinematics of dwarf galaxies and other dynamical systems.
+The main developments over other similar tools are the use of <a class="reference external" href="https://jax.readthedocs.io/en/latest/#">Jax</a> for all calculations leading to a significant speedup from just-in-time(JIT) compilation and gpu acceleraton, and the compatibility with`Numpyro &lt;<a class="reference external" href="http://num.pyro.ai/en/stable/">http://num.pyro.ai/en/stable/</a>&gt;`_ for the Bayesian inference.
 The use of Jax also allows us to use automatic differentiation to calculate the gradients of the posterior probability distribution with respect to the parameters, which is necessary to use <a class="reference external" href="https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo">Hamiltonian Monte Carlo (HMC)</a> methods for the inference, and useful in order to Forecast uncertainties in the parameters using Fisher Matrix methods.</p>
 <div class="toctree-wrapper compound">
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
@@ -411,6 +433,11 @@ The use of Jax also allows us to use automatic differentiation to calculate the 
 <li class="toctree-l2"><a class="reference internal" href="notebooks/tutorial_jfactors.html#methods">Methods</a></li>
 <li class="toctree-l2"><a class="reference internal" href="notebooks/tutorial_jfactors.html#sanity-check">Sanity check</a></li>
 <li class="toctree-l2"><a class="reference internal" href="notebooks/tutorial_jfactors.html#inference">Inference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/tutorial_dracoish.html">Tutorial: Numpyro</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/tutorial_dracoish.html#fitting-a-draco-like-galaxy-with-a-plummer-profile-embedded-in-a-dark-matter-halo">Fitting a Draco-like galaxy with a plummer profile embedded in a dark matter halo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/tutorial_dracoish.html#define-your-custom-data-set">Define your custom Data set</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">dynamicAll</a><ul>
