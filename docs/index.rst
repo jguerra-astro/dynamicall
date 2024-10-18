@@ -15,6 +15,7 @@ The use of Jax also allows us to use automatic differentiation to calculate the 
    :caption: Contents:
    
    Installation
+   notebooks/numerical_methods
    notebooks/tutorial_potential
    notebooks/tutorial_plummer
    notebooks/tutorial_jfactors
