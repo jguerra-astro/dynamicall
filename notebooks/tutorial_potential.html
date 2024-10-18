@@ -50,7 +50,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Tutorial: Plummer Model" href="tutorial_plummer.html" />
-    <link rel="prev" title="Installation Instructions" href="../Installation.html" />
+    <link rel="prev" title="CustomPotential" href="numerical_methods.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -147,6 +147,13 @@
 </li>
 
 
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="numerical_methods.html">
+    CustomPotential
+  </a>
+</li>
+
+
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="#">
     Tutorial: Potentials
@@ -167,19 +174,19 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="tutorial_dracoish.html">
-    Tutorial: Numpyro
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
                     More
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="tutorial_dracoish.html">
+    Tutorial: Numpyro
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../modules.html">
     dynamicAll
@@ -292,6 +299,13 @@ document.write(`
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../Installation.html">
     Installation Instructions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="numerical_methods.html">
+    CustomPotential
   </a>
 </li>
 
@@ -454,14 +468,16 @@ document.write(`
 <span class="expanded">Hide code cell content</span>
 </summary>
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#third party</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># third party</span>
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;/Users/juan/phd/matplotlib/jdefault.mplstyle&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;/Users/juan/phd/matplotlib/jdefault.mplstyle&quot;</span><span class="p">)</span>
 
 <span class="kn">import</span> <span class="nn">jax</span>
-<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span> 
+<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
 <span class="kn">from</span> <span class="nn">jax._src.config</span> <span class="kn">import</span> <span class="n">config</span>
+
 <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">dynamicAll</span> <span class="kn">import</span> <span class="n">models</span>
@@ -470,281 +486,509 @@ document.write(`
 </div>
 </details>
 </div>
+<p>Currently we have the following potentials implemented:</p>
+<ul class="simple">
+<li><p>Hernquist</p></li>
+<li><p>NFW</p></li>
+<li><p>gNFW</p></li>
+<li><p>Einasto</p></li>
+<li><p>Plummer</p></li>
+<li><p>Isochrone</p></li>
+<li><p>Jaffe</p></li>
+<li><p>Gaussian</p></li>
+<li><p>King</p></li>
+</ul>
+<p>Below we’ll showcase a few examples and how they are used as well as caveats you should be aware of – which are mostly things about jax that you should be aware of.</p>
+<section id="double-power-laws">
+<h2>Double Power Laws<a class="headerlink" href="#double-power-laws" title="Link to this heading">#</a></h2>
+<section id="hernquist">
+<h3>Hernquist<a class="headerlink" href="#hernquist" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Herquist Parameters</span>
+<span class="n">rhos</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<span class="n">rs</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">hernquist_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;rhos&quot;</span><span class="p">:</span> <span class="n">rhos</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="n">rs</span><span class="p">}</span>
+
+<span class="n">hernquist</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Hernquist</span><span class="p">(</span><span class="o">**</span><span class="n">hernquist_params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="jaffe">
+<h3>Jaffe<a class="headerlink" href="#jaffe" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># rhos = 6.4e4</span>
+<span class="c1"># rs = 1.0</span>
+<span class="n">jaffe_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;rhos&quot;</span><span class="p">:</span> <span class="n">rhos</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="n">rs</span><span class="p">}</span>
+
+<span class="n">jaffe</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Jaffe</span><span class="p">(</span><span class="o">**</span><span class="n">jaffe_params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="plummer">
+<h3>Plummer<a class="headerlink" href="#plummer" title="Link to this heading">#</a></h3>
+<section id="note">
+<h4>Note:<a class="headerlink" href="#note" title="Link to this heading">#</a></h4>
+<p>I’ve tried to keep naming schemes as initializations as consistent as possible.
+Almost every potential is by default initialized with some scale density and radius “rhos”, and “rs” respectively. However some models are defined in terms of their mass and scale radius so you should be aware of the initialization parameters for each potential. There are alternative initialization (see the Documentation of each potential to see the alternative initializations).</p>
+<p>An example of this is the Plummer sphere where its usually defined in terms of its total mass and scale radius</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># M = 1e3</span>
+<span class="c1"># # rs = 1.0</span>
+<span class="c1"># plummer_params = {&quot;M&quot;: M, &quot;rs&quot;: rs}</span>
+<span class="c1"># plummer = models.Plummer(**plummer_params)</span>
+<span class="c1"># print(plummer._rhos)</span>
+<span class="c1"># Altenative initialization</span>
+
+<span class="c1"># rhos = plummer._rhos  # use the scale radius from the previous model</span>
+<span class="n">alt_init_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;rhos&quot;</span><span class="p">:</span> <span class="n">rhos</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="n">rs</span><span class="p">}</span>
+<span class="n">plummer</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Plummer</span><span class="o">.</span><span class="n">from_scale_density_radius</span><span class="p">(</span><span class="o">**</span><span class="n">alt_init_params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
 <section id="navaro-frenk-white-nfw">
-<h2>Navaro-Frenk-White (NFW)<a class="headerlink" href="#navaro-frenk-white-nfw" title="Link to this heading">#</a></h2>
+<h3>Navaro-Frenk-White (NFW)<a class="headerlink" href="#navaro-frenk-white-nfw" title="Link to this heading">#</a></h3>
+<p>Note: This model has several ways of initializing it.</p>
+<p>from</p>
+<ul class="simple">
+<li><p>a scale mass and radius –this is how it’s defined in <a class="reference external" href="http://gala.adrian.pw/en/latest/api/gala.potential.potential.NFWPotential.html">Gala</a></p></li>
+<li><p><span class="math notranslate nohighlight">\(M_{\Delta}\)</span> and a concentration parameter where <span class="math notranslate nohighlight">\(M_{\Delta}\)</span> is the mass enclosed within a radius <span class="math notranslate nohighlight">\(\Delta\)</span> times the critical density of the universe and the concentration parameter is the ratio of <span class="math notranslate nohighlight">\(r_{\Delta}\)</span> to the scale radius.</p></li>
+</ul>
+<p>I’ll add more initializations if they’re relevant.</p>
+<p>See the documentation for more details</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># model parameters</span>
 <span class="c1"># NFW</span>
-<span class="n">rhos</span> <span class="o">=</span> <span class="mf">6.4e7</span> <span class="c1"># scale density in Msun/kpc^3</span>
-<span class="n">rs</span>   <span class="o">=</span> <span class="mf">2.0</span>   <span class="c1"># scale radius in kpc</span>
-
-<span class="n">NFW</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">NFW</span><span class="p">(</span><span class="n">rhos</span><span class="p">,</span><span class="n">rs</span><span class="p">)</span>
+<span class="c1"># rhos = 6.4e4  # scale density in Msun/kpc^3</span>
+<span class="c1"># rs = 1.0  # scale radius in kpc</span>
+<span class="n">nfw</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">NFW</span><span class="p">(</span><span class="n">rhos</span><span class="p">,</span> <span class="n">rs</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
-<p>Depending on your needs it might be convenient to define your potential through a concentration parameter, c and <span class="math notranslate nohighlight">\(\rm M_{200}\)</span></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-<span class="n">theta</span> <span class="o">=</span> <span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
-<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hz_plummer</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">HernquistZhao</span><span class="p">(</span><span class="n">plummer</span><span class="o">.</span><span class="n">_rhos</span><span class="p">,</span> <span class="n">rs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">hz_nfw</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">HernquistZhao</span><span class="p">(</span><span class="n">rhos</span><span class="p">,</span> <span class="n">rs</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">hz_hernquist</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">HernquistZhao</span><span class="p">(</span><span class="n">rhos</span><span class="p">,</span> <span class="n">rs</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">hz_jaffe</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">HernquistZhao</span><span class="p">(</span><span class="n">rhos</span><span class="p">,</span> <span class="n">rs</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">NFW</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">NFW</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">NFW</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">NFW</span><span class="o">.</span><span class="n">v_circ</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">NFW</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">))</span> <span class="c1"># Note the vmap here cause autograd takes a scalar and returns a scalar</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">NFW</span><span class="o">.</span><span class="n">project</span><span class="p">)(</span><span class="n">r</span><span class="p">))</span>
-<span class="c1"># ax[4].plot(r,NFW.gamma(r))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\rho$ [M$_{\odot}$ kpc$^{-3}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;M [M$_{\odot}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="c1"># yscale = &#39;log&#39;,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\Phi$ [km$^2$ s$^{-2}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="c1"># yscale = &#39;log&#39;,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$v_{\rm circ}$ [km s$^{-1}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\gamma$&#39;</span><span class="p">,</span>
+<span class="c1"># * Density plots</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">hernquist</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hernquist&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">jaffe</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Jaffe&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">nfw</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NFW&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">plummer</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Plummer&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">hz_plummer</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;R [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\Sigma$ [M$_{\odot}$ kpc$^{-2}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="../_images/d5f79e553efe18a64bcbf83dbccd56b87a1ca138fd19ed46a00ceec699492bfd.png" src="../_images/d5f79e553efe18a64bcbf83dbccd56b87a1ca138fd19ed46a00ceec699492bfd.png" />
-</div>
-</div>
-<p>If you are using these functions in order to build non-dynamicall stuff and want to use one or more of these functions, you should instead use the “Internal” functions which accept parameters.</p>
-<p>They’ll behave exactly the same way, but will require you to pass in the parameters to every function</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-<span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">NFW</span><span class="o">.</span><span class="n">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">rhos</span><span class="p">,</span><span class="n">rs</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">NFW</span><span class="o">.</span><span class="n">_mass</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">rhos</span><span class="p">,</span><span class="n">rs</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">NFW</span><span class="o">.</span><span class="n">_potential</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">rhos</span><span class="p">,</span><span class="n">rs</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">hz_nfw</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao NFW&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">hz_hernquist</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hernquist-Zhao equivalent&quot;</span><span class="p">,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">hz_jaffe</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao Jaffe&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\rho$ [M$_{\odot}$ kpc$^{-3}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;M [M$_{\odot}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="c1"># yscale = &#39;log&#39;,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\Phi$ [km$^2$ s$^{-2}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="../_images/2f82cc594ce8eaa220ad5aaaf336f1464ffe48e7a45e7c5ef28601faa54ab12e.png" src="../_images/2f82cc594ce8eaa220ad5aaaf336f1464ffe48e7a45e7c5ef28601faa54ab12e.png" />
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;rs&#39;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span><span class="s1">&#39;rhos&#39;</span><span class="p">:</span> <span class="mf">6.4e7</span><span class="p">}</span>
-<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-<span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">NFW</span><span class="o">.</span><span class="n">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="o">**</span><span class="n">param_dict</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">NFW</span><span class="o">.</span><span class="n">_mass</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="o">**</span><span class="n">param_dict</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">NFW</span><span class="o">.</span><span class="n">_potential</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="o">**</span><span class="n">param_dict</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\rho$ [M$_{\odot}$ kpc$^{-3}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;M [M$_{\odot}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="c1"># yscale = &#39;log&#39;,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\Phi$ [km$^2$ s$^{-2}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="../_images/2f82cc594ce8eaa220ad5aaaf336f1464ffe48e7a45e7c5ef28601faa54ab12e.png" src="../_images/2f82cc594ce8eaa220ad5aaaf336f1464ffe48e7a45e7c5ef28601faa54ab12e.png" />
-</div>
-</div>
-</section>
-<section id="gnfw">
-<h2>gNFW<a class="headerlink" href="#gnfw" title="Link to this heading">#</a></h2>
-<p>The gNFW potential is defined by the following equation:</p>
-<div class="math notranslate nohighlight">
-\[
-\rho(r)=\frac{\rho_0}{\left(\frac{r}{r_s}\right)^\gamma \left[1+\frac{r}{r_s}\right]^{3-\gamma}}
-\]</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gNFW</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">gNFW</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">6.4e7</span><span class="p">,</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;gamma&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-    <span class="s1">&#39;rs&#39;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span>
-    <span class="s1">&#39;rhos&#39;</span><span class="p">:</span> <span class="mf">6.4e7</span><span class="p">}</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-<span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">gNFW</span><span class="o">.</span><span class="n">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">param_dict</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">gNFW</span><span class="o">.</span><span class="n">_mass_fit</span><span class="p">,</span><span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="kc">None</span><span class="p">))(</span><span class="n">r</span><span class="p">,</span><span class="n">param_dict</span><span class="p">))</span>
-<span class="c1"># ax[2].plot(r,NFW._potential(r,rhos,rs))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\rho$ [M$_{\odot}$ kpc$^{-3}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;M [M$_{\odot}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="c1"># yscale = &#39;log&#39;,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\Phi$ [km$^2$ s$^{-2}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">AttributeError</span><span class="g g-Whitespace">                            </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">line</span> <span class="mi">4</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-<span class="ne">----&gt; </span><span class="mi">4</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">gNFW</span><span class="o">.</span><span class="n">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">param_dict</span><span class="p">))</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">gNFW</span><span class="o">.</span><span class="n">_mass_fit</span><span class="p">,</span><span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="kc">None</span><span class="p">))(</span><span class="n">r</span><span class="p">,</span><span class="n">param_dict</span><span class="p">))</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="c1"># ax[2].plot(r,NFW._potential(r,rhos,rs))</span>
-
-<span class="ne">AttributeError</span>: &#39;gNFW&#39; object has no attribute &#39;_density&#39;
-</pre></div>
-</div>
-<img alt="../_images/b0320693c5ae1e1149f87981900be4b03a4dda0b23f84adddc34f03293fe76ef.png" src="../_images/b0320693c5ae1e1149f87981900be4b03a4dda0b23f84adddc34f03293fe76ef.png" />
-</div>
-</div>
-</section>
-<section id="hernquist-zhao">
-<h2>Hernquist-Zhao<a class="headerlink" href="#hernquist-zhao" title="Link to this heading">#</a></h2>
-<p>For this case, every function (except the density) is calculated numerically.
-We’ll be careful to always compare this potential to the NFW to test the accuracy of the numerical integration
-(We find pretty good agreement.)</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rhos</span> <span class="o">=</span> <span class="mf">6.4e7</span> <span class="c1"># scale density in Msun/kpc^3</span>
-<span class="n">rs</span>   <span class="o">=</span> <span class="mf">1.0</span>   <span class="c1"># scale radius in kpc</span>
-<span class="n">a</span>    <span class="o">=</span> <span class="mi">1</span> 
-<span class="n">b</span>    <span class="o">=</span> <span class="mi">1</span> 
-<span class="n">c</span>    <span class="o">=</span> <span class="mi">3</span> 
-
-<span class="n">Hzhao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">HernquistZhao</span><span class="p">(</span><span class="n">rhos</span><span class="p">,</span><span class="n">rs</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
-<span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">Hzhao</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">),</span>
-            <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Hernquist-Zhao&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">Hzhao</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span>
-            <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Hernquist-Zhao&#39;</span><span class="p">)</span>
-<span class="n">phi_HZ</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">Hzhao</span><span class="o">.</span><span class="n">potential</span><span class="p">)(</span><span class="n">r</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">phi_HZ</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Hernquist-Zhao&#39;</span><span class="p">)</span>
-
-
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">NFW</span><span class="o">.</span><span class="n">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">rhos</span><span class="p">,</span><span class="n">rs</span><span class="p">),</span>
-            <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="s1">&#39;NFW&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">NFW</span><span class="o">.</span><span class="n">_mass</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">rhos</span><span class="p">,</span><span class="n">rs</span><span class="p">),</span>
-            <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="s1">&#39;NFW&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">NFW</span><span class="o">.</span><span class="n">_potential</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">rhos</span><span class="p">,</span><span class="n">rs</span><span class="p">),</span>
-            <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="s1">&#39;NFW&#39;</span><span class="p">)</span>
-
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\rho$ [M$_{\odot}$ kpc$^{-3}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;M [M$_{\odot}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="c1"># yscale = &#39;log&#39;,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\Phi$ [km$^2$ s$^{-2}$]&#39;</span><span class="p">,</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r [kpc]&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\rho(r)~\rm [M_{\odot}kpc^{-3}]$&quot;</span><span class="p">,</span>
+    <span class="c1"># title=&quot;Density&quot;,</span>
 <span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+
+<span class="c1"># * log-slope plots</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hernquist</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hernquist&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">jaffe</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Jaffe&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">nfw</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NFW&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">plummer</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Plummer&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_plummer</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_nfw</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao NFW&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_hernquist</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao Hernquist&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_jaffe</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao Jaffe&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\gamma = -\frac{d\ln{\rho}}{d\ln</span><span class="si">{r}</span><span class="s2">}$&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># * Mass plots</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hernquist&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">jaffe</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Jaffe&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">nfw</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NFW&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">plummer</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Plummer&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_plummer</span><span class="o">.</span><span class="n">mass</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_nfw</span><span class="o">.</span><span class="n">mass</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao NFW&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao Hernquist&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">hz_hernquist</span><span class="o">.</span><span class="n">mass_scipy</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">rhos</span><span class="p">,</span> <span class="n">rs</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-.&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r [kpc]&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;M(r) $\rm [M_{\odot}]$&quot;</span><span class="p">,</span>
+    <span class="c1"># title=&quot;Mass&quot;,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_jaffe</span><span class="o">.</span><span class="n">mass</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-.&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="c1"># * Potential plots</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="o">-</span><span class="n">hernquist</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hernquist&quot;</span><span class="p">)</span>
+<span class="n">jaff_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;rhos&quot;</span><span class="p">:</span> <span class="n">rhos</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="n">rs</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="mf">4.0</span><span class="p">}</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="o">-</span><span class="n">jaffe</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Jaffe&quot;</span><span class="p">)</span>
+<span class="c1"># ax[3].plot(r, -jaffe.test_potential(r, jaff_params), label=&quot;Jaffe&quot;)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="o">-</span><span class="n">nfw</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NFW&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="o">-</span><span class="n">plummer</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Plummer&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="o">-</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_plummer</span><span class="o">.</span><span class="n">potential</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="o">-</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_nfw</span><span class="o">.</span><span class="n">potential</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao NFW&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="o">-</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_hernquist</span><span class="o">.</span><span class="n">potential</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao Hernquist&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="o">-</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_jaffe</span><span class="o">.</span><span class="n">_potential</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))(</span><span class="n">r</span><span class="p">,</span> <span class="n">jaff_params</span><span class="p">),</span>
+    <span class="c1"># label=&quot;HernquistZhao Jaffe&quot;,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># ax[3].plot(</span>
+<span class="c1">#     r,</span>
+<span class="c1">#     hz_jaffe.potential_scipy(r),</span>
+<span class="c1">#     linestyle=&quot;-.&quot;,</span>
+<span class="c1">#     color=&quot;pink&quot;,</span>
+<span class="c1"># )</span>
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r [kpc]&quot;</span><span class="p">,</span>
+    <span class="c1"># xlim=(1e-2, 1e4),</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$-\Phi~\rm [km^2s^{-2}]$&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="c1"># ! Weird quirk on the NFW mass profile since it&#39;s analytic.</span>
+<span class="c1"># ! Maybe the log term is not well behaved for small radii.</span>
+<span class="c1"># TODO I&#39;ll have to check this out later, but i don&#39;t see the mass at that small radii being super relevant</span>
+<span class="c1"># maybe taylor expand for small radii? ln(1+q) = q - q^2/2 + ... q = r/rs &lt;&lt; 1</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x321fd99d0&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x32dc3ef90&gt;
 </pre></div>
 </div>
-<img alt="../_images/098fcb838e34de6e0eba789d346b7ec331568e1eea4ce834066c180b523eb341.png" src="../_images/098fcb838e34de6e0eba789d346b7ec331568e1eea4ce834066c180b523eb341.png" />
+<img alt="../_images/5a26661600b8ddebadf37c9ea39396e3d85073692014763242659bca7b330389.png" src="../_images/5a26661600b8ddebadf37c9ea39396e3d85073692014763242659bca7b330389.png" />
 </div>
 </div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hz_jaffe</span><span class="o">.</span><span class="n">test_potential</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">jaff_params</span><span class="p">),</span> <span class="n">jaffe</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(Array(-0.00027926, dtype=float64), Array(-0.00023751, dtype=float64))
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="c1"># plot abs of difference</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">hernquist</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">hz_hernquist</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hernquist&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">jaffe</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">hz_jaffe</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Jaffe&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">nfw</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">hz_nfw</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NFW&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">plummer</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">hz_plummer</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Plummer&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r [kpc]&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$|\rho_{\rm model} - \rho_{\rm HZ}|$&quot;</span><span class="p">,</span>
+    <span class="c1"># title=&quot;Density&quot;,</span>
+<span class="p">)</span>
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hernquist</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_hernquist</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hernquist&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">jaffe</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_jaffe</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Jaffe&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">nfw</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_nfw</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NFW&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">plummer</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_plummer</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Plummer&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$|\gamma_{\rm model} - \gamma_{\rm HZ}|$&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># ax[2].plot(</span>
+<span class="c1">#     r,</span>
+<span class="c1">#     jnp.abs(hernquist.mass(r) - jax.vmap(hz_hernquist.mass)(r)),</span>
+<span class="c1">#     label=&quot;Hernquist&quot;,</span>
+<span class="c1"># )</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">hz_hernquist</span><span class="o">.</span><span class="n">mass_scipy</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">rhos</span><span class="p">,</span> <span class="n">rs</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)),</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+        <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">)(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">hz_hernquist</span><span class="o">.</span><span class="n">mass_scipy</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">rhos</span><span class="p">,</span> <span class="n">rs</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="p">),</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">)(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">hz_hernquist</span><span class="o">.</span><span class="n">mass_quad</span><span class="p">(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">jaffe</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_jaffe</span><span class="o">.</span><span class="n">mass</span><span class="p">)(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Jaffe&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">nfw</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_nfw</span><span class="o">.</span><span class="n">mass</span><span class="p">)(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NFW&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">plummer</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_plummer</span><span class="o">.</span><span class="n">mass</span><span class="p">)(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Plummer&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r [kpc]&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$|M_{\rm model} - M_{\rm HZ}|$&quot;</span><span class="p">,</span>
+    <span class="c1"># title=&quot;Mass&quot;,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">jaffe</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_jaffe</span><span class="o">.</span><span class="n">potential</span><span class="p">)(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Jaffe&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">hernquist</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_hernquist</span><span class="o">.</span><span class="n">potential</span><span class="p">)(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Jaffe&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">nfw</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_nfw</span><span class="o">.</span><span class="n">potential</span><span class="p">)(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NFW&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">plummer</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">hz_plummer</span><span class="o">.</span><span class="n">potential</span><span class="p">)(</span><span class="n">r</span><span class="p">)),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Plummer&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">xlim</span><span class="o">=</span><span class="p">(</span><span class="mf">1e-2</span><span class="p">,</span> <span class="mf">1e2</span><span class="p">),</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r [kpc]&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$|\Phi_{\rm model} - \Phi_{\rm HZ}|$&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[None,
+ None,
+ (0.01, 100.0),
+ Text(0.5, 0, &#39;r [kpc]&#39;),
+ Text(0, 0.5, &#39;$|\\Phi_{\\rm model} - \\Phi_{\\rm HZ}|$&#39;)]
+</pre></div>
+</div>
+<img alt="../_images/9b57f349af8a7e0d0a3be0bd0b4ada4660c072c971187082c8f756b077942eb6.png" src="../_images/9b57f349af8a7e0d0a3be0bd0b4ada4660c072c971187082c8f756b077942eb6.png" />
+</div>
+</div>
+<p>All of these quantities are analytically defined so they’ll be useful for testing our numerical methods.
+Particularly for our Hernquist-Zhao Potential, where none of the quantities (besides the density profile) are analytically defined.</p>
+</section>
+<section id="total-mass">
+<h3>Total Mass<a class="headerlink" href="#total-mass" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hernquist: total mass =  </span><span class="si">{</span><span class="n">hernquist</span><span class="o">.</span><span class="n">_M</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2"> Msun&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Jaffe:     total mass =  </span><span class="si">{</span><span class="n">jaffe</span><span class="o">.</span><span class="n">_M</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2"> Msun&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NFW:       total mass =  </span><span class="si">{</span><span class="n">nfw</span><span class="o">.</span><span class="n">_M</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2"> Msun&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Plummer:   total mass =  </span><span class="si">{</span><span class="n">plummer</span><span class="o">.</span><span class="n">_M</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2"> Msun&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Hernquist: total mass =  5.03e+01 Msun
+Jaffe:     total mass =  1.01e+02 Msun
+NFW:       total mass =  1.59e-07 Msun
+Plummer:   total mass =  3.35e+01 Msun
+</pre></div>
+</div>
+</div>
+</div>
+<p>Note: The mass for NFW profile diverges as <span class="math notranslate nohighlight">\(r \to \infty\)</span> so a cut off radius is needed to define a “total mass”.
+There is a default paramter rlim that is set to ‘r200’ which is the radius at which the mean density is 200 times the critical density of the universe.
+However you can set this to any value you like.
+This will be the case for all potentials that diverge at large radii i.e. all density profiles in which <span class="math notranslate nohighlight">\(\rho(r)\sim r^{c}\)</span> for <span class="math notranslate nohighlight">\(c \le -3\)</span>.</p>
+<p>Depending on your needs it might be convenient to define your potential through a concentration parameter, c and <span class="math notranslate nohighlight">\(\rm M_{200}\)</span></p>
+</section>
 </section>
 <section id="binned-power-laws">
 <h2>Binned Power Laws<a class="headerlink" href="#binned-power-laws" title="Link to this heading">#</a></h2>
@@ -774,28 +1018,23 @@ We’ll be careful to always compare this potential to the NFW to test the accur
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">binnedpl</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PowerLaws</span><span class="p">(</span>
-                <span class="n">rhos</span> <span class="o">=</span> <span class="mf">1e7</span><span class="p">,</span>
-                <span class="n">R_half</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-                <span class="n">gamma</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
-                <span class="n">beta</span>  <span class="o">=</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span>
-                <span class="n">delta</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.0</span><span class="p">,</span>
-                <span class="n">sigma</span> <span class="o">=</span> <span class="o">-</span><span class="mf">4.0</span><span class="p">,</span>
-                <span class="n">alpha</span> <span class="o">=</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">)</span>
+    <span class="n">rhos</span><span class="o">=</span><span class="mf">1e7</span><span class="p">,</span> <span class="n">R_half</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">beta</span><span class="o">=-</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">delta</span><span class="o">=-</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=-</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=-</span><span class="mf">5.0</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">binnedpl</span><span class="o">.</span><span class="n">density</span><span class="p">))(</span><span class="n">r</span><span class="p">))</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">binnedpl</span><span class="o">.</span><span class="n">density</span><span class="p">))(</span><span class="n">r</span><span class="p">))</span>
 
 <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span><span class="o">=</span><span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span><span class="o">=</span><span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\rho$ [M$_{\odot}$ kpc$^{-3}$]&#39;</span><span class="p">,</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r [kpc]&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\rho$ [M$_{\odot}$ kpc$^{-3}$]&quot;</span><span class="p">,</span>
 <span class="p">);</span>
 </pre></div>
 </div>
@@ -804,125 +1043,6 @@ We’ll be careful to always compare this potential to the NFW to test the accur
 <img alt="../_images/6ebcadd70da0a1b6f948ed57319329210f7727b41099ae830e5e037bcde922c7.png" src="../_images/6ebcadd70da0a1b6f948ed57319329210f7727b41099ae830e5e037bcde922c7.png" />
 </div>
 </div>
-</section>
-</section>
-<section class="tex2jax_ignore mathjax_ignore" id="custom-potentials">
-<h1>Custom Potentials<a class="headerlink" href="#custom-potentials" title="Link to this heading">#</a></h1>
-<p>It’s possible that one of the models you need are not implemented in the library.
-You can raise an issue on the github page and we’ll try to implement it as soon as possible.
-But in the meantime, you can define your own potential using the base class <code class="docutils literal notranslate"><span class="pre">JaxPotential</span></code></p>
-<p>Almost every method is implemented numerically in the base class so its possible to define all methods in the class with a few starting functions.
-The easiest is to define the density.</p>
-<p>We’ll use the Plummer model as an example. Since a lot of the functions associated with this model are analytic, it’ll be a good way to test the accuracy of the our numerical methods.
-If they’re not up to par we can always tweak certain default parameters in the base class inorder to get results we’re satified with.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dynamicAll.base</span> <span class="kn">import</span> <span class="n">JaxPotential</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomPot</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">a</span><span class="p">):</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">=</span> <span class="n">M</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;M&#39;</span><span class="p">:</span><span class="n">M</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">:</span><span class="n">a</span><span class="p">}</span>
-
-    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">r</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">CustomPot</span><span class="o">.</span><span class="n">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">params</span><span class="p">):</span>
-        <span class="n">q</span> <span class="o">=</span> <span class="n">r</span> <span class="o">/</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span>
-        <span class="n">coeff</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">coeff</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_Plummer</span> <span class="o">=</span> <span class="n">CustomPot</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">1.0</span><span class="p">)</span>
-<span class="n">plum</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Plummer</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">1.0</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-<span class="c1"># theta = (jnp.linspace(0,2,100)*u.deg).to(u.rad).value</span>
-<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">test_Plummer</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">),</span><span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">test_Plummer</span><span class="o">.</span><span class="n">mass</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span><span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="c1"># ax[1].plot(r,test_Plummer.mass(r))</span>
-<span class="c1"># ax[1].plot(r,jax.vmap(test_Plummer.mass)(r))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">test_Plummer</span><span class="o">.</span><span class="n">potential</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span><span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">test_Plummer</span><span class="o">.</span><span class="n">v_circ</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span><span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">test_Plummer</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span><span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># Note the vmap here cause autograd takes a scalar and returns a scalar</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">test_Plummer</span><span class="o">.</span><span class="n">project</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span><span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="c1"># ax[4].plot(r,test_Plummer.gamma(r))</span>
-
-
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">plum</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">),</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">plum</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">plum</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r</span><span class="p">),</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">plum</span><span class="o">.</span><span class="n">v_circ</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">plum</span><span class="o">.</span><span class="n">gamma</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># Note the vmap here cause autograd takes a scalar and returns a scalar</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">plum</span><span class="o">.</span><span class="n">project</span><span class="p">)(</span><span class="n">r</span><span class="p">),</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\rho$ [M$_{\odot}$ kpc$^{-3}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;M [M$_{\odot}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="c1"># yscale = &#39;log&#39;,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\Phi$ [km$^2$ s$^{-2}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="c1"># yscale = &#39;log&#39;,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$v_{\rm circ}$ [km s$^{-1}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;r [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\gamma$&#39;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">yscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;R [kpc]&#39;</span><span class="p">,</span>
-    <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\Sigma$ [M$_{\odot}$ kpc$^{-2}$]&#39;</span><span class="p">,</span>
-<span class="p">);</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="../_images/9c591771ec771233297c014bbbf7b7f119cedebfb3c5279c85f51230e3b5c032.png" src="../_images/9c591771ec771233297c014bbbf7b7f119cedebfb3c5279c85f51230e3b5c032.png" />
-</div>
-</div>
-<section id="getting-better-performance">
-<h2>Getting better performance<a class="headerlink" href="#getting-better-performance" title="Link to this heading">#</a></h2>
-<p>The default parameters are written to give an accurate solution off the bat, but theyre overkill for most cases.
-Given we care about performance, our model should be as good as it needs to be and no better (as that will tend to come with a performance hit).</p>
 </section>
 </section>
 
@@ -937,12 +1057,12 @@ Given we care about performance, our model should be as good as it needs to be a
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../Installation.html"
+       href="numerical_methods.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Installation Instructions</p>
+        <p class="prev-next-title">CustomPotential</p>
       </div>
     </a>
     <a class="right-next"
@@ -972,19 +1092,19 @@ Given we care about performance, our model should be as good as it needs to be a
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Tutorial: Potentials</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#navaro-frenk-white-nfw">Navaro-Frenk-White (NFW)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gnfw">gNFW</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hernquist-zhao">Hernquist-Zhao</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#double-power-laws">Double Power Laws</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hernquist">Hernquist</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jaffe">Jaffe</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plummer">Plummer</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#note">Note:</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#navaro-frenk-white-nfw">Navaro-Frenk-White (NFW)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#total-mass">Total Mass</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#binned-power-laws">Binned Power Laws</a></li>
 </ul>
-</li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-potentials">Custom Potentials</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-better-performance">Getting better performance</a></li>
-</ul>
-</li>
-</ul>
-
   </nav></div>
 
   <div class="sidebar-secondary-item">
