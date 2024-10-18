@@ -4,36 +4,34 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Define your own Potential"
+    "# Defining a Potential"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Theres a base class called JaxDensity where all of the numerical methods are defined that can be found in base.py.\n",
+    "We use a class based approach to defining our potentials.\n",
     "\n",
-    "Specific sublasses corresponding to known models are defined for each model in models.py\n",
+    "Theres a base class called JaxDensity where all of the numerical methods are defined.\n",
+    "Specific sublasses corresponding to known models (e.g Plummer NFW) are defined for each model in models.py\n",
     "\n",
-    "For built in modles if an analytical espression for a function is known that is what we use, otherwise the default is to use the numerical methods defined in the base class.\n",
+    "You can look at {doc}`./tutorial_potential` for some examples of the built-in models.\n",
+    "\n",
+    "For the built-in models if an analytical espressions for dynamical quantities are known, the analytical espressions are used, if not the numerical methods from the base class are used.\n",
     "\n",
     "For testing purposes it maybe useful to compare the numerical methods to the analytical methods to see if they're working correctly."
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 17,
-   "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "The autoreload extension is already loaded. To reload it, use:\n",
-      "  %reload_ext autoreload\n"
-     ]
-    }
-   ],
+   "execution_count": 1,
+   "metadata": {
+    "tags": [
+     "hide-cell"
+    ]
+   },
+   "outputs": [],
    "source": [
     "%load_ext autoreload\n",
     "%autoreload 2"
@@ -41,7 +39,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 18,
+   "execution_count": 2,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -69,7 +67,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 19,
+   "execution_count": 3,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -78,7 +76,7 @@
     "import jax.numpy as jnp\n",
     "\n",
     "\n",
-    "class TestPotential(JaxDensity):\n",
+    "class Plummer_test(JaxDensity):\n",
     "    def __init__(self, M: float, rs: float):\n",
     "        self._M = M\n",
     "        self._rs = rs\n",
@@ -128,12 +126,12 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 20,
+   "execution_count": 4,
    "metadata": {},
    "outputs": [],
    "source": [
     "params = {\"M\": 3e5, \"rs\": 0.5}\n",
-    "plum_test = TestPotential(**params)"
+    "plum_test = Plummer_test(**params)"
    ]
   },
   {
@@ -141,16 +139,6 @@
    "metadata": {},
    "source": [
     "```{note}\n",
-    "Test note\n",
-    "```"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "```\n",
-    ".. note::\n",
     "    You don't have to initialize the class. You can use it in a more functional form by using the class methods.\n",
     "\n",
     "    all that calling plum_test.density(r) does is call the class method _density(r,params). In actual fitting where you're changing the parameters you would always want to use the class methods rather than the instance methods.\n",
@@ -159,7 +147,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 21,
+   "execution_count": 5,
    "metadata": {},
    "outputs": [
     {
@@ -182,7 +170,7 @@
     "## instance method\n",
     "ax.plot(r, plum_test.density(r), lw=lw)\n",
     "## class method\n",
-    "ax.plot(r, TestPotential._density(r, params), linestyle=\"--\", lw=lw)\n",
+    "ax.plot(r, Plummer_test._density(r, params), linestyle=\"--\", lw=lw)\n",
     "ax.set(\n",
     "    xscale=\"log\",\n",
     "    yscale=\"log\",\n",
@@ -195,12 +183,14 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "The built in Plummer model has almost all dynamical quantites in analytical form. We'll use them to test the numerical methods."
+    "## Test against built-in Model\n",
+    "The built in Plummer model has almost all dynamical quantites in analytical form. \n",
+    "We'll use them to test the numerical methods."
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 22,
+   "execution_count": 6,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -211,7 +201,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 23,
+   "execution_count": 7,
    "metadata": {},
    "outputs": [
     {
@@ -220,7 +210,7 @@
        "[None, None, Text(0.5, 0, 'r'), Text(0, 0.5, '$\\\\Delta \\\\Phi$'), (1e-20, 0.01)]"
       ]
      },
-     "execution_count": 23,
+     "execution_count": 7,
      "metadata": {},
      "output_type": "execute_result"
     },
@@ -257,7 +247,7 @@
     "ax[1].plot(\n",
     "    r,\n",
     "    jnp.abs(\n",
-    "        jax.vmap(TestPotential._potential, in_axes=(0, None))(r, params)\n",
+    "        jax.vmap(Plummer_test._potential, in_axes=(0, None))(r, params)\n",
     "        - plum.potential(r)\n",
     "    ),\n",
     "    lw=lw,\n",
@@ -280,7 +270,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 24,
+   "execution_count": 8,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -288,14 +278,14 @@
     "params_dict = {k: jnp.array([p[k] for p in params_list]) for k in params_list[0]}\n",
     "\n",
     "vectorized_two = jax.vmap(\n",
-    "    jax.vmap(TestPotential._mass, in_axes=(0, None)),\n",
+    "    jax.vmap(Plummer_test._mass, in_axes=(0, None)),\n",
     "    in_axes=(None, 0),\n",
     ")"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 25,
+   "execution_count": 9,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -304,7 +294,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 26,
+   "execution_count": 10,
    "metadata": {},
    "outputs": [
     {
@@ -313,7 +303,7 @@
        "(3, 100)"
       ]
      },
-     "execution_count": 26,
+     "execution_count": 10,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -324,7 +314,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 27,
+   "execution_count": 11,
    "metadata": {},
    "outputs": [
     {
@@ -347,7 +337,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 28,
+   "execution_count": 12,
    "metadata": {},
    "outputs": [
     {
@@ -356,7 +346,7 @@
        "[None, None, Text(0.5, 0, 'r'), Text(0, 0.5, '$\\\\Phi$')]"
       ]
      },
-     "execution_count": 28,
+     "execution_count": 12,
      "metadata": {},
      "output_type": "execute_result"
     },
@@ -386,7 +376,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 29,
+   "execution_count": 13,
    "metadata": {},
    "outputs": [
     {
@@ -430,7 +420,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 30,
+   "execution_count": 14,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -439,7 +429,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 31,
+   "execution_count": 15,
    "metadata": {},
    "outputs": [
     {
@@ -473,11 +463,6 @@
    "source": [
     "Yay! We can accurately recover the analytical distribution function using the numerical methods."
    ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": []
   }
  ],
  "metadata": {

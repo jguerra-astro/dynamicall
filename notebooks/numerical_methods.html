@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Define your own Potential &#8212; dynamicAll 1.0 documentation</title>
+    <title>Defining a Potential &#8212; dynamicAll 1.0 documentation</title>
   
   
   
@@ -149,7 +149,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="#">
-    Define your own Potential
+    Defining a Potential
   </a>
 </li>
 
@@ -305,7 +305,7 @@ document.write(`
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="#">
-    Define your own Potential
+    Defining a Potential
   </a>
 </li>
 
@@ -427,7 +427,7 @@ document.write(`
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page">Define your...</li>
+    <li class="breadcrumb-item active" aria-current="page">Defining a Potential</li>
   </ul>
 </nav>
 </div>
@@ -444,25 +444,27 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="define-your-own-potential">
-<h1>Define your own Potential<a class="headerlink" href="#define-your-own-potential" title="Link to this heading">#</a></h1>
-<p>Theres a base class called JaxDensity where all of the numerical methods are defined that can be found in base.py.</p>
-<p>Specific sublasses corresponding to known models are defined for each model in models.py</p>
-<p>For built in modles if an analytical espression for a function is known that is what we use, otherwise the default is to use the numerical methods defined in the base class.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="defining-a-potential">
+<h1>Defining a Potential<a class="headerlink" href="#defining-a-potential" title="Link to this heading">#</a></h1>
+<p>We use a class based approach to defining our potentials.</p>
+<p>Theres a base class called JaxDensity where all of the numerical methods are defined.
+Specific sublasses corresponding to known models (e.g Plummer NFW) are defined for each model in models.py</p>
+<p>You can look at <a class="reference internal" href="tutorial_potential.html"><span class="doc">Tutorial: Potentials</span></a> for some examples of the built-in models.</p>
+<p>For the built-in models if an analytical espressions for dynamical quantities are known, the analytical espressions are used, if not the numerical methods from the base class are used.</p>
 <p>For testing purposes it maybe useful to compare the numerical methods to the analytical methods to see if they’re working correctly.</p>
-<div class="cell docutils container">
+<div class="cell tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> autoreload
 <span class="o">%</span><span class="k">autoreload</span> 2
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The autoreload extension is already loaded. To reload it, use:
-  %reload_ext autoreload
-</pre></div>
-</div>
-</div>
+</details>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -487,7 +489,7 @@ f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{
 <span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
 
 
-<span class="k">class</span> <span class="nc">TestPotential</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Plummer_test</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rs</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_M</span> <span class="o">=</span> <span class="n">M</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rs</span> <span class="o">=</span> <span class="n">rs</span>
@@ -527,20 +529,18 @@ f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="mf">3e5</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span>
-<span class="n">plum_test</span> <span class="o">=</span> <span class="n">TestPotential</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+<span class="n">plum_test</span> <span class="o">=</span> <span class="n">Plummer_test</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Test note</p>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">..</span> <span class="n">note</span><span class="p">::</span>
-    <span class="n">You</span> <span class="n">don</span><span class="s1">&#39;t have to initialize the class. You can use it in a more functional form by using the class methods.</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>You don&#39;t have to initialize the class. You can use it in a more functional form by using the class methods.
 
-    <span class="nb">all</span> <span class="n">that</span> <span class="n">calling</span> <span class="n">plum_test</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="n">does</span> <span class="ow">is</span> <span class="n">call</span> <span class="n">the</span> <span class="k">class</span> <span class="nc">method</span> <span class="n">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">params</span><span class="p">)</span><span class="o">.</span> <span class="n">In</span> <span class="n">actual</span> <span class="n">fitting</span> <span class="n">where</span> <span class="n">you</span><span class="s1">&#39;re changing the parameters you would always want to use the class methods rather than the instance methods.</span>
+all that calling plum_test.density(r) does is call the class method _density(r,params). In actual fitting where you&#39;re changing the parameters you would always want to use the class methods rather than the instance methods.
 </pre></div>
+</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -552,7 +552,7 @@ f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{
 <span class="c1">## instance method</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">plum_test</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">)</span>
 <span class="c1">## class method</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">TestPotential</span><span class="o">.</span><span class="n">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">),</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">Plummer_test</span><span class="o">.</span><span class="n">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">),</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
     <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
     <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
@@ -566,7 +566,11 @@ f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{
 <img alt="../_images/a5a42a9e3c5a234329a6d9a7d4f4e4d50e18a3f5ccf837a27803403eecdb1953.png" src="../_images/a5a42a9e3c5a234329a6d9a7d4f4e4d50e18a3f5ccf837a27803403eecdb1953.png" />
 </div>
 </div>
-<p>The built in Plummer model has almost all dynamical quantites in analytical form. We’ll use them to test the numerical methods.</p>
+</section>
+<section id="test-against-built-in-model">
+<h2>Test against built-in Model<a class="headerlink" href="#test-against-built-in-model" title="Link to this heading">#</a></h2>
+<p>The built in Plummer model has almost all dynamical quantites in analytical form.
+We’ll use them to test the numerical methods.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dynamicAll</span> <span class="kn">import</span> <span class="n">models</span>
@@ -599,7 +603,7 @@ f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
     <span class="n">r</span><span class="p">,</span>
     <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
-        <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">TestPotential</span><span class="o">.</span><span class="n">_potential</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))(</span><span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">Plummer_test</span><span class="o">.</span><span class="n">_potential</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))(</span><span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
         <span class="o">-</span> <span class="n">plum</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
     <span class="p">),</span>
     <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">,</span>
@@ -628,7 +632,7 @@ f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{
 <span class="n">params_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params_list</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">params_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
 
 <span class="n">vectorized_two</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span>
-    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">TestPotential</span><span class="o">.</span><span class="n">_mass</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">Plummer_test</span><span class="o">.</span><span class="n">_mass</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
     <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
@@ -801,6 +805,7 @@ f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initialisation">Initialisation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#test-against-built-in-model">Test against built-in Model</a></li>
 </ul>
   </nav></div>
 
