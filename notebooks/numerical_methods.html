@@ -561,8 +561,10 @@ f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You don’t have to initialize the class. You can use it in a more functional form by using the class methods.</p>
-<p>all that calling plum_test.density(r) does is call the class method _density(r,params). In actual fitting where you’re changing the parameters you would always want to use the class methods rather than the instance methods.</p>
+<p>You don’t have to initialize the class.
+You can use it in a more functional form by using the class methods.</p>
+<p>All that calling plum_test.density(r) does is call the class method _density(r,params).
+In actual fitting where you’re changing the parameters you would always want to use the class methods rather than the instance methods.</p>
 <p>See the plot below showing the density profile we just defined being called in two different ways.</p>
 </div>
 <div class="cell docutils container">
@@ -604,7 +606,7 @@ f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{
 </div>
 <p>The difference between our numerical methods and the analytical methods is less than 1e-6 for all quantities.</p>
 <p>Our integration scheme is very simple, but we show that it is very accurate for a wide range of models.
-see {doc}`./tutorial_potential where we compare various models with analytical functions versus the equivalent Hernquist-Zhao model that uses analytical methods</p>
+see <a class="reference internal" href="tutorial_potential.html"><span class="doc">Tutorial: Potentials</span></a> where we compare various models with analytical functions versus the equivalent Hernquist-Zhao model that uses analytical methods</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>

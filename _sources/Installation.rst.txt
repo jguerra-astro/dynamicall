@@ -91,7 +91,7 @@ Specially if you are planning on using the gpu version of Jax.
 jax, jaxlib, jaxopt are required as well, but they should be installed as part of installing jax.
 
 .. warning::
-    Installing jax things incorrectly/out of order may lead to you having different version of jax and jaxlib, which are imcompatible with each other and will lead to errors.
+    Installing jax things incorrectly/out of order may lead to you having different version of jax and jaxlib, which are incompatible with each other and will lead to errors.
 
 .. note::
     We suggest that you **do not** attempt to install the *gpu* version of Jax if you are on a mac at this time.

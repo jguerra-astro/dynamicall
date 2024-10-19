@@ -164,9 +164,11 @@
    "metadata": {},
    "source": [
     "```{note}\n",
-    "You don't have to initialize the class. You can use it in a more functional form by using the class methods.\n",
+    "You don't have to initialize the class.\n",
+    "You can use it in a more functional form by using the class methods.\n",
     "\n",
-    "all that calling plum_test.density(r) does is call the class method _density(r,params). In actual fitting where you're changing the parameters you would always want to use the class methods rather than the instance methods.\n",
+    "All that calling plum_test.density(r) does is call the class method _density(r,params).\n",
+    "In actual fitting where you're changing the parameters you would always want to use the class methods rather than the instance methods.\n",
     "\n",
     "See the plot below showing the density profile we just defined being called in two different ways.\n",
     "```"
@@ -232,7 +234,7 @@
     "The difference between our numerical methods and the analytical methods is less than 1e-6 for all quantities.\n",
     "\n",
     "Our integration scheme is very simple, but we show that it is very accurate for a wide range of models.\n",
-    "see {doc}`./tutorial_potential where we compare various models with analytical functions versus the equivalent Hernquist-Zhao model that uses analytical methods"
+    "see {doc}`./tutorial_potential` where we compare various models with analytical functions versus the equivalent Hernquist-Zhao model that uses analytical methods"
    ]
   },
   {
