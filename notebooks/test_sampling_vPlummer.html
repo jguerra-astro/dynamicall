@@ -1,0 +1,1239 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Sampling &#8212; dynamicAll 1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/test_sampling_vPlummer';</script>
+    <link rel="canonical" href="https://jguerra-astro.github.io/dynamicall/notebooks/test_sampling_vPlummer.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">dynamicAll 1.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Installation.html">
+    Installation Instructions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="numerical_methods.html">
+    Defining a Potential
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_potential.html">
+    Tutorial: Potentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_plummer.html">
+    Tutorial: Plummer Model
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_jfactors.html">
+    Tutorial: J-Factors
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="tutorial_dracoish.html">
+    Tutorial: Numpyro
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../modules.html">
+    dynamicAll
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jguerra-astro/dynamicall" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Installation.html">
+    Installation Instructions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="numerical_methods.html">
+    Defining a Potential
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_potential.html">
+    Tutorial: Potentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_plummer.html">
+    Tutorial: Plummer Model
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_jfactors.html">
+    Tutorial: J-Factors
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_dracoish.html">
+    Tutorial: Numpyro
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../modules.html">
+    dynamicAll
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jguerra-astro/dynamicall" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Sampling</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="cell tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The autoreload extension is already loaded. To reload it, use:
+  %reload_ext autoreload
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="cell tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;XLA_FLAGS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;--xla_force_host_platform_device_count=2&quot;</span>
+<span class="kn">import</span> <span class="nn">numpyro</span>
+
+<span class="n">numpyro</span><span class="o">.</span><span class="n">enable_x64</span><span class="p">()</span>
+<span class="kn">import</span> <span class="nn">jax</span>
+<span class="kn">from</span> <span class="nn">jax._src.config</span> <span class="kn">import</span> <span class="n">config</span>
+
+<span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dynamicAll</span>
+<span class="kn">from</span> <span class="nn">dynamicAll</span> <span class="kn">import</span> <span class="n">models</span><span class="p">,</span><span class="n">fit</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section class="tex2jax_ignore mathjax_ignore" id="sampling">
+<h1>Sampling<a class="headerlink" href="#sampling" title="Link to this heading">#</a></h1>
+<p>In this tutorial we’ll go over the basics of sampling using dynamicall.
+We do this very simply using rejection sampling, leveraging Jax’s vectorization capabilities.</p>
+<section id="tdr">
+<h2>tdr;<a class="headerlink" href="#tdr" title="Link to this heading">#</a></h2>
+<p>If you just want to see the code, here it is:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.stats</span> <span class="kn">import</span> <span class="n">histogram</span>
+
+<span class="n">model_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="mf">1e5</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Plummer</span><span class="p">(</span><span class="o">**</span><span class="n">model_params</span><span class="p">)</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">sample_w_conditional</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">10_000</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">g_q</span><span class="p">(</span><span class="n">q</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Probability distribution for q = v/v_esc.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    q : _type_</span>
+<span class="sd">        _description_</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    _type_</span>
+<span class="sd">        _description_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">q</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">512</span> <span class="o">/</span> <span class="p">(</span><span class="mi">7</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+
+
+<span class="n">r_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">r_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">N</span><span class="p">,</span> <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">histogram</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s2">&quot;blocks&quot;</span><span class="p">)</span>
+<span class="n">r_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">bin_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">bin_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">v</span> <span class="o">/</span> <span class="n">model</span><span class="o">.</span><span class="n">v_esc</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+<span class="c1"># sanity checks</span>
+<span class="n">N</span><span class="p">,</span> <span class="n">vel_edges</span> <span class="o">=</span> <span class="n">histogram</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s2">&quot;blocks&quot;</span><span class="p">)</span>
+<span class="n">q_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_edges</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;sampling&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r_test</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">probability</span><span class="p">(</span><span class="n">r_test</span><span class="p">),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Analytical&quot;</span><span class="p">,</span>
+    <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r pkpc&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$pdf(r)$&quot;</span><span class="p">)</span>
+
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">vel_edges</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">q_test</span><span class="p">,</span>
+    <span class="n">g_q</span><span class="p">(</span><span class="n">q_test</span><span class="p">),</span>
+    <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">xlabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$q =\frac</span><span class="si">{v}</span><span class="s2">{v_</span><span class="si">{esc}</span><span class="s2">}(r)$&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$pdf(q)$&quot;</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x323149390&gt;
+</pre></div>
+</div>
+<img alt="../_images/4f5872afd99828c02c91574dca3140328b9932f8fea8339024edcb4178be7a95.png" src="../_images/4f5872afd99828c02c91574dca3140328b9932f8fea8339024edcb4178be7a95.png" />
+</div>
+</div>
+</section>
+<section id="rejection-sampling">
+<h2>Rejection sampling<a class="headerlink" href="#rejection-sampling" title="Link to this heading">#</a></h2>
+<p>The basic outline of how we sample in cases where there isn’t a convenient trick to sample the distribution, i.e. cases where we have some stellar distribution embedded in a dark halo, we can calculate the distribution function using the Eddington formula.
+Then use rejection sampling in order to get samples.</p>
+<p>model.D</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">E</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">total_energy</span><span class="p">)(</span><span class="n">samples</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">:])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">E</span><span class="p">[</span><span class="mi">23</span><span class="p">],</span> <span class="n">model</span><span class="o">.</span><span class="n">total_energy</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">samples</span><span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">3</span><span class="p">:])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(Array(-0.45358926, dtype=float64), Array(-0.45358926, dtype=float64))
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">N</span><span class="p">,</span> <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">histogram</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s2">&quot;blocks&quot;</span><span class="p">)</span>
+<span class="n">bin_centers</span> <span class="o">=</span> <span class="p">(</span><span class="n">bin_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">bin_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_edges</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">bin_centers</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="n">bin_centers</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bin_centers</span> <span class="o">/</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x321553750&gt;]
+</pre></div>
+</div>
+<img alt="../_images/84794a40381bcadfc05ac4d4fd3e7874666fa5561c5560537a22ccbb47330d2a.png" src="../_images/84794a40381bcadfc05ac4d4fd3e7874666fa5561c5560537a22ccbb47330d2a.png" />
+</div>
+</div>
+<p>Following Binney and Tremaine, we can write down the Eddington formula for the distribution function of an isotropic system as
+$<span class="math notranslate nohighlight">\(
+f(\epsilon) = \frac{1}{\sqrt{8}\pi^2}\frac{d}{d\epsilon}\int_{0}^{\infty} \frac{d\psi}{\sqrt{\epsilon-\psi}}\frac{d\rho}{d\psi}.
+\)</span><span class="math notranslate nohighlight">\(
+This is following the Normal conventions where
+\)</span>\psi = -\Phi + \Phi_{0}<span class="math notranslate nohighlight">\( and \)</span>\epsilon = \psi - \frac{1}{2}v^{2}<span class="math notranslate nohighlight">\(.
+In cases where a system extends towards infinity, \)</span>\Phi_{0} = 0<span class="math notranslate nohighlight">\( and the relative energy \)</span>\epsilon = $ binding energy.</p>
+<p>An equivalent formula is given by:
+$<span class="math notranslate nohighlight">\(
+f(\epsilon) = \frac{1}{\sqrt{8}\pi^2}\int_{0}^{\infty} \frac{d\psi}{\sqrt{\epsilon-\psi}}\frac{d^{2}\rho}{d\psi^{2}} + \frac{1}{\sqrt{\epsilon}}\left(\frac{d\rho}{d\psi}\right)_{\psi=0}.
+\)</span>$</p>
+<p>For numerical calculations e.g. sampling, it might be easier to not have to calculate <span class="math notranslate nohighlight">\(\rho(\psi)\)</span> as it may not be possible to write down in closed form.
+Fortunately, <span class="math notranslate nohighlight">\(\rho(\psi)\)</span> only appears as a derivative in the above formula we can rewrite it as
+This mean we can use the fact that</p>
+<div class="math notranslate nohighlight">
+\[d\psi = \frac{d\psi}{dr}dr\]</div>
+<div class="math notranslate nohighlight">
+\[\frac{d}{d\psi}= \frac{dr}{d\psi}\frac{d}{dr} \]</div>
+<div class="math notranslate nohighlight">
+\[\frac{d\psi(r)}{dr} = -\frac{GM(r)}{r^{2}}\]</div>
+<div class="math notranslate nohighlight">
+\[
+f(\epsilon) = \frac{1}{\sqrt{8}\pi^2}\int_{r_\epsilon}^{\infty} \frac{k(r)dr}{\sqrt{\epsilon - \psi(r)}}
+\]</div>
+<p>where k(r)
+$$
+k(r) = \frac{r^{2}}{GM(r)}\left[\rho’’(r)\ + \rho’(r)\left(\frac{2}{r} - \frac{4\pi\rho(r)}{M(r)}\right)\right]</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dynamicAll</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="c1"># Define parameters</span>
+<span class="n">dm</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;rhos&quot;</span><span class="p">:</span> <span class="mf">6.4e7</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">}</span>
+<span class="n">stellar</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="mf">1.0e7</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">}</span>
+
+<span class="n">stellar_component</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Plummer</span><span class="p">(</span><span class="o">**</span><span class="n">stellar</span><span class="p">)</span>
+<span class="n">stellar_test</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rhos&quot;</span><span class="p">:</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">0.25</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="c1"># stellar_component = models.HernquistZhao(**stellar_test)</span>
+<span class="c1"># dm_component = models.HernquistZhao(**dm)</span>
+<span class="n">dm_component</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">HernquistZhao</span><span class="p">(</span><span class="o">**</span><span class="n">stellar_test</span><span class="p">)</span>
+<span class="c1"># dm_component = models.Plummer(**stellar)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">r200</span> <span class="o">=</span> <span class="n">dm_component</span><span class="o">.</span><span class="n">r200</span><span class="p">()</span>
+<span class="n">r200</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Array(0.00533676, dtype=float64)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="n">dm_component</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r200</span><span class="p">))),</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="n">dm_component</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="mf">1e-8</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(Array(0.54211353, dtype=float64), Array(0.54212017, dtype=float64))
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">jnp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">r200</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Array(-5.23313695, dtype=float64)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">jax</span>
+<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+
+<span class="c1"># r = jnp.logspace(-8, jnp.log10(r200), 10_000)</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10_000</span><span class="p">)</span>
+<span class="n">rho</span> <span class="o">=</span> <span class="n">stellar_component</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+<span class="n">phi</span> <span class="o">=</span> <span class="o">-</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">dm_component</span><span class="o">.</span><span class="n">potential</span><span class="p">)(</span><span class="n">r</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">jax_cosmo.scipy.interpolate</span> <span class="kn">import</span> <span class="n">InterpolatedUnivariateSpline</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
+<span class="n">rho_of_phi</span> <span class="o">=</span> <span class="n">InterpolatedUnivariateSpline</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">der</span> <span class="o">=</span> <span class="n">rho_of_phi</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">analytic_drho_dr</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+    <span class="c1"># derivative of plummer density with respect to r</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">3</span> <span class="o">*</span> <span class="n">M</span> <span class="o">*</span> <span class="p">(</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">r</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">r</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">a</span><span class="o">**</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rho</span> <span class="o">=</span> <span class="n">stellar_component</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+<span class="n">drho</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">stellar_component</span><span class="o">.</span><span class="n">density</span><span class="p">)</span>
+<span class="n">lw</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\rho(r)$&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">drho</span><span class="p">)(</span><span class="n">r</span><span class="p">)),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;analytical&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">,</span>
+    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">analytic_drho_dr</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">stellar</span><span class="p">[</span><span class="s2">&quot;M&quot;</span><span class="p">],</span> <span class="n">stellar</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">])),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;analytical&quot;</span><span class="p">,</span>
+    <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\left|\frac{d\rho}</span><span class="si">{dr}</span><span class="s2">\right|$&quot;</span>
+<span class="p">)</span>
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\left|\phi(r)\right|$&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">phi</span><span class="p">,</span>
+    <span class="n">analytic_drho_dr</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">stellar</span><span class="p">[</span><span class="s2">&quot;M&quot;</span><span class="p">],</span> <span class="n">stellar</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">])</span>
+    <span class="o">*</span> <span class="n">r</span><span class="o">**</span><span class="mi">2</span>
+    <span class="o">/</span> <span class="n">stellar_component</span><span class="o">.</span><span class="n">G</span>
+    <span class="o">/</span> <span class="n">stellar_component</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span>
+    <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\left|\frac{d\rho}</span><span class="si">{dr}</span><span class="s2">\right|$&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x39ac55890&gt;]
+</pre></div>
+</div>
+<img alt="../_images/4e571f1fa80b3803498473ca1b973d36e592cece3472483c181ec707f93a1342.png" src="../_images/4e571f1fa80b3803498473ca1b973d36e592cece3472483c181ec707f93a1342.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;/Users/juan/phd/matplotlib/jdefault.mplstyle&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\rho~[\rm M_{\odot}~kpc^{-3}]$&quot;</span>
+<span class="p">)</span>
+<span class="c1"># ax[1].plot(r,(phi*u.kpc**2/u.s**2).to(u.km**2/u.s**2))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+<span class="c1"># ax[1].plot(r,dm_test.potential(r),linestyle=&#39;--&#39;)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="c1"># yscale = &#39;log&#39;,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$|\Phi|~[\rm km^</span><span class="si">{2}</span><span class="s2">~s^{-2}]$&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># ax[2].plot((phi*u.kpc**2/u.s**2).to(u.km**2/u.s**2),rho)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+<span class="c1"># ax[2].plot((phi*u.kpc**2/u.s**2).to(u.km**2/u.s**2),rho_of_phi(phi),linestyle=&#39;--&#39;)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="c1"># xscale = &#39;log&#39;,</span>
+    <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;$\Phi$&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\rho(\Phi)$&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># ax[3].plot((phi*u.kpc**2/u.s**2).to(u.km**2/u.s**2),jax.vmap(jax.grad(rho_of_phi))((phi*u.kpc**2/u.s**2).to(u.km**2/u.s**2)),linestyle=&#39;--&#39;)</span>
+<span class="c1"># plot numerical derivative not using jax</span>
+<span class="c1"># ax[3].plot(phi[:10], np.gradient(rho, phi[:10]))</span>
+<span class="c1"># ax[3].plot(phi[:10], jax.vmap(jax.grad(rho_of_phi))(phi[:10]))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">der</span><span class="p">)</span>
+<span class="c1"># ax[3].plot(phi, jax.vmap(jax.grad(rho_of_phi))(phi))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="c1"># xscale=&quot;log&quot;,</span>
+    <span class="c1"># yscale=&quot;log&quot;,</span>
+    <span class="c1"># xlabel=&quot;$\Phi$&quot;,</span>
+    <span class="c1"># ylabel=r&quot;$\frac{d\rho}{d\Phi}$&quot;,</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/0ece5a12a749dbb6bdd4818e3d2a210ca12f41792605b2d1c07c7e9f621cd62b.png" src="../_images/0ece5a12a749dbb6bdd4818e3d2a210ca12f41792605b2d1c07c7e9f621cd62b.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">rho_of_phi</span><span class="p">))(</span><span class="n">phi</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Array([nan, nan, nan, ..., nan, nan, nan], dtype=float64)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">x</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">legendre</span><span class="o">.</span><span class="n">leggauss</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span>  <span class="c1"># TODO: Find a better way to set this.</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+<span class="n">drho_dphi</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">rho_of_phi</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">DistributionFunction</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">integral</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="n">E</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">+</span> <span class="n">x0</span><span class="p">)</span>
+        <span class="n">wi</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="n">w</span>
+        <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">wi</span> <span class="o">*</span> <span class="n">drho_dphi</span><span class="p">(</span><span class="n">xi</span><span class="p">)</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">E</span> <span class="o">-</span> <span class="n">xi</span><span class="p">))</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">integral</span><span class="p">)(</span><span class="n">E</span><span class="p">)</span>
+    <span class="n">coeff</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">coeff</span> <span class="o">*</span> <span class="n">out</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">astropy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">kpc</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">Msun</span><span class="p">))</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>4.300917270036279e-06 km2 kpc / (solMass s2)
+[   0.            3.5035035     7.00700701   10.51051051   14.01401401
+   17.51751752   21.02102102   24.52452452   28.02802803   31.53153153
+   35.03503504   38.53853854   42.04204204   45.54554555   49.04904905
+   52.55255255   56.05605606   59.55955956   63.06306306   66.56656657
+   70.07007007   73.57357357   77.07707708   80.58058058   84.08408408
+   87.58758759   91.09109109   94.59459459   98.0980981   101.6016016
+  105.10510511  108.60860861  112.11211211  115.61561562  119.11911912
+  122.62262262  126.12612613  129.62962963  133.13313313  136.63663664
+  140.14014014  143.64364364  147.14714715  150.65065065  154.15415415
+  157.65765766  161.16116116  164.66466466  168.16816817  171.67167167
+  175.17517518  178.67867868  182.18218218  185.68568569  189.18918919
+  192.69269269  196.1961962   199.6996997   203.2032032   206.70670671
+  210.21021021  213.71371371  217.21721722  220.72072072  224.22422422
+  227.72772773  231.23123123  234.73473473  238.23823824  241.74174174
+  245.24524525  248.74874875  252.25225225  255.75575576  259.25925926
+  262.76276276  266.26626627  269.76976977  273.27327327  276.77677678
+  280.28028028  283.78378378  287.28728729  290.79079079  294.29429429
+  297.7977978   301.3013013   304.8048048   308.30830831  311.81181181
+  315.31531532  318.81881882  322.32232232  325.82582583  329.32932933
+  332.83283283  336.33633634  339.83983984  343.34334334  346.84684685
+  350.35035035  353.85385385  357.35735736  360.86086086  364.36436436
+  367.86786787  371.37137137  374.87487487  378.37837838  381.88188188
+  385.38538539  388.88888889  392.39239239  395.8958959   399.3993994
+  402.9029029   406.40640641  409.90990991  413.41341341  416.91691692
+  420.42042042  423.92392392  427.42742743  430.93093093  434.43443443
+  437.93793794  441.44144144  444.94494494  448.44844845  451.95195195
+  455.45545546  458.95895896  462.46246246  465.96596597  469.46946947
+  472.97297297  476.47647648  479.97997998  483.48348348  486.98698699
+  490.49049049  493.99399399  497.4974975   501.001001    504.5045045
+  508.00800801  511.51151151  515.01501502  518.51851852  522.02202202
+  525.52552553  529.02902903  532.53253253  536.03603604  539.53953954
+  543.04304304  546.54654655  550.05005005  553.55355355  557.05705706
+  560.56056056  564.06406406  567.56756757  571.07107107  574.57457457
+  578.07807808  581.58158158  585.08508509  588.58858859  592.09209209
+  595.5955956   599.0990991   602.6026026   606.10610611  609.60960961
+  613.11311311  616.61661662  620.12012012  623.62362362  627.12712713
+  630.63063063  634.13413413  637.63763764  641.14114114  644.64464464
+  648.14814815  651.65165165  655.15515516  658.65865866  662.16216216
+  665.66566567  669.16916917  672.67267267  676.17617618  679.67967968
+  683.18318318  686.68668669  690.19019019  693.69369369  697.1971972
+  700.7007007   704.2042042   707.70770771  711.21121121  714.71471471
+  718.21821822  721.72172172  725.22522523  728.72872873  732.23223223
+  735.73573574  739.23923924  742.74274274  746.24624625  749.74974975
+  753.25325325  756.75675676  760.26026026  763.76376376  767.26726727
+  770.77077077  774.27427427  777.77777778  781.28128128  784.78478478
+  788.28828829  791.79179179  795.2952953   798.7987988   802.3023023
+  805.80580581  809.30930931  812.81281281  816.31631632  819.81981982
+  823.32332332  826.82682683  830.33033033  833.83383383  837.33733734
+  840.84084084  844.34434434  847.84784785  851.35135135  854.85485485
+  858.35835836  861.86186186  865.36536537  868.86886887  872.37237237
+  875.87587588  879.37937938  882.88288288  886.38638639  889.88988989
+  893.39339339  896.8968969   900.4004004   903.9039039   907.40740741
+  910.91091091  914.41441441  917.91791792  921.42142142  924.92492492
+  928.42842843  931.93193193  935.43543544  938.93893894  942.44244244
+  945.94594595  949.44944945  952.95295295  956.45645646  959.95995996
+  963.46346346  966.96696697  970.47047047  973.97397397  977.47747748
+  980.98098098  984.48448448  987.98798799  991.49149149  994.99499499
+  998.4984985  1002.002002   1005.50550551 1009.00900901 1012.51251251
+ 1016.01601602 1019.51951952 1023.02302302 1026.52652653 1030.03003003
+ 1033.53353353 1037.03703704 1040.54054054 1044.04404404 1047.54754755
+ 1051.05105105 1054.55455455 1058.05805806 1061.56156156 1065.06506507
+ 1068.56856857 1072.07207207 1075.57557558 1079.07907908 1082.58258258
+ 1086.08608609 1089.58958959 1093.09309309 1096.5965966  1100.1001001
+ 1103.6036036  1107.10710711 1110.61061061 1114.11411411 1117.61761762
+ 1121.12112112 1124.62462462 1128.12812813 1131.63163163 1135.13513514
+ 1138.63863864 1142.14214214 1145.64564565 1149.14914915 1152.65265265
+ 1156.15615616 1159.65965966 1163.16316316 1166.66666667 1170.17017017
+ 1173.67367367 1177.17717718 1180.68068068 1184.18418418 1187.68768769
+ 1191.19119119 1194.69469469 1198.1981982  1201.7017017  1205.20520521
+ 1208.70870871 1212.21221221 1215.71571572 1219.21921922 1222.72272272
+ 1226.22622623 1229.72972973 1233.23323323 1236.73673674 1240.24024024
+ 1243.74374374 1247.24724725 1250.75075075 1254.25425425 1257.75775776
+ 1261.26126126 1264.76476476 1268.26826827 1271.77177177 1275.27527528
+ 1278.77877878 1282.28228228 1285.78578579 1289.28928929 1292.79279279
+ 1296.2962963  1299.7997998  1303.3033033  1306.80680681 1310.31031031
+ 1313.81381381 1317.31731732 1320.82082082 1324.32432432 1327.82782783
+ 1331.33133133 1334.83483483 1338.33833834 1341.84184184 1345.34534535
+ 1348.84884885 1352.35235235 1355.85585586 1359.35935936 1362.86286286
+ 1366.36636637 1369.86986987 1373.37337337 1376.87687688 1380.38038038
+ 1383.88388388 1387.38738739 1390.89089089 1394.39439439 1397.8978979
+ 1401.4014014  1404.9049049  1408.40840841 1411.91191191 1415.41541542
+ 1418.91891892 1422.42242242 1425.92592593 1429.42942943 1432.93293293
+ 1436.43643644 1439.93993994 1443.44344344 1446.94694695 1450.45045045
+ 1453.95395395 1457.45745746 1460.96096096 1464.46446446 1467.96796797
+ 1471.47147147 1474.97497497 1478.47847848 1481.98198198 1485.48548549
+ 1488.98898899 1492.49249249 1495.995996   1499.4994995  1503.003003
+ 1506.50650651 1510.01001001 1513.51351351 1517.01701702 1520.52052052
+ 1524.02402402 1527.52752753 1531.03103103 1534.53453453 1538.03803804
+ 1541.54154154 1545.04504505 1548.54854855 1552.05205205 1555.55555556
+ 1559.05905906 1562.56256256 1566.06606607 1569.56956957 1573.07307307
+ 1576.57657658 1580.08008008 1583.58358358 1587.08708709 1590.59059059
+ 1594.09409409 1597.5975976  1601.1011011  1604.6046046  1608.10810811
+ 1611.61161161 1615.11511512 1618.61861862 1622.12212212 1625.62562563
+ 1629.12912913 1632.63263263 1636.13613614 1639.63963964 1643.14314314
+ 1646.64664665 1650.15015015 1653.65365365 1657.15715716 1660.66066066
+ 1664.16416416 1667.66766767 1671.17117117 1674.67467467 1678.17817818
+ 1681.68168168 1685.18518519 1688.68868869 1692.19219219 1695.6956957
+ 1699.1991992  1702.7027027  1706.20620621 1709.70970971 1713.21321321
+ 1716.71671672 1720.22022022 1723.72372372 1727.22722723 1730.73073073
+ 1734.23423423 1737.73773774 1741.24124124 1744.74474474 1748.24824825
+ 1751.75175175 1755.25525526 1758.75875876 1762.26226226 1765.76576577
+ 1769.26926927 1772.77277277 1776.27627628 1779.77977978 1783.28328328
+ 1786.78678679 1790.29029029 1793.79379379 1797.2972973  1800.8008008
+ 1804.3043043  1807.80780781 1811.31131131 1814.81481481 1818.31831832
+ 1821.82182182 1825.32532533 1828.82882883 1832.33233233 1835.83583584
+ 1839.33933934 1842.84284284 1846.34634635 1849.84984985 1853.35335335
+ 1856.85685686 1860.36036036 1863.86386386 1867.36736737 1870.87087087
+ 1874.37437437 1877.87787788 1881.38138138 1884.88488488 1888.38838839
+ 1891.89189189 1895.3953954  1898.8988989  1902.4024024  1905.90590591
+ 1909.40940941 1912.91291291 1916.41641642 1919.91991992 1923.42342342
+ 1926.92692693 1930.43043043 1933.93393393 1937.43743744 1940.94094094
+ 1944.44444444 1947.94794795 1951.45145145 1954.95495495 1958.45845846
+ 1961.96196196 1965.46546547 1968.96896897 1972.47247247 1975.97597598
+ 1979.47947948 1982.98298298 1986.48648649 1989.98998999 1993.49349349
+ 1996.996997   2000.5005005  2004.004004   2007.50750751 2011.01101101
+ 2014.51451451 2018.01801802 2021.52152152 2025.02502503 2028.52852853
+ 2032.03203203 2035.53553554 2039.03903904 2042.54254254 2046.04604605
+ 2049.54954955 2053.05305305 2056.55655656 2060.06006006 2063.56356356
+ 2067.06706707 2070.57057057 2074.07407407 2077.57757758 2081.08108108
+ 2084.58458458 2088.08808809 2091.59159159 2095.0950951  2098.5985986
+ 2102.1021021  2105.60560561 2109.10910911 2112.61261261 2116.11611612
+ 2119.61961962 2123.12312312 2126.62662663 2130.13013013 2133.63363363
+ 2137.13713714 2140.64064064 2144.14414414 2147.64764765 2151.15115115
+ 2154.65465465 2158.15815816 2161.66166166 2165.16516517 2168.66866867
+ 2172.17217217 2175.67567568 2179.17917918 2182.68268268 2186.18618619
+ 2189.68968969 2193.19319319 2196.6966967  2200.2002002  2203.7037037
+ 2207.20720721 2210.71071071 2214.21421421 2217.71771772 2221.22122122
+ 2224.72472472 2228.22822823 2231.73173173 2235.23523524 2238.73873874
+ 2242.24224224 2245.74574575 2249.24924925 2252.75275275 2256.25625626
+ 2259.75975976 2263.26326326 2266.76676677 2270.27027027 2273.77377377
+ 2277.27727728 2280.78078078 2284.28428428 2287.78778779 2291.29129129
+ 2294.79479479 2298.2982983  2301.8018018  2305.30530531 2308.80880881
+ 2312.31231231 2315.81581582 2319.31931932 2322.82282282 2326.32632633
+ 2329.82982983 2333.33333333 2336.83683684 2340.34034034 2343.84384384
+ 2347.34734735 2350.85085085 2354.35435435 2357.85785786 2361.36136136
+ 2364.86486486 2368.36836837 2371.87187187 2375.37537538 2378.87887888
+ 2382.38238238 2385.88588589 2389.38938939 2392.89289289 2396.3963964
+ 2399.8998999  2403.4034034  2406.90690691 2410.41041041 2413.91391391
+ 2417.41741742 2420.92092092 2424.42442442 2427.92792793 2431.43143143
+ 2434.93493493 2438.43843844 2441.94194194 2445.44544545 2448.94894895
+ 2452.45245245 2455.95595596 2459.45945946 2462.96296296 2466.46646647
+ 2469.96996997 2473.47347347 2476.97697698 2480.48048048 2483.98398398
+ 2487.48748749 2490.99099099 2494.49449449 2497.997998   2501.5015015
+ 2505.00500501 2508.50850851 2512.01201201 2515.51551552 2519.01901902
+ 2522.52252252 2526.02602603 2529.52952953 2533.03303303 2536.53653654
+ 2540.04004004 2543.54354354 2547.04704705 2550.55055055 2554.05405405
+ 2557.55755756 2561.06106106 2564.56456456 2568.06806807 2571.57157157
+ 2575.07507508 2578.57857858 2582.08208208 2585.58558559 2589.08908909
+ 2592.59259259 2596.0960961  2599.5995996  2603.1031031  2606.60660661
+ 2610.11011011 2613.61361361 2617.11711712 2620.62062062 2624.12412412
+ 2627.62762763 2631.13113113 2634.63463463 2638.13813814 2641.64164164
+ 2645.14514515 2648.64864865 2652.15215215 2655.65565566 2659.15915916
+ 2662.66266266 2666.16616617 2669.66966967 2673.17317317 2676.67667668
+ 2680.18018018 2683.68368368 2687.18718719 2690.69069069 2694.19419419
+ 2697.6976977  2701.2012012  2704.7047047  2708.20820821 2711.71171171
+ 2715.21521522 2718.71871872 2722.22222222 2725.72572573 2729.22922923
+ 2732.73273273 2736.23623624 2739.73973974 2743.24324324 2746.74674675
+ 2750.25025025 2753.75375375 2757.25725726 2760.76076076 2764.26426426
+ 2767.76776777 2771.27127127 2774.77477477 2778.27827828 2781.78178178
+ 2785.28528529 2788.78878879 2792.29229229 2795.7957958  2799.2992993
+ 2802.8028028  2806.30630631 2809.80980981 2813.31331331 2816.81681682
+ 2820.32032032 2823.82382382 2827.32732733 2830.83083083 2834.33433433
+ 2837.83783784 2841.34134134 2844.84484484 2848.34834835 2851.85185185
+ 2855.35535536 2858.85885886 2862.36236236 2865.86586587 2869.36936937
+ 2872.87287287 2876.37637638 2879.87987988 2883.38338338 2886.88688689
+ 2890.39039039 2893.89389389 2897.3973974  2900.9009009  2904.4044044
+ 2907.90790791 2911.41141141 2914.91491491 2918.41841842 2921.92192192
+ 2925.42542543 2928.92892893 2932.43243243 2935.93593594 2939.43943944
+ 2942.94294294 2946.44644645 2949.94994995 2953.45345345 2956.95695696
+ 2960.46046046 2963.96396396 2967.46746747 2970.97097097 2974.47447447
+ 2977.97797798 2981.48148148 2984.98498498 2988.48848849 2991.99199199
+ 2995.4954955  2998.998999   3002.5025025  3006.00600601 3009.50950951
+ 3013.01301301 3016.51651652 3020.02002002 3023.52352352 3027.02702703
+ 3030.53053053 3034.03403403 3037.53753754 3041.04104104 3044.54454454
+ 3048.04804805 3051.55155155 3055.05505506 3058.55855856 3062.06206206
+ 3065.56556557 3069.06906907 3072.57257257 3076.07607608 3079.57957958
+ 3083.08308308 3086.58658659 3090.09009009 3093.59359359 3097.0970971
+ 3100.6006006  3104.1041041  3107.60760761 3111.11111111 3114.61461461
+ 3118.11811812 3121.62162162 3125.12512513 3128.62862863 3132.13213213
+ 3135.63563564 3139.13913914 3142.64264264 3146.14614615 3149.64964965
+ 3153.15315315 3156.65665666 3160.16016016 3163.66366366 3167.16716717
+ 3170.67067067 3174.17417417 3177.67767768 3181.18118118 3184.68468468
+ 3188.18818819 3191.69169169 3195.1951952  3198.6986987  3202.2022022
+ 3205.70570571 3209.20920921 3212.71271271 3216.21621622 3219.71971972
+ 3223.22322322 3226.72672673 3230.23023023 3233.73373373 3237.23723724
+ 3240.74074074 3244.24424424 3247.74774775 3251.25125125 3254.75475475
+ 3258.25825826 3261.76176176 3265.26526527 3268.76876877 3272.27227227
+ 3275.77577578 3279.27927928 3282.78278278 3286.28628629 3289.78978979
+ 3293.29329329 3296.7967968  3300.3003003  3303.8038038  3307.30730731
+ 3310.81081081 3314.31431431 3317.81781782 3321.32132132 3324.82482482
+ 3328.32832833 3331.83183183 3335.33533534 3338.83883884 3342.34234234
+ 3345.84584585 3349.34934935 3352.85285285 3356.35635636 3359.85985986
+ 3363.36336336 3366.86686687 3370.37037037 3373.87387387 3377.37737738
+ 3380.88088088 3384.38438438 3387.88788789 3391.39139139 3394.89489489
+ 3398.3983984  3401.9019019  3405.40540541 3408.90890891 3412.41241241
+ 3415.91591592 3419.41941942 3422.92292292 3426.42642643 3429.92992993
+ 3433.43343343 3436.93693694 3440.44044044 3443.94394394 3447.44744745
+ 3450.95095095 3454.45445445 3457.95795796 3461.46146146 3464.96496496
+ 3468.46846847 3471.97197197 3475.47547548 3478.97897898 3482.48248248
+ 3485.98598599 3489.48948949 3492.99299299 3496.4964965  3500.        ]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">DF</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">DistributionFunction</span><span class="p">)(</span><span class="n">E</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">DF</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\epsilon$&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$f(\epsilon)$&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">j</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[None, Text(0.5, 0, &#39;$\\epsilon$&#39;), Text(0, 0.5, &#39;$f(\\epsilon)$&#39;)]
+</pre></div>
+</div>
+<img alt="../_images/98a263c9b3f5a45512f1902cbd4886cae3d78c2f4155d7a31c580e373b2bd674.png" src="../_images/98a263c9b3f5a45512f1902cbd4886cae3d78c2f4155d7a31c580e373b2bd674.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xi</span><span class="p">,</span> <span class="n">wi</span> <span class="o">=</span> <span class="n">dm_component</span><span class="o">.</span><span class="n">_xj</span><span class="p">,</span> <span class="n">dm_component</span><span class="o">.</span><span class="n">_wj</span>
+<span class="n">r_lim</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">x0</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="mf">8.88188420e-06</span> <span class="o">/</span> <span class="n">r_lim</span><span class="p">)</span>
+<span class="c1"># x0 = 0</span>
+<span class="n">x1</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
+
+<span class="n">xk</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="n">xi</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">+</span> <span class="n">x0</span><span class="p">)</span>
+<span class="n">wk</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="n">wi</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">NameError</span><span class="g g-Whitespace">                                 </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
+<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">xi</span><span class="p">,</span> <span class="n">wi</span> <span class="o">=</span> <span class="n">dm_component</span><span class="o">.</span><span class="n">_xj</span><span class="p">,</span> <span class="n">dm_component</span><span class="o">.</span><span class="n">_wj</span>
+<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="n">r_lim</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="n">x0</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="mf">8.88188420e-06</span> <span class="o">/</span> <span class="n">r_lim</span><span class="p">)</span>
+
+<span class="ne">NameError</span>: name &#39;dm_component&#39; is not defined
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tdr">tdr;</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rejection-sampling">Rejection sampling</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/notebooks/test_sampling_vPlummer.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Juan Guerra.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

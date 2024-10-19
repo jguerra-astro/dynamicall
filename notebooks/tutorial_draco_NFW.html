@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tutorial: Data &#8212; dynamicAll 1.0 documentation</title>
+    <title>Tutorial &#8212; dynamicAll 1.0 documentation</title>
   
   
   
@@ -416,7 +416,7 @@ document.write(`
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page">Tutorial: Data</li>
+    <li class="breadcrumb-item active" aria-current="page">Tutorial</li>
   </ul>
 </nav>
 </div>
@@ -433,8 +433,8 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="tutorial-data">
-<h1>Tutorial: Data<a class="headerlink" href="#tutorial-data" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Link to this heading">#</a></h1>
 <div class="cell tag_hide-cell docutils container">
 <details class="hide above-input">
 <summary aria-label="Toggle hidden content">
@@ -757,32 +757,16 @@ He’re i’ll show an example of how to write a simple subclass that will then 
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">vlos</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">vlos</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;vlos&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(array([  2.,   1.,   3.,   4.,   8.,  14.,  19.,  24.,  39.,  55.,  46.,
-         68., 102., 119., 141., 171., 236., 291., 276., 329., 383., 410.,
-        471., 457., 487., 501., 516., 551., 520., 494., 506., 513., 421.,
-        387., 401., 330., 315., 274., 234., 238., 170., 124.,  84.,  80.,
-         76.,  46.,  35.,  21.,  24.,   9.,  15.,   6.,   1.,   2.,   2.]),
- array([27.37826   , 28.55487164, 29.73148327, 30.90809491, 32.08470655,
-        33.26131818, 34.43792982, 35.61454145, 36.79115309, 37.96776473,
-        39.14437636, 40.320988  , 41.49759964, 42.67421127, 43.85082291,
-        45.02743455, 46.20404618, 47.38065782, 48.55726945, 49.73388109,
-        50.91049273, 52.08710436, 53.263716  , 54.44032764, 55.61693927,
-        56.79355091, 57.97016255, 59.14677418, 60.32338582, 61.49999745,
-        62.67660909, 63.85322073, 65.02983236, 66.206444  , 67.38305564,
-        68.55966727, 69.73627891, 70.91289055, 72.08950218, 73.26611382,
-        74.44272545, 75.61933709, 76.79594873, 77.97256036, 79.149172  ,
-        80.32578364, 81.50239527, 82.67900691, 83.85561855, 85.03223018,
-        86.20884182, 87.38545345, 88.56206509, 89.73867673, 90.91528836,
-        92.0919    ]),
- &lt;BarContainer object of 55 artists&gt;)
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[Text(0.5, 0, &#39;vlos&#39;)]
 </pre></div>
 </div>
-<img alt="../_images/13b3e03bf736dcdc2a33347b33c2c82bb2d13063ddfac9840948e42a9e4dfc8a.png" src="../_images/13b3e03bf736dcdc2a33347b33c2c82bb2d13063ddfac9840948e42a9e4dfc8a.png" />
+<img alt="../_images/9957abd9f8432c03affd540884acab2eaba4cf0451de7797464036332d1411fd.png" src="../_images/9957abd9f8432c03affd540884acab2eaba4cf0451de7797464036332d1411fd.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -806,10 +790,10 @@ He’re i’ll show an example of how to write a simple subclass that will then 
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/Users/juan/phd/projects/dynamicAll/src/dynamicAll/base.py:866: UserWarning: The &#39;_r&#39; component is not defined.\nOnly projected moments may be available.
-  warnings.warn(r&quot;The &#39;_r&#39; component is not defined.\nOnly projected moments may be available.&quot;)
-/Users/juan/phd/projects/dynamicAll/src/dynamicAll/base.py:869: UserWarning: &#39;pmr&#39; and &#39;pmt&#39; components are not defined.\nVelocity dispersion for these components will not be available.\n only &#39;los&#39; moment will be available
-  warnings.warn(r&quot;&#39;pmr&#39; and &#39;pmt&#39; components are not defined.\nVelocity dispersion for these components will not be available.\n only &#39;los&#39; moment will be available&quot;)
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/Users/juan/phd/projects/dynamicAll/src/dynamicAll/base.py:1572: UserWarning: The &#39;_r&#39; component is not defined.\nOnly projected moments may be available.
+  warnings.warn(
+/Users/juan/phd/projects/dynamicAll/src/dynamicAll/base.py:1577: UserWarning: &#39;pmr&#39; and &#39;pmt&#39; components are not defined.\nVelocity dispersion for these components will not be available.\n only &#39;los&#39; moment will be available
+  warnings.warn(
 </pre></div>
 </div>
 </div>
@@ -851,15 +835,48 @@ He’re i’ll show an example of how to write a simple subclass that will then 
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(Array([0.0058125, 0.0185825, 0.0345375, 0.0524875, 0.10234  , 0.1789   ,
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>sample: 100%|██████████| 1500/1500 [00:01&lt;00:00, 983.73it/s, 1 steps of size 4.76e-01. acc. prob=0.93] 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                     mean       std    median      5.0%     95.0%     n_eff     r_hat
+  global_sigmav      8.91      0.07      8.91      8.79      9.01    331.43      1.00
+  mean_velocity     59.91      0.09     59.90     59.75     60.05    952.53      1.00
+
+Number of divergences: 0
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>sample: 100%|██████████| 1500/1500 [00:02&lt;00:00, 626.04it/s, 7 steps of size 6.69e-01. acc. prob=0.86] 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                    mean       std    median      5.0%     95.0%     n_eff     r_hat
+ dispersion[0]     12.54      1.73     12.39      9.91     15.28   1957.13      1.00
+ dispersion[1]      9.85      0.58      9.81      8.89     10.74   2601.76      1.00
+ dispersion[2]      9.90      0.47      9.88      9.22     10.71   2603.38      1.00
+ dispersion[3]     10.45      0.33     10.43      9.95     11.02   2965.87      1.00
+ dispersion[4]      9.33      0.14      9.33      9.10      9.57   2309.39      1.00
+ dispersion[5]      8.75      0.14      8.75      8.53      8.98   2145.39      1.00
+ dispersion[6]      8.37      0.19      8.37      8.06      8.68   2252.81      1.00
+ dispersion[7]      9.00      0.30      9.00      8.54      9.53   1945.37      1.00
+ dispersion[8]      8.45      0.22      8.45      8.07      8.80   2366.23      1.00
+ dispersion[9]      8.60      0.34      8.58      7.98      9.08   2292.02      1.00
+dispersion[10]      8.54      0.29      8.53      8.12      9.05   3166.59      1.00
+dispersion[11]      8.42      0.31      8.43      7.87      8.89   2267.06      1.00
+dispersion[12]      8.02      0.35      8.01      7.47      8.58   2820.45      1.00
+dispersion[13]      7.92      0.51      7.91      7.05      8.75   2342.37      1.00
+dispersion[14]      7.49      0.55      7.47      6.51      8.28   2130.15      1.00
+dispersion[15]      7.30      0.69      7.26      6.06      8.31   1929.47      1.00
+dispersion[16]      9.39      1.05      9.35      7.69     11.07   3181.49      1.00
+
+Number of divergences: 0
+(Array([0.0058125, 0.0185825, 0.0345375, 0.0524875, 0.10234  , 0.1789   ,
        0.242355 , 0.2876225, 0.3448175, 0.40698  , 0.4898925, 0.63216  ,
-       0.8385825, 1.10908  , 1.4484375, 1.86427  , 2.9359475],      dtype=float64), Array([12.84912567, 10.41957864, 10.416655  , 11.02782283,  9.92741275,
-        9.41628984,  9.02251805,  9.54438809,  9.1411106 ,  9.30135554,
-        9.18784883,  9.09884008,  8.68787866,  8.6519827 ,  8.1854578 ,
-        7.7788214 , 10.08169781], dtype=float64), Array([1.37053388, 0.47844223, 0.38529889, 0.2827183 , 0.1177007 ,
-       0.12586779, 0.17086048, 0.23728537, 0.18836734, 0.29767884,
-       0.23803484, 0.26910552, 0.3171929 , 0.42814875, 0.50337828,
-       0.62555588, 0.86198823], dtype=float64), array([1.610000e-03, 1.001500e-02, 2.715000e-02, 4.192500e-02,
+       0.8385825, 1.10908  , 1.4484375, 1.86427  , 2.9359475],      dtype=float64), Array([12.54321571,  9.84986608,  9.89519237, 10.45294557,  9.32758817,
+        8.75220376,  8.36715072,  9.0031248 ,  8.44712517,  8.59541797,
+        8.53532792,  8.42383638,  8.02402601,  7.9185992 ,  7.49056459,
+        7.29739277,  9.38525934], dtype=float64), Array([1.72432339, 0.58066785, 0.4672401 , 0.33114615, 0.14159639,
+       0.13750897, 0.19260217, 0.29565628, 0.22419917, 0.34234143,
+       0.28593384, 0.31420591, 0.34940229, 0.51143315, 0.55460744,
+       0.69138628, 1.05138793], dtype=float64), array([1.610000e-03, 1.001500e-02, 2.715000e-02, 4.192500e-02,
        6.305000e-02, 1.416300e-01, 2.161700e-01, 2.685400e-01,
        3.067050e-01, 3.829300e-01, 4.310300e-01, 5.487550e-01,
        7.155650e-01, 9.616000e-01, 1.256560e+00, 1.640315e+00,
@@ -886,47 +903,72 @@ here
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
 
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="c1"># Set the style</span>
+<span class="c1"># plt.style.use(&quot;seaborn-v0_8-deep&quot;)</span>
+<span class="c1"># sns.set_palette(&quot;deep&quot;)</span>
 
-<span class="c1"># First plot error bars</span>
+<span class="c1"># Create the figure and axis objects with a specific size</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+<span class="c1"># Plot error bars</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span>
-    <span class="n">R_center</span><span class="p">,</span> <span class="n">los_disp</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">dlos_disp</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">capsize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">elinewidth</span><span class="o">=</span><span class="mf">1.5</span>
+    <span class="n">R_center</span><span class="p">,</span>
+    <span class="n">los_disp</span><span class="p">,</span>
+    <span class="n">yerr</span><span class="o">=</span><span class="n">dlos_disp</span><span class="p">,</span>
+    <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#1f77b4&quot;</span><span class="p">,</span>
+    <span class="n">capsize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">elinewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+    <span class="n">markersize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data points&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="c1"># plot step function -- Note ax.step is a bit misleading so we&#39;ll do it a bit more carefully.</span>
-
+<span class="c1"># Plot step function</span>
 <span class="n">step_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
 <span class="n">ax</span><span class="o">.</span><span class="n">step</span><span class="p">(</span>
     <span class="n">step_edges</span><span class="p">,</span>
     <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">los_disp</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
     <span class="n">where</span><span class="o">=</span><span class="s2">&quot;post&quot;</span><span class="p">,</span>
     <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Binned Data&quot;</span><span class="p">,</span>
-    <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#ff7f0e&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">bin_edges</span><span class="p">:</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
+<span class="c1"># # Add vertical lines for bin edges</span>
+<span class="c1"># for i in bin_edges:</span>
+<span class="c1">#     ax.axvline(i, ls=&quot;--&quot;, alpha=0.2, color=&quot;#2ca02c&quot;)</span>
 
+<span class="c1"># Set axis properties</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
     <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
-    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;R&quot;</span><span class="p">,</span>
-    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\sigma_{\rm los}(R) $&quot;</span><span class="p">,</span>
-    <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Radius (kpc)&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\sigma_{\rm los}(R)$ (km/s)&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Line-of-Sight Velocity Dispersion vs. Radius&quot;</span><span class="p">,</span>
 <span class="p">)</span>
+
+<span class="c1"># Adjust y-limit dynamically</span>
+<span class="n">y_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">los_disp</span><span class="p">)</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">dlos_disp</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+
+<span class="c1"># Add legend</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">)</span>
+
+<span class="c1"># Add grid</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+
+<span class="c1"># Tight layout</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+<span class="c1"># Show plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[None,
- Text(0.5, 0, &#39;R&#39;),
- Text(0, 0.5, &#39;$\\sigma_{\\rm los}(R) $&#39;),
- (0.0, 20.0)]
-</pre></div>
-</div>
-<img alt="../_images/66610389b3f3b1c41b591b63c96263be530cb389c3f18ef75506cad560336101.png" src="../_images/66610389b3f3b1c41b591b63c96263be530cb389c3f18ef75506cad560336101.png" />
+<img alt="../_images/75532be5c97562010e06a134a9527d4a28b57dfaa17114c2307fd2e48ff1661b.png" src="../_images/75532be5c97562010e06a134a9527d4a28b57dfaa17114c2307fd2e48ff1661b.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -935,7 +977,7 @@ here
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="c1"># plot a gausian</span>
 <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Gaussian&quot;</span><span class="p">)</span>
 </pre></div>
 </div>

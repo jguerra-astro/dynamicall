@@ -1,0 +1,1236 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Sampling &#8212; dynamicAll 1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/tutorial_sampling';</script>
+    <link rel="canonical" href="https://jguerra-astro.github.io/dynamicall/notebooks/tutorial_sampling.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">dynamicAll 1.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Installation.html">
+    Installation Instructions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="numerical_methods.html">
+    Defining a Potential
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_potential.html">
+    Tutorial: Potentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_plummer.html">
+    Tutorial: Plummer Model
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_jfactors.html">
+    Tutorial: J-Factors
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="tutorial_dracoish.html">
+    Tutorial: Numpyro
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../modules.html">
+    dynamicAll
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jguerra-astro/dynamicall" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Installation.html">
+    Installation Instructions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="numerical_methods.html">
+    Defining a Potential
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_potential.html">
+    Tutorial: Potentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_plummer.html">
+    Tutorial: Plummer Model
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_jfactors.html">
+    Tutorial: J-Factors
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_dracoish.html">
+    Tutorial: Numpyro
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../modules.html">
+    dynamicAll
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jguerra-astro/dynamicall" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Sampling</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="cell tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="cell tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;XLA_FLAGS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;--xla_force_host_platform_device_count=2&quot;</span>
+<span class="kn">import</span> <span class="nn">numpyro</span>
+
+<span class="n">numpyro</span><span class="o">.</span><span class="n">enable_x64</span><span class="p">()</span>
+<span class="kn">import</span> <span class="nn">jax</span>
+<span class="kn">from</span> <span class="nn">jax._src.config</span> <span class="kn">import</span> <span class="n">config</span>
+
+<span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dynamicAll</span>
+<span class="kn">from</span> <span class="nn">dynamicAll</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section class="tex2jax_ignore mathjax_ignore" id="sampling">
+<h1>Sampling<a class="headerlink" href="#sampling" title="Link to this heading">#</a></h1>
+<p>In this tutorial we’ll go over the basics of sampling using dynamicall.
+We do this very simply using rejection sampling, leveraging Jax’s vectorization capabilities.</p>
+<section id="tdr">
+<h2>tdr;<a class="headerlink" href="#tdr" title="Link to this heading">#</a></h2>
+<p>If you just want to see the code, here it is:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.stats</span> <span class="kn">import</span> <span class="n">histogram</span>
+
+<span class="n">model_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="mf">1e5</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">}</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Plummer</span><span class="p">(</span><span class="o">**</span><span class="n">model_params</span><span class="p">)</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">sample_w_conditional</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">10_000</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.008671719755715854
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">g_q</span><span class="p">(</span><span class="n">q</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Probability distribution for q = v/v_esc.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    q : _type_</span>
+<span class="sd">        _description_</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    _type_</span>
+<span class="sd">        _description_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">q</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">512</span> <span class="o">/</span> <span class="p">(</span><span class="mi">7</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+
+
+<span class="n">r_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">r_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">N</span><span class="p">,</span> <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">histogram</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s2">&quot;blocks&quot;</span><span class="p">)</span>
+<span class="n">r_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">bin_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">bin_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">v</span> <span class="o">/</span> <span class="n">model</span><span class="o">.</span><span class="n">v_esc</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+<span class="c1"># sanity checks</span>
+<span class="n">N</span><span class="p">,</span> <span class="n">vel_edges</span> <span class="o">=</span> <span class="n">histogram</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s2">&quot;blocks&quot;</span><span class="p">)</span>
+<span class="n">q_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_edges</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;sampling&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">r_test</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">probability</span><span class="p">(</span><span class="n">r_test</span><span class="p">),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Analytical&quot;</span><span class="p">,</span>
+    <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r pkpc&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$pdf(r)$&quot;</span><span class="p">)</span>
+
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">vel_edges</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">q_test</span><span class="p">,</span>
+    <span class="n">g_q</span><span class="p">(</span><span class="n">q_test</span><span class="p">),</span>
+    <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">xlabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$q =\frac</span><span class="si">{v}</span><span class="s2">{v_</span><span class="si">{esc}</span><span class="s2">}(r)$&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$pdf(q)$&quot;</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x32bec0790&gt;
+</pre></div>
+</div>
+<img alt="../_images/96cab5efdd5fcad694be7962b4a2c6da71bff9ce0061656989eccce07faf293f.png" src="../_images/96cab5efdd5fcad694be7962b4a2c6da71bff9ce0061656989eccce07faf293f.png" />
+</div>
+</div>
+</section>
+<section id="rejection-sampling">
+<h2>Rejection sampling<a class="headerlink" href="#rejection-sampling" title="Link to this heading">#</a></h2>
+<p>The basic outline of how we sample in cases where there isn’t a convenient trick to sample the distribution, i.e. cases where we have some stellar distribution embedded in a dark halo, we can calculate the distribution function using the Eddington formula.
+Then use rejection sampling in order to get samples.</p>
+<p>model.D</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">E</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">total_energy</span><span class="p">)(</span><span class="n">samples</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">:])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">E</span><span class="p">[</span><span class="mi">23</span><span class="p">],</span> <span class="n">model</span><span class="o">.</span><span class="n">total_energy</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">samples</span><span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">3</span><span class="p">:])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(Array(-0.33518726, dtype=float64), Array(-0.33518726, dtype=float64))
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">N</span><span class="p">,</span> <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">histogram</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s2">&quot;blocks&quot;</span><span class="p">)</span>
+<span class="n">bin_centers</span> <span class="o">=</span> <span class="p">(</span><span class="n">bin_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">bin_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_edges</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">bin_centers</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="n">bin_centers</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bin_centers</span> <span class="o">/</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x32d9290d0&gt;]
+</pre></div>
+</div>
+<img alt="../_images/936881a053d0d78b9fbc2e92f3f9484d10f838996575d77edec2db7e81187bbf.png" src="../_images/936881a053d0d78b9fbc2e92f3f9484d10f838996575d77edec2db7e81187bbf.png" />
+</div>
+</div>
+<p>Following Binney and Tremaine, we can write down the Eddington formula for the distribution function of an isotropic system as
+$<span class="math notranslate nohighlight">\(
+f(\epsilon) = \frac{1}{\sqrt{8}\pi^2}\frac{d}{d\epsilon}\int_{0}^{\infty} \frac{d\psi}{\sqrt{\epsilon-\psi}}\frac{d\rho}{d\psi}.
+\)</span><span class="math notranslate nohighlight">\(
+This is following the Normal conventions where
+\)</span>\psi = -\Phi + \Phi_{0}<span class="math notranslate nohighlight">\( and \)</span>\epsilon = \psi - \frac{1}{2}v^{2}<span class="math notranslate nohighlight">\(.
+In cases where a system extends towards infinity, \)</span>\Phi_{0} = 0<span class="math notranslate nohighlight">\( and the relative energy \)</span>\epsilon = $ binding energy.</p>
+<p>An equivalent formula is given by:
+$<span class="math notranslate nohighlight">\(
+f(\epsilon) = \frac{1}{\sqrt{8}\pi^2}\int_{0}^{\infty} \frac{d\psi}{\sqrt{\epsilon-\psi}}\frac{d^{2}\rho}{d\psi^{2}} + \frac{1}{\sqrt{\epsilon}}\left(\frac{d\rho}{d\psi}\right)_{\psi=0}.
+\)</span>$</p>
+<p>For numerical calculations e.g. sampling, it might be easier to not have to calculate <span class="math notranslate nohighlight">\(\rho(\psi)\)</span> as it may not be possible to write down in closed form.
+Fortunately, <span class="math notranslate nohighlight">\(\rho(\psi)\)</span> only appears as a derivative in the above formula we can rewrite it as
+This mean we can use the fact that</p>
+<div class="math notranslate nohighlight">
+\[d\psi = \frac{d\psi}{dr}dr\]</div>
+<div class="math notranslate nohighlight">
+\[\frac{d}{d\psi}= \frac{dr}{d\psi}\frac{d}{dr} \]</div>
+<div class="math notranslate nohighlight">
+\[\frac{d\psi(r)}{dr} = -\frac{GM(r)}{r^{2}}\]</div>
+<div class="math notranslate nohighlight">
+\[
+f(\epsilon) = \frac{1}{\sqrt{8}\pi^2}\int_{r_\epsilon}^{\infty} \frac{k(r)dr}{\sqrt{\epsilon - \psi(r)}}
+\]</div>
+<p>where k(r)
+$$
+k(r) = \frac{r^{2}}{GM(r)}\left[\rho’’(r)\ + \rho’(r)\left(\frac{2}{r} - \frac{4\pi\rho(r)}{M(r)}\right)\right]</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dynamicAll</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="c1"># Define parameters</span>
+<span class="n">dm</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;rhos&quot;</span><span class="p">:</span> <span class="mf">6.4e7</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">}</span>
+<span class="n">stellar</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">}</span>
+
+<span class="n">stellar_component</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Plummer</span><span class="p">(</span><span class="o">**</span><span class="n">stellar</span><span class="p">)</span>
+<span class="n">stellar_test</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rhos&quot;</span><span class="p">:</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">0.25</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+    <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">stellar_component</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">HernquistZhao</span><span class="p">(</span><span class="o">**</span><span class="n">stellar_test</span><span class="p">)</span>
+<span class="n">dm_component</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">HernquistZhao</span><span class="p">(</span><span class="o">**</span><span class="n">dm</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">r200</span> <span class="o">=</span> <span class="n">dm_component</span><span class="o">.</span><span class="n">r200</span><span class="p">()</span>
+<span class="n">r200</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Array(25.5484133, dtype=float64)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="n">dm_component</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r200</span><span class="p">))),</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="n">dm_component</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="mf">1e-8</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(Array(21.06988753, dtype=float64), Array(58.81328836, dtype=float64))
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">jnp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">r200</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Array(3.24057521, dtype=float64)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Array([1.00000000e-02, 2.78255940e-02, 7.74263683e-02, 2.15443469e-01,
+       5.99484250e-01, 1.66810054e+00, 4.64158883e+00, 1.29154967e+01,
+       3.59381366e+01, 1.00000000e+02], dtype=float64)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">jax</span>
+<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+
+<span class="c1"># r = jnp.logspace(-8, jnp.log10(r200), 10_000)</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">24815690.058933303</span><span class="p">),</span> <span class="mi">10_000</span><span class="p">)</span>
+<span class="n">rho</span> <span class="o">=</span> <span class="n">stellar_component</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+<span class="n">phi</span> <span class="o">=</span> <span class="o">-</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">dm_component</span><span class="o">.</span><span class="n">potential</span><span class="p">)(</span><span class="n">r</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">jax_cosmo.scipy.interpolate</span> <span class="kn">import</span> <span class="n">InterpolatedUnivariateSpline</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
+<span class="n">rho_of_phi</span> <span class="o">=</span> <span class="n">InterpolatedUnivariateSpline</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;/Users/juan/phd/matplotlib/jdefault.mplstyle&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\rho~[\rm M_{\odot}~kpc^{-3}]$&quot;</span>
+<span class="p">)</span>
+<span class="c1"># ax[1].plot(r,(phi*u.kpc**2/u.s**2).to(u.km**2/u.s**2))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+<span class="c1"># ax[1].plot(r,dm_test.potential(r),linestyle=&#39;--&#39;)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="c1"># yscale = &#39;log&#39;,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$|\Phi|~[\rm km^</span><span class="si">{2}</span><span class="s2">~s^{-2}]$&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># ax[2].plot((phi*u.kpc**2/u.s**2).to(u.km**2/u.s**2),rho)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+<span class="c1"># ax[2].plot((phi*u.kpc**2/u.s**2).to(u.km**2/u.s**2),rho_of_phi(phi),linestyle=&#39;--&#39;)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="c1"># xscale = &#39;log&#39;,</span>
+    <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;$\Phi$&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\rho(\Phi)$&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># ax[3].plot((phi*u.kpc**2/u.s**2).to(u.km**2/u.s**2),jax.vmap(jax.grad(rho_of_phi))((phi*u.kpc**2/u.s**2).to(u.km**2/u.s**2)),linestyle=&#39;--&#39;)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">rho_of_phi</span><span class="p">))(</span><span class="n">phi</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="c1"># xscale=&quot;log&quot;,</span>
+    <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;$\Phi$&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\frac{d\rho}{d\Phi}$&quot;</span><span class="p">,</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/4c21185fe75580ac4aa6b3eb6b037139d2520e974c0676d0736c8b6ecd94fc37.png" src="../_images/4c21185fe75580ac4aa6b3eb6b037139d2520e974c0676d0736c8b6ecd94fc37.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">x</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">legendre</span><span class="o">.</span><span class="n">leggauss</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span>  <span class="c1"># TODO: Find a better way to set this.</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+<span class="n">drho_dphi</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">rho_of_phi</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">DistributionFunction</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">integral</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="n">E</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">+</span> <span class="n">x0</span><span class="p">)</span>
+        <span class="n">wi</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="n">w</span>
+        <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">wi</span> <span class="o">*</span> <span class="n">drho_dphi</span><span class="p">(</span><span class="n">xi</span><span class="p">)</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">E</span> <span class="o">-</span> <span class="n">xi</span><span class="p">))</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">integral</span><span class="p">)(</span><span class="n">E</span><span class="p">)</span>
+    <span class="n">coeff</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">coeff</span> <span class="o">*</span> <span class="n">out</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">astropy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">kpc</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">Msun</span><span class="p">))</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mi">3500</span><span class="p">),</span> <span class="mi">2_000</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>4.300917270036279e-06 km2 kpc / (solMass s2)
+[1.02329299e+00 1.02746708e+00 1.03165820e+00 ... 3.47162021e+03
+ 3.48578122e+03 3.50000000e+03]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">DF</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">DistributionFunction</span><span class="p">)(</span><span class="n">E</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">epsilon_max</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">dm_component</span><span class="o">.</span><span class="n">G</span> <span class="o">*</span> <span class="n">dm_component</span><span class="o">.</span><span class="n">_rhos</span> <span class="o">*</span> <span class="n">dm_component</span><span class="o">.</span><span class="n">_rs</span><span class="o">**</span><span class="mi">2</span>
+<span class="n">epsilon_max</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>3459.0029054063216
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">DF</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">epsilon_max</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xlim</span><span class="o">=</span><span class="p">(</span><span class="mi">3400</span><span class="p">,</span> <span class="mi">3500</span><span class="p">),</span>
+    <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\epsilon$&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$f(\epsilon)$&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[(3400.0, 3500.0),
+ None,
+ None,
+ Text(0.5, 0, &#39;$\\epsilon$&#39;),
+ Text(0, 0.5, &#39;$f(\\epsilon)$&#39;)]
+</pre></div>
+</div>
+<img alt="../_images/caacbd4d911d24eb4185eeb8f0668ace45f2681f859100265ab6c4e210cb5d8f.png" src="../_images/caacbd4d911d24eb4185eeb8f0668ace45f2681f859100265ab6c4e210cb5d8f.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xi</span><span class="p">,</span> <span class="n">wi</span> <span class="o">=</span> <span class="n">dm_component</span><span class="o">.</span><span class="n">_x256</span><span class="p">,</span> <span class="n">dm_component</span><span class="o">.</span><span class="n">_w256</span>
+<span class="n">r_lim</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="c1"># r_e = 2.53265053e01</span>
+<span class="n">r_e</span> <span class="o">=</span> <span class="mf">8.88188420e-06</span>
+<span class="c1"># x0 = jnp.arcsin(r_e / r_lim)</span>
+<span class="n">x0</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">x1</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
+
+<span class="n">xk</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="n">xi</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">+</span> <span class="n">x0</span><span class="p">)</span>
+<span class="n">wk</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="n">wi</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">r_e</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="o">-</span> <span class="n">r_e</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Array([2.57301040e-01, 4.88278763e-02, 1.98637435e-02, 1.06953719e-02,
+       6.66794735e-03, 4.54973382e-03, 3.30029658e-03, 2.50220404e-03,
+       1.96162711e-03, 1.57862080e-03, 1.29740834e-03, 1.08487296e-03,
+       9.20346039e-04, 7.90387104e-04, 6.85949830e-04, 6.00764484e-04,
+       5.30374697e-04, 4.71542677e-04, 4.21870173e-04, 3.79550186e-04,
+       3.43200305e-04, 3.11748380e-04, 2.84352570e-04, 2.60344426e-04,
+       2.39187738e-04, 2.20448343e-04, 2.03771672e-04, 1.88865867e-04,
+       1.75488923e-04, 1.63438811e-04, 1.52545806e-04, 1.42666481e-04,
+       1.33678966e-04, 1.25479173e-04, 1.17977772e-04, 1.11097747e-04,
+       1.04772417e-04, 9.89438116e-05, 9.35613448e-05, 8.85807107e-05,
+       8.39629721e-05, 7.96737984e-05, 7.56828263e-05, 7.19631223e-05,
+       6.84907282e-05, 6.52442750e-05, 6.22046543e-05, 5.93547372e-05,
+       5.66791335e-05, 5.41639837e-05, 5.17967802e-05, 4.95662120e-05,
+       4.74620298e-05, 4.54749288e-05, 4.35964460e-05, 4.18188703e-05,
+       4.01351642e-05, 3.85388939e-05, 3.70241684e-05, 3.55855855e-05,
+       3.42181839e-05, 3.29174008e-05, 3.16790336e-05, 3.04992072e-05,
+       2.93743429e-05, 2.83011322e-05, 2.72765127e-05, 2.62976460e-05,
+       2.53618987e-05, 2.44668247e-05, 2.36101496e-05, 2.27897564e-05,
+       2.20036724e-05, 2.12500578e-05, 2.05271950e-05, 1.98334789e-05,
+       1.91674085e-05, 1.85275784e-05, 1.79126720e-05, 1.73214546e-05,
+       1.67527676e-05, 1.62055227e-05, 1.56786969e-05, 1.51713280e-05,
+       1.46825103e-05, 1.42113903e-05, 1.37571636e-05, 1.33190713e-05,
+       1.28963970e-05, 1.24884641e-05, 1.20946328e-05, 1.17142982e-05,
+       1.13468877e-05, 1.09918591e-05, 1.06486987e-05, 1.03169194e-05,
+       9.99605911e-06, 9.68567934e-06, 9.38536361e-06, 9.09471623e-06,
+       8.81336103e-06, 8.54094022e-06, 8.27711333e-06, 8.02155620e-06,
+       7.77396007e-06, 7.53403070e-06, 7.30148752e-06, 7.07606294e-06,
+       6.85750160e-06, 6.64555968e-06, 6.44000433e-06, 6.24061303e-06,
+       6.04717309e-06, 5.85948108e-06, 5.67734240e-06, 5.50057078e-06,
+       5.32898788e-06, 5.16242288e-06, 5.00071207e-06, 4.84369856e-06,
+       4.69123185e-06, 4.54316761e-06, 4.39936731e-06, 4.25969795e-06,
+       4.12403183e-06, 3.99224623e-06, 3.86422325e-06, 3.73984952e-06,
+       3.61901602e-06, 3.50161786e-06, 3.38755408e-06, 3.27672753e-06,
+       3.16904461e-06, 3.06441515e-06, 2.96275228e-06, 2.86397223e-06,
+       2.76799423e-06, 2.67474034e-06, 2.58413538e-06, 2.49610676e-06,
+       2.41058438e-06, 2.32750051e-06, 2.24678974e-06, 2.16838880e-06,
+       2.09223653e-06, 2.01827378e-06, 1.94644327e-06, 1.87668960e-06,
+       1.80895910e-06, 1.74319977e-06, 1.67936126e-06, 1.61739471e-06,
+       1.55725279e-06, 1.49888954e-06, 1.44226038e-06, 1.38732204e-06,
+       1.33403249e-06, 1.28235088e-06, 1.23223753e-06, 1.18365385e-06,
+       1.13656230e-06, 1.09092636e-06, 1.04671048e-06, 1.00388003e-06,
+       9.62401302e-07, 9.22241409e-07, 8.83368308e-07, 8.45750742e-07,
+       8.09358210e-07, 7.74160937e-07, 7.40129851e-07, 7.07236546e-07,
+       6.75453261e-07, 6.44752855e-07, 6.15108779e-07, 5.86495055e-07,
+       5.58886256e-07, 5.32257478e-07, 5.06584327e-07, 4.81842897e-07,
+       4.58009750e-07, 4.35061898e-07, 4.12976793e-07, 3.91732300e-07,
+       3.71306693e-07, 3.51678633e-07, 3.32827157e-07, 3.14731668e-07,
+       2.97371916e-07, 2.80727994e-07, 2.64780324e-07, 2.49509644e-07,
+       2.34897005e-07, 2.20923756e-07, 2.07571540e-07, 1.94822284e-07,
+       1.82658194e-07, 1.71061746e-07, 1.60015682e-07, 1.49503004e-07,
+       1.39506970e-07, 1.30011087e-07, 1.20999112e-07, 1.12455044e-07,
+       1.04363123e-07, 9.67078280e-08, 8.94738740e-08, 8.26462118e-08,
+       7.62100260e-08, 7.01507345e-08, 6.44539885e-08, 5.91056720e-08,
+       5.40919030e-08, 4.93990339e-08, 4.50136526e-08, 4.09225844e-08,
+       3.71128934e-08, 3.35718846e-08, 3.02871065e-08, 2.72463537e-08,
+       2.44376696e-08, 2.18493494e-08, 1.94699438e-08, 1.72882623e-08,
+       1.52933766e-08, 1.34746249e-08, 1.18216155e-08, 1.03242313e-08,
+       8.97263348e-09, 7.75726613e-09, 6.66886054e-09, 5.69843958e-09,
+       4.83732211e-09, 4.07712745e-09, 3.40977979e-09, 2.82751266e-09,
+       2.32287323e-09, 1.88872668e-09, 1.51826040e-09, 1.20498818e-09,
+       9.42754219e-10, 7.25737035e-10, 5.48453262e-10, 4.05761259e-10,
+       2.92864565e-10, 2.05315166e-10, 1.39016576e-10, 9.02267050e-11,
+       5.55605135e-11, 3.19924348e-11, 1.68585646e-11, 7.85860323e-12,
+       3.05754427e-12, 8.87104733e-13, 1.46889814e-13, 5.29141990e-15],      dtype=float64)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="mf">3458.98754427</span> <span class="o">+</span> <span class="n">dm_component</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r_e</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Array(4.47562343e-09, dtype=float64)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+    <span class="p">(</span><span class="o">-</span><span class="n">dm_component</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">r_e</span><span class="p">)</span> <span class="o">+</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">dm_component</span><span class="o">.</span><span class="n">potential</span><span class="p">)(</span><span class="n">r_e</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">xk</span><span class="p">)))</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Array([nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan], dtype=float64)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">Distribution_Function</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
+    <span class="n">mass</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">dm_component</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+    <span class="n">rho</span> <span class="o">=</span> <span class="n">stellar_component</span><span class="o">.</span><span class="n">density</span>
+    <span class="n">rho_p</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">rho</span><span class="p">)</span>
+    <span class="n">rho_pp</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">rho_p</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">jax</span>
+<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="c1"># Define our models</span>
+<span class="k">class</span> <span class="nc">BaseModel</span><span class="p">:</span>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@partial</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+
+<span class="k">class</span> <span class="nc">SubModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">3</span>
+
+
+<span class="c1"># Define a static function for comparison</span>
+<span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">static_compute</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>  <span class="c1"># Equivalent to SubModel&#39;s computation</span>
+
+
+<span class="c1"># Benchmark function</span>
+<span class="k">def</span> <span class="nf">benchmark</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">1000000</span><span class="p">):</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iterations</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">jax</span><span class="o">.</span><span class="n">block_until_ready</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+
+
+<span class="c1"># Prepare input</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mf">5.0</span><span class="p">)</span>
+
+<span class="c1"># Warm-up JIT compilations</span>
+<span class="n">SubModel</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">static_compute</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="c1"># Run benchmarks</span>
+<span class="n">class_method_time</span> <span class="o">=</span> <span class="n">benchmark</span><span class="p">(</span><span class="n">SubModel</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+<span class="n">static_func_time</span> <span class="o">=</span> <span class="n">benchmark</span><span class="p">(</span><span class="n">static_compute</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Class method time: </span><span class="si">{</span><span class="n">class_method_time</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Static function time: </span><span class="si">{</span><span class="n">static_func_time</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Overhead: </span><span class="si">{</span><span class="p">(</span><span class="n">class_method_time</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">static_func_time</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">static_func_time</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Additional test: varying input</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Testing with varying input:&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">varying_input_compute</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">SubModel</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+
+<span class="n">varying_input_time</span> <span class="o">=</span> <span class="n">benchmark</span><span class="p">(</span>
+    <span class="k">lambda</span><span class="p">:</span> <span class="n">varying_input_compute</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,))),</span> <span class="kc">None</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Varying input time: </span><span class="si">{</span><span class="n">varying_input_time</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Class method time: 4.289446 seconds
+Static function time: 4.173881 seconds
+Overhead: 2.77%
+
+Testing with varying input:
+</pre></div>
+</div>
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">TypeError</span><span class="g g-Whitespace">                                 </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">117</span><span class="p">],</span> <span class="n">line</span> <span class="mi">58</span>
+<span class="g g-Whitespace">     </span><span class="mi">54</span> <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+<span class="g g-Whitespace">     </span><span class="mi">55</span> <span class="k">def</span> <span class="nf">varying_input_compute</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="g g-Whitespace">     </span><span class="mi">56</span>     <span class="k">return</span> <span class="n">SubModel</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="ne">---&gt; </span><span class="mi">58</span> <span class="n">varying_input_time</span> <span class="o">=</span> <span class="n">benchmark</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">varying_input_compute</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,))),</span> <span class="kc">None</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">59</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Varying input time: </span><span class="si">{</span><span class="n">varying_input_time</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+
+<span class="nn">Cell In[117], line 31,</span> in <span class="ni">benchmark</span><span class="nt">(func, x, iterations)</span>
+<span class="g g-Whitespace">     </span><span class="mi">29</span> <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="g g-Whitespace">     </span><span class="mi">30</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iterations</span><span class="p">):</span>
+<span class="ne">---&gt; </span><span class="mi">31</span>     <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">32</span> <span class="n">jax</span><span class="o">.</span><span class="n">block_until_ready</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">33</span> <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="ne">TypeError</span>: &lt;lambda&gt;() takes 0 positional arguments but 1 was given
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tdr">tdr;</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rejection-sampling">Rejection sampling</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/notebooks/tutorial_sampling.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Juan Guerra.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

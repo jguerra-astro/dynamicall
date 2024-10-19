@@ -373,7 +373,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "## Calculation the Distribution function\n",
+    "## Calculating the Distribution function\n",
     "\n",
     "As stated above the distribution function is a particularly involved function to calculate numerically. Only having defined one function -- the density profile we test whether we can accurately calculate the distribution function.\n",
     "\n",
