@@ -14,15 +14,15 @@
     "We use a class based approach to defining our potentials.\n",
     "\n",
     "Theres a base class called JaxDensity where all of the numerical methods are defined.\n",
-    "Specific sublasses corresponding to known models (e.g Plummer NFW) are defined for each model in models.py\n",
+    "Specific subclasses corresponding to known models (e.g Plummer NFW) are defined for each model in models.py\n",
     "\n",
     "You can look at {doc}`./tutorial_potential` for some examples of the built-in models.\n",
     "\n",
-    "For those models whenever analytical espressions for dynamical quantities are known the numerical methods are overridden with the analytical methods, otherwise the numerical methods are used.\n",
+    "For those models, whenever analytical espressions for dynamical quantities are known the numerical methods are overridden with the analytical methods, otherwise the numerical methods are used.\n",
     "\n",
-    "For testing purposes it maybe useful to compare the numerical methods to the analytical methods to see if they're working correctly.\n",
+    "For testing purposes it may be useful to compare the numerical methods to the analytic expressions to ensure that the numerical methods are working correctly.\n",
     "\n",
-    "Below we show the minimum code needed to define a custom model."
+    "Below we show the minimum code needed to define a custom model and compare the numerical methods to the analytical expressions."
    ]
   },
   {
@@ -52,7 +52,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "The general idea if you want to implement a model that is not built in is that all you have to define is one or two functions and then everything else can be calculated numerically.\n",
+    "The general idea is that if you want to implement a model that is not built in is that all you have to define is one or two functions and then everything else can be calculated numerically.\n",
     "\n",
     "The more functions you specify will lead to slightly faster calculations and perhaps slighly more accurate results, but we show that even defining just one function you can achieve good results.\n",
     "\n",
@@ -60,18 +60,21 @@
     "\n",
     "### A Good Test of our Numerical Methods\n",
     "\n",
-    "A particularly tricky function to calculate given just a density profile is the Distribution function. This is a function that gives the probability of finding a star with a given energy at a given position. It is defined as:\n",
+    "A particularly tricky function to calculate given just a density profile is the Distribution function. This is a function that gives the probability of finding a star in a particular phase space volume. It is defined as:\n",
     "\n",
     "$$\n",
     "f(\\mathcal{E}) = \\frac{1}{\\sqrt{8}\\pi^2} \\frac{d}{d\\mathcal{E}}\\int_0^{\\mathcal{E}}\\frac{d\\rho}{d\\psi}\\frac{d\\psi}{\\sqrt{\\mathcal{E}-\\psi}}\n",
     "$$\n",
     "\n",
-    "The combination of integrals and derivatives can make this a difficult function to calculate. Below we show how we can calculate this function for the Plummer model."
+    "The combination of integrals and derivatives can make this a difficult function to calculate so it'll be a good litmus test for our numerical methods.\n",
+    "\n",
+    "Below we show how to define a mode which is just a Plummer model.We show that we can accurately calculate the distribution function using just the density profile.\n",
+    "The fact that the distribution function is a non-trivial function of the density profile and various other quantities means that if we can accurately calculate the distribution function then we can be confident that our numerical methods are working correctly."
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 15,
+   "execution_count": 14,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -151,7 +154,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 16,
+   "execution_count": 15,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -176,7 +179,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 17,
+   "execution_count": 16,
    "metadata": {},
    "outputs": [
     {
@@ -218,7 +221,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 18,
+   "execution_count": 17,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -239,7 +242,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 19,
+   "execution_count": 18,
    "metadata": {},
    "outputs": [
     {
@@ -248,7 +251,7 @@
        "[None, None, Text(0.5, 0, 'r'), Text(0, 0.5, '$\\\\Delta \\\\Phi$'), (1e-20, 0.01)]"
       ]
      },
-     "execution_count": 19,
+     "execution_count": 18,
      "metadata": {},
      "output_type": "execute_result"
     },
@@ -321,7 +324,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 20,
+   "execution_count": 19,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -336,7 +339,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 21,
+   "execution_count": 20,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -345,7 +348,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 22,
+   "execution_count": 21,
    "metadata": {},
    "outputs": [
     {
@@ -379,7 +382,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 23,
+   "execution_count": 22,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -390,7 +393,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 24,
+   "execution_count": 23,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -399,7 +402,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 25,
+   "execution_count": 24,
    "metadata": {},
    "outputs": [
     {

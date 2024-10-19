@@ -448,11 +448,11 @@ document.write(`
 <h1>Defining a Potential<a class="headerlink" href="#defining-a-potential" title="Link to this heading">#</a></h1>
 <p>We use a class based approach to defining our potentials.</p>
 <p>Theres a base class called JaxDensity where all of the numerical methods are defined.
-Specific sublasses corresponding to known models (e.g Plummer NFW) are defined for each model in models.py</p>
+Specific subclasses corresponding to known models (e.g Plummer NFW) are defined for each model in models.py</p>
 <p>You can look at <a class="reference internal" href="tutorial_potential.html"><span class="doc">Tutorial: Potentials</span></a> for some examples of the built-in models.</p>
-<p>For those models whenever analytical espressions for dynamical quantities are known the numerical methods are overridden with the analytical methods, otherwise the numerical methods are used.</p>
-<p>For testing purposes it maybe useful to compare the numerical methods to the analytical methods to see if they’re working correctly.</p>
-<p>Below we show the minimum code needed to define a custom model.</p>
+<p>For those models, whenever analytical espressions for dynamical quantities are known the numerical methods are overridden with the analytical methods, otherwise the numerical methods are used.</p>
+<p>For testing purposes it may be useful to compare the numerical methods to the analytic expressions to ensure that the numerical methods are working correctly.</p>
+<p>Below we show the minimum code needed to define a custom model and compare the numerical methods to the analytical expressions.</p>
 <div class="cell tag_hide-cell docutils container">
 <details class="hide above-input">
 <summary aria-label="Toggle hidden content">
@@ -474,17 +474,19 @@ Specific sublasses corresponding to known models (e.g Plummer NFW) are defined f
 </div>
 </div>
 </div>
-<p>The general idea if you want to implement a model that is not built in is that all you have to define is one or two functions and then everything else can be calculated numerically.</p>
+<p>The general idea is that if you want to implement a model that is not built in is that all you have to define is one or two functions and then everything else can be calculated numerically.</p>
 <p>The more functions you specify will lead to slightly faster calculations and perhaps slighly more accurate results, but we show that even defining just one function you can achieve good results.</p>
 <p>We’ll start with the Plummer model as an example.</p>
 <section id="a-good-test-of-our-numerical-methods">
 <h2>A Good Test of our Numerical Methods<a class="headerlink" href="#a-good-test-of-our-numerical-methods" title="Link to this heading">#</a></h2>
-<p>A particularly tricky function to calculate given just a density profile is the Distribution function. This is a function that gives the probability of finding a star with a given energy at a given position. It is defined as:</p>
+<p>A particularly tricky function to calculate given just a density profile is the Distribution function. This is a function that gives the probability of finding a star in a particular phase space volume. It is defined as:</p>
 <div class="math notranslate nohighlight">
 \[
 f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{E}}\frac{d\rho}{d\psi}\frac{d\psi}{\sqrt{\mathcal{E}-\psi}}
 \]</div>
-<p>The combination of integrals and derivatives can make this a difficult function to calculate. Below we show how we can calculate this function for the Plummer model.</p>
+<p>The combination of integrals and derivatives can make this a difficult function to calculate so it’ll be a good litmus test for our numerical methods.</p>
+<p>Below we show how to define a mode which is just a Plummer model.We show that we can accurately calculate the distribution function using just the density profile.
+The fact that the distribution function is a non-trivial function of the density profile and various other quantities means that if we can accurately calculate the distribution function then we can be confident that our numerical methods are working correctly.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
