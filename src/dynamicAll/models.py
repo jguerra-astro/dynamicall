@@ -1312,7 +1312,7 @@ class Plummer(JaxDensity):
         np.ndarray
             density | :math:`[M_{\odot} kpc^{-3}]`
         """
-        return Plummer._density(r, self._M, self._a)
+        return Plummer._density(r, self._M, self._rs)
 
     def dispersion(self, r: np.ndarray) -> np.ndarray:
         r"""

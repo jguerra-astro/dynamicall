@@ -1,8 +1,9 @@
-from dynamicAll import abel,models
+from dynamicAll import models
 import sampler
 import jax.numpy as jnp
 import numpy as np
 import pytest
+from tests import abel
 
 
 def test_vplummer():
