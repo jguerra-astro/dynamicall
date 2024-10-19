@@ -450,8 +450,9 @@ document.write(`
 <p>Theres a base class called JaxDensity where all of the numerical methods are defined.
 Specific sublasses corresponding to known models (e.g Plummer NFW) are defined for each model in models.py</p>
 <p>You can look at <a class="reference internal" href="tutorial_potential.html"><span class="doc">Tutorial: Potentials</span></a> for some examples of the built-in models.</p>
-<p>For the built-in models if an analytical espressions for dynamical quantities are known, the analytical espressions are used, if not the numerical methods from the base class are used.</p>
+<p>For those models whenever analytical espressions for dynamical quantities are known the numerical methods are overridden with the analytical methods, otherwise the numerical methods are used.</p>
 <p>For testing purposes it maybe useful to compare the numerical methods to the analytical methods to see if they’re working correctly.</p>
+<p>Below we show the minimum code needed to define a custom model.</p>
 <div class="cell tag_hide-cell docutils container">
 <details class="hide above-input">
 <summary aria-label="Toggle hidden content">
@@ -476,6 +477,8 @@ Specific sublasses corresponding to known models (e.g Plummer NFW) are defined f
 <p>The general idea if you want to implement a model that is not built in is that all you have to define is one or two functions and then everything else can be calculated numerically.</p>
 <p>The more functions you specify will lead to slightly faster calculations and perhaps slighly more accurate results, but we show that even defining just one function you can achieve good results.</p>
 <p>We’ll start with the Plummer model as an example.</p>
+<section id="a-good-test-of-our-numerical-methods">
+<h2>A Good Test of our Numerical Methods<a class="headerlink" href="#a-good-test-of-our-numerical-methods" title="Link to this heading">#</a></h2>
 <p>A particularly tricky function to calculate given just a density profile is the Distribution function. This is a function that gives the probability of finding a star with a given energy at a given position. It is defined as:</p>
 <div class="math notranslate nohighlight">
 \[
@@ -490,28 +493,45 @@ f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{
 
 
 <span class="k">class</span> <span class="nc">Plummer_test</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Pretending we don&#39;t know that most dynamical quantities for a self-consistent Plummer model are known analytically.</span>
+<span class="sd">    We define just the density profile and calculate the numerical methods to the analytical results.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rs</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        M: float</span>
+<span class="sd">            Total mass of the Plummer model</span>
+<span class="sd">        rs: float</span>
+<span class="sd">            Scale radius of the Plummer model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_M</span> <span class="o">=</span> <span class="n">M</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rs</span> <span class="o">=</span> <span class="n">rs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_M</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rs</span><span class="p">}</span>
 
     <span class="nd">@classmethod</span>
     <span class="nd">@partial</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
-    <span class="k">def</span> <span class="nf">_density</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_density</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Analytical density profile of a Plummer model.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        r : np.ndarray</span>
-<span class="sd">            radius : np.sqrt(x**2+y**2 + z**2)</span>
-<span class="sd">        M : float</span>
-<span class="sd">            _description_</span>
-<span class="sd">        a : float</span>
-<span class="sd">            _description_</span>
+<span class="sd">        r : jnp.ndarray</span>
+<span class="sd">            radius in units of [kpc]</span>
+<span class="sd">        params : dict</span>
+<span class="sd">            Dictionary containing the parameters of the Plummer model</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
-<span class="sd">            _description_</span>
+<span class="sd">        float</span>
+<span class="sd">            Density at radius r in units of [Msun / kpc^3]</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        When Defining profiles the analytica functions can accept either jnp.ndarray or float as input.</span>
+<span class="sd">        However, when vectorizing using vmap or taking derivatives there might be unintended behavior if you decide to vmap every function.</span>
+<span class="sd">        We therefore usually leave vectorization to the user.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">r</span> <span class="o">/</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;rs&quot;</span><span class="p">]</span>
         <span class="n">coeff</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;M&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;rs&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
@@ -524,8 +544,13 @@ f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{
 <p>Here we defined a plummer model using the density as a starting point. If we wanted a different starting point -i.e you have a specific parameterization in mind for the mass or potential - you can instead use JaxMass or JaxPotential as the starting point.</p>
 <p>In that case all you need to define is _mass and _density and everything else can be done numerically.</p>
 <p>You can start out with a Distribution function, but in that case you also need to specify the potential in the currrent  implementation. See the Docs and source code doc strings for more information.</p>
-<section id="initialisation">
-<h2>Initialisation<a class="headerlink" href="#initialisation" title="Link to this heading">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although you only need one function to define a model, the more functions you can define analytically the better and faster the code will run.</p>
+</div>
+</section>
+<section id="initialize-your-model">
+<h2>Initialize your model<a class="headerlink" href="#initialize-your-model" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="mf">3e5</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span>
@@ -538,6 +563,7 @@ f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{
 <p class="admonition-title">Note</p>
 <p>You don’t have to initialize the class. You can use it in a more functional form by using the class methods.</p>
 <p>all that calling plum_test.density(r) does is call the class method _density(r,params). In actual fitting where you’re changing the parameters you would always want to use the class methods rather than the instance methods.</p>
+<p>See the plot below showing the density profile we just defined being called in two different ways.</p>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -566,8 +592,7 @@ f(\mathcal{E}) = \frac{1}{\sqrt{8}\pi^2} \frac{d}{d\mathcal{E}}\int_0^{\mathcal{
 </section>
 <section id="test-against-built-in-model">
 <h2>Test against built-in Model<a class="headerlink" href="#test-against-built-in-model" title="Link to this heading">#</a></h2>
-<p>The built in Plummer model has almost all dynamical quantites in analytical form.
-We’ll use them to test the numerical methods.</p>
+<p>The built in Plummer model has almost all dynamical quantities defined analytically. We can compare the numerical methods to the analytical methods to see if they’re working correctly.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dynamicAll</span> <span class="kn">import</span> <span class="n">models</span>
@@ -577,6 +602,9 @@ We’ll use them to test the numerical methods.</p>
 </div>
 </div>
 </div>
+<p>The difference between our numerical methods and the analytical methods is less than 1e-6 for all quantities.</p>
+<p>Our integration scheme is very simple, but we show that it is very accurate for a wide range of models.
+see {doc}`./tutorial_potential where we compare various models with analytical functions versus the equivalent Hernquist-Zhao model that uses analytical methods</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
@@ -622,13 +650,18 @@ We’ll use them to test the numerical methods.</p>
 <img alt="../_images/681f0d18c7c9468efd3c6fc027240f263d4b446207b6c6b66ec2b219e9009a90.png" src="../_images/681f0d18c7c9468efd3c6fc027240f263d4b446207b6c6b66ec2b219e9009a90.png" />
 </div>
 </div>
-<p>It could be seen as annoying to have to physically vectorize functions, but it does give you a lot of control over how the functions are implemented and how they’re used. If you wanted to see the potential for wide range of parameters you could also vectorize over that variable</p>
+<section id="the-issue-of-vectorization-with-vmap">
+<h3>The issue of vectorization with vmap<a class="headerlink" href="#the-issue-of-vectorization-with-vmap" title="Link to this heading">#</a></h3>
+<p>It could be seen as annoying to have to physically vectorize functions manually. Analytical functions are able to accept either float or array inputs, but most functions we define numericallly are only able to accept float inputs forcing us to vectorize them any time we want to use them in a vectorized context which is often.</p>
+<p>This ultimately gives us more control over how we want to vectorize our functions. We can vectorize them over many radii, or vectorize them over many parameters, or both!</p>
+<p>Both can be particularly powerful when attempting to explore the parameter space of a model.</p>
+<p>Below we show a very simple example of of being able to vectorize over many parameters and many radii at the same time.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">params_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">}]</span>
 <span class="n">params_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params_list</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">params_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
 
-<span class="n">vectorized_two</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span>
+<span class="n">vmap_both</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span>
     <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">Plummer_test</span><span class="o">.</span><span class="n">_mass</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
     <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
 <span class="p">)</span>
@@ -638,19 +671,7 @@ We’ll use them to test the numerical methods.</p>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_vectorization</span> <span class="o">=</span> <span class="n">vectorized_two</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">params_dict</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_vectorization</span><span class="o">.</span><span class="n">shape</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(3, 100)
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_vectorization</span> <span class="o">=</span> <span class="n">vmap_both</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">params_dict</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -660,68 +681,27 @@ We’ll use them to test the numerical methods.</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">mass</span> <span class="ow">in</span> <span class="n">test_vectorization</span><span class="p">:</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">mass</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">);</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;M(r)&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/e79f9ba14ceafde9f77071fd6c115773be5ccf2ce5be6ae9d87d7e561c4b828c.png" src="../_images/e79f9ba14ceafde9f77071fd6c115773be5ccf2ce5be6ae9d87d7e561c4b828c.png" />
+<img alt="../_images/6f8853fbe639850e795f27698d163fad854e88d1e2d313017b685418cd6f2470.png" src="../_images/6f8853fbe639850e795f27698d163fad854e88d1e2d313017b685418cd6f2470.png" />
 </div>
 </div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="n">r</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="o">-</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">plum_test</span><span class="o">.</span><span class="n">_potential</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))(</span><span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
-    <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
-    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
-    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\Phi$&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="c1"># ax.set(ylim=(1e-10, 1e-5));</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[None, None, Text(0.5, 0, &#39;r&#39;), Text(0, 0.5, &#39;$\\Phi$&#39;)]
-</pre></div>
-</div>
-<img alt="../_images/865e5772b24f4b42d90d810915ea82b1389ff1d40bb997ac99e3e07df349fd99.png" src="../_images/865e5772b24f4b42d90d810915ea82b1389ff1d40bb997ac99e3e07df349fd99.png" />
-</div>
-</div>
+</section>
+</section>
+<section id="calculation-the-distribution-function">
+<h2>Calculation the Distribution function<a class="headerlink" href="#calculation-the-distribution-function" title="Link to this heading">#</a></h2>
+<p>As stated above the distribution function is a particularly involved function to calculate numerically. Only having defined one function – the density profile we test whether we can accurately calculate the distribution function.</p>
+<p>Our Plummer model has a known distribution function so a very simple test is to compare our numerical calculation to the known analytical calculation.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mathcal_E</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="o">-</span><span class="mf">0.99</span> <span class="o">*</span> <span class="n">plum_test</span><span class="o">.</span><span class="n">_potential</span><span class="p">(</span><span class="mf">1e-9</span><span class="p">,</span> <span class="n">params</span><span class="p">)),</span> <span class="mi">200</span><span class="p">)</span>
-<span class="c1"># r_e = plum_test.calculate_re(1, 1e5, params)</span>
-<span class="n">r_e</span> <span class="o">=</span> <span class="n">plum_test</span><span class="o">.</span><span class="n">test_calculate_re</span><span class="p">(</span><span class="n">mathcal_E</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="mf">1e10</span><span class="p">)</span>
-<span class="c1"># # print(r_e)</span>
-<span class="c1"># # print(mathcal_E)</span>
-<span class="c1"># # print(-plum_test._potential(1, params))</span>
-<span class="c1"># print(-plum_test._potential(r_e, params))</span>
-<span class="c1"># # r_e = jnp.logspace(-2, 2, 2000)</span>
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-    <span class="n">r_e</span><span class="p">,</span>
-    <span class="n">mathcal_E</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-    <span class="n">r_e</span><span class="p">,</span>
-    <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">plum_test</span><span class="o">.</span><span class="n">_potential</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))(</span><span class="n">r_e</span><span class="p">,</span> <span class="n">params</span><span class="p">)),</span>
-    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
-    <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
-    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
-    <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\Phi$&quot;</span><span class="p">,</span>
-    <span class="c1"># xlim=(1e-10, 1e-2),</span>
-<span class="p">);</span>
+
+<span class="c1"># mathcal_E is a bad name for the variable, but it is the latex symbol for the relative energy used in Binney &amp; Tremaine</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<img alt="../_images/fca7014b35af2b10a98fc9ddf2fb6cbc63560100183fedcbfb2c1c5af2f9d1c8.png" src="../_images/fca7014b35af2b10a98fc9ddf2fb6cbc63560100183fedcbfb2c1c5af2f9d1c8.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -801,8 +781,13 @@ We’ll use them to test the numerical methods.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initialisation">Initialisation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#test-against-built-in-model">Test against built-in Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-good-test-of-our-numerical-methods">A Good Test of our Numerical Methods</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initialize-your-model">Initialize your model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#test-against-built-in-model">Test against built-in Model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-issue-of-vectorization-with-vmap">The issue of vectorization with vmap</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculation-the-distribution-function">Calculation the Distribution function</a></li>
 </ul>
   </nav></div>
 
