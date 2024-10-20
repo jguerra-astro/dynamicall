@@ -464,14 +464,29 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="dynamicAll.base.CompositePotential">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">CompositePotential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">potentials</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#CompositePotential"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.CompositePotential" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#dynamicAll.base.JaxPotential" title="dynamicAll.base.JaxPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity"><code class="xref py py-class docutils literal notranslate"><span class="pre">JaxDensity</span></code></a></p>
 <p>Composite potential class that combines multiple potentials into a single potential.</p>
 <p>There are two ways to combine potentials:</p>
 <ol class="arabic simple">
 <li><p>Add potentials using the ‘+’ operator.</p></li>
 <li><p>Use the CompositePotential class to combine multiple potentials.</p></li>
 </ol>
-<p>Functions Here just sum the density, mass, and potential of each potential in the composite potential.</p>
+<section id="example-1">
+<h2>Example 1<a class="headerlink" href="#example-1" title="Link to this heading">#</a></h2>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dynamicAll.models</span>  <span class="kn">import</span> <span class="n">Plummer</span><span class="p">,</span> <span class="n">NFW</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plum_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;M&#39;</span><span class="p">:</span> <span class="mf">3e5</span><span class="p">,</span> <span class="s1">&#39;rs&#39;</span><span class="p">:</span> <span class="mf">.25</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p1</span> <span class="o">=</span> <span class="n">Plummer</span><span class="p">(</span><span class="o">**</span><span class="n">plum_params</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nfw_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;rhos&#39;</span><span class="p">:</span><span class="mf">6.4e7</span><span class="p">,</span> <span class="s1">&#39;rs&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p2</span> <span class="o">=</span> <span class="n">NFW</span><span class="p">(</span><span class="o">**</span><span class="n">nfw_params</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">composite</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">p2</span>
+</pre></div>
+</div>
+</section>
+<section id="example-2">
+<h2>Example 2<a class="headerlink" href="#example-2" title="Link to this heading">#</a></h2>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">composite</span> <span class="o">=</span> <span class="n">CompositePotential</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.CompositePotential.density">
 <span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Array</span></span></span><a class="reference internal" href="_modules/dynamicAll/base.html#CompositePotential.density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.CompositePotential.density" title="Link to this definition">#</a></dt>
@@ -481,7 +496,7 @@ document.write(`
 <dd class="field-odd"><p><strong>r</strong> (<em>jnp.ndarray</em>) – radii at which to calculate the density units of [kpc]</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>density units of <span class="math notranslate nohighlight">\([ \rm M_{\odot}~kpc^{-3}]\)</span></p>
+<dd class="field-even"><p>density units of <span class="math notranslate nohighlight">\([ \\rm M_{\odot}~kpc^{-3}]\)</span></p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>jnp.ndarray</p>
@@ -523,6 +538,7 @@ document.write(`
 </dl>
 </dd></dl>
 
+</section>
 </dd></dl>
 
 <dl class="py class">
@@ -892,18 +908,36 @@ TODO: write this lol – see APWs jax implementation maybe?
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">JaxDensity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">JfactorN</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Gunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Unit('km2</span> <span class="pre">kpc</span> <span class="pre">/</span> <span class="pre">(solMass</span> <span class="pre">s2)')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>Base class for Potentials.</p>
+<p>Base class for all spherical models defined by an analytical density profile.
+All subclasses must at least define a class method <cite>_density</cite> that calculates the density at a given radius r.
+From there all other properties can be numerically calculated</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ABC</strong> (<em>_type_</em>) – _description_</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>_description_</p>
+<dd class="field-even"><p>spherical model defined by an analytical density profile</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>_type_</p>
+<dd class="field-odd"><p><a class="reference internal" href="#dynamicAll.base.JaxDensity" title="dynamicAll.base.JaxDensity">JaxDensity</a></p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dynamicAll.base</span> <span class="kn">import</span> <span class="n">JaxDensity</span>
+<span class="gp">... </span><span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+<span class="gp">...</span>
+<span class="gp">... </span><span class="k">class</span> <span class="nc">Plummer</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">rs</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">_M</span> <span class="o">=</span> <span class="n">M</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">_rs</span> <span class="o">=</span> <span class="n">rs</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="n">M</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="n">rs</span><span class="p">}</span>
+<span class="gp">... </span>    <span class="nd">@classmethod</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">_density</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="n">a</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;rs&quot;</span><span class="p">]</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;M&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">a</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">r</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">2.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See <a class="reference external" href="https://jguerra-astro.github.io/dynamicall/">Documentation</a> for more details.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.DF">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.DF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.DF" title="Link to this definition">#</a></dt>
@@ -1046,7 +1080,30 @@ In most cases we’ll take Phi_{0} = 0 in which case <span class="math notransla
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.density">
 <span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.density" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Density profile of the system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<em>float</em>) – radius | [kpc]</p></li>
+<li><p><strong>params</strong> (<em>dict</em>) – parameters for the specific model being used – see the specific model for details</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>density | [<span class="math notranslate nohighlight">\(\rm M_{\odot}~kpc^{-3}\)</span>]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;rhos&quot;</span><span class="p">:</span> <span class="mf">6.4e7</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">}</span> <span class="c1"># units are in M_{\odot}~kpc^{-3} and kpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">density</span> <span class="o">=</span> <span class="n">JaxPotential</span><span class="o">.</span><span class="n">NFW</span><span class="o">.</span><span class="n">_density</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="c1"># using class method</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># or you can instantiate the class and use the</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nfw</span> <span class="o">=</span> <span class="n">JaxPotential</span><span class="o">.</span><span class="n">NFW</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">density</span> <span class="o">=</span> <span class="n">nfw</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="c1">#using instance method</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.deproject">
@@ -1136,7 +1193,32 @@ Maybe I should just return log10(J/[GeV^{2} cm^{-5}]) instead of J?</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.mass">
 <span class="sig-name descname"><span class="pre">mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#JaxDensity.mass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.JaxDensity.mass" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the mass enclosed within a given radius r.</p>
+<div class="math notranslate nohighlight">
+\[M(r) = 4\pi \int_{0}^{r} \rho(r) r^{2} dr\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<em>float</em>) – radius | [kpc]</p></li>
+<li><p><strong>params</strong> (<em>dict</em>) – parameters for the specific model being used – see the specific model for details</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>mass enclosed within a given radius r | [<span class="math notranslate nohighlight">\(\\rm M_{ M_{\odot}\)</span>]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;rhos&quot;</span><span class="p">:</span> <span class="mf">6.4e7</span><span class="p">,</span> <span class="s2">&quot;rs&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">}</span> <span class="c1"># units are in M_{\odot}~kpc^{-3} and kpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mass</span> <span class="o">=</span> <span class="n">JaxPotential</span><span class="o">.</span><span class="n">NFW</span><span class="o">.</span><span class="n">_mass</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="c1"># using class method</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># or you can instantiate the class and use the instance method</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nfw</span> <span class="o">=</span> <span class="n">JaxPotential</span><span class="o">.</span><span class="n">NFW</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mass</span> <span class="o">=</span> <span class="n">JaxPotential</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="c1">#using instance method</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dynamicAll.base.JaxDensity.potential">
@@ -1413,6 +1495,11 @@ S(log r) is log of tracer count (intended to be used with agama.splineLogDensity
 r is point or array of points where rho should be evaluated</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamicAll.base.shared_docstring">
+<span class="sig-prename descclassname"><span class="pre">dynamicAll.base.</span></span><span class="sig-name descname"><span class="pre">shared_docstring</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamicAll/base.html#shared_docstring"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamicAll.base.shared_docstring" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </section>
 
 
@@ -1537,6 +1624,7 @@ r is point or array of points where rho should be evaluated</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.JaxPotential"><code class="docutils literal notranslate"><span class="pre">JaxPotential</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.dlnrho_dlnr_eval"><code class="docutils literal notranslate"><span class="pre">dlnrho_dlnr_eval()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.rho_eval"><code class="docutils literal notranslate"><span class="pre">rho_eval()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamicAll.base.shared_docstring"><code class="docutils literal notranslate"><span class="pre">shared_docstring()</span></code></a></li>
 </ul>
   </nav></div>
 

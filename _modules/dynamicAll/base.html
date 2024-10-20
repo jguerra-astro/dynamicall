@@ -469,15 +469,33 @@ document.write(`
 <span class="kn">import</span> <span class="nn">emcee</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
 
 <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="shared_docstring">
+<a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.shared_docstring">[docs]</a>
+<span class="k">def</span> <span class="nf">shared_docstring</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">target</span><span class="p">):</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">target</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">wrapper</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="vm">__doc__</span>
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">decorator</span></div>
+
 
 
 <div class="viewcode-block" id="JaxDensity">
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDensity">[docs]</a>
 <span class="k">class</span> <span class="nc">JaxDensity</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for Potentials.</span>
+<span class="sd">    Base class for all spherical models defined by an analytical density profile.</span>
+<span class="sd">    All subclasses must at least define a class method `_density` that calculates the density at a given radius r.</span>
+<span class="sd">    From there all other properties can be numerically calculated</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -486,8 +504,26 @@ document.write(`
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    _type_</span>
-<span class="sd">        _description_</span>
+<span class="sd">    JaxDensity</span>
+<span class="sd">        spherical model defined by an analytical density profile</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from dynamicAll.base import JaxDensity</span>
+<span class="sd">    ... import jax.numpy as jnp</span>
+<span class="sd">    ...</span>
+<span class="sd">    ... class Plummer(JaxDensity):</span>
+<span class="sd">    ...     def __init__(self, M, rs):</span>
+<span class="sd">    ...         self._M = M</span>
+<span class="sd">    ...         self._rs = rs</span>
+<span class="sd">    ...         self._params = {&quot;M&quot;: M, &quot;rs&quot;: rs}</span>
+<span class="sd">    ...     @classmethod</span>
+<span class="sd">    ...     def _density(cls, r, params):</span>
+<span class="sd">    ...         a = params[&quot;rs&quot;]</span>
+<span class="sd">    ...         return 3 * params[&quot;M&quot;] / (4 * jnp.pi * a**3) * (1 + r**2 / a**2)**(-2.5)</span>
+
+<span class="sd">    See `Documentation &lt;https://jguerra-astro.github.io/dynamicall/&gt;`_ for more details.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Class variables</span>
@@ -533,24 +569,6 @@ document.write(`
         <span class="c1"># Need a different accuracy for the J-factor integral</span>
         <span class="n">xj</span><span class="p">,</span> <span class="n">wj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">legendre</span><span class="o">.</span><span class="n">leggauss</span><span class="p">(</span><span class="n">JfactorN</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_xj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wj</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xj</span><span class="p">),</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wj</span><span class="p">)</span>
-
-<div class="viewcode-block" id="JaxDensity.density">
-<a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDensity.density">[docs]</a>
-    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="JaxDensity.mass">
-<a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDensity.mass">[docs]</a>
-    <span class="k">def</span> <span class="nf">mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mass</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="JaxDensity.potential">
-<a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDensity.potential">[docs]</a>
-    <span class="k">def</span> <span class="nf">potential</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_potential</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">)</span></div>
-
 
 <div class="viewcode-block" id="JaxDensity.DistributionFunction">
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDensity.DistributionFunction">[docs]</a>
@@ -923,17 +941,67 @@ document.write(`
 
     <span class="nd">@classmethod</span>
     <span class="nd">@partial</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
-    <span class="k">def</span> <span class="nf">_density</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_density</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Density profile of the system</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        r : float</span>
+<span class="sd">            radius | [kpc]</span>
+<span class="sd">        params : dict</span>
+<span class="sd">            parameters for the specific model being used -- see the specific model for details</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            density | [:math:`\\rm M_{\odot}~kpc^{-3}`]</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; params = {&quot;rhos&quot;: 6.4e7, &quot;rs&quot;: 1.2} # units are in M_{\odot}~kpc^{-3} and kpc</span>
+<span class="sd">        &gt;&gt;&gt; density = JaxPotential.NFW._density(10, params) # using class method</span>
+<span class="sd">        &gt;&gt;&gt; # or you can instantiate the class and use the</span>
+<span class="sd">        &gt;&gt;&gt; nfw = JaxPotential.NFW(**params)</span>
+<span class="sd">        &gt;&gt;&gt; density = nfw.density(10) #using instance method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
     <span class="nd">@classmethod</span>
     <span class="nd">@partial</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
-    <span class="k">def</span> <span class="nf">_mass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_mass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the mass enclosed within a given radius r.</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            M(r) = 4\pi \int_{0}^{r} \rho(r) r^{2} dr</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        r : float</span>
+<span class="sd">            radius | [kpc]</span>
+<span class="sd">        params : dict</span>
+<span class="sd">            parameters for the specific model being used -- see the specific model for details</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            mass enclosed within a given radius r | [:math:`\\rm M_{ M_{\odot}`]</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; params = {&quot;rhos&quot;: 6.4e7, &quot;rs&quot;: 1.2} # units are in M_{\odot}~kpc^{-3} and kpc</span>
+<span class="sd">        &gt;&gt;&gt; mass = JaxPotential.NFW._mass(10, params) # using class method</span>
+<span class="sd">        &gt;&gt;&gt; # or you can instantiate the class and use the instance method</span>
+<span class="sd">        &gt;&gt;&gt; nfw = JaxPotential.NFW(**params)</span>
+<span class="sd">        &gt;&gt;&gt; mass = JaxPotential.mass(10) #using instance method</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">r</span>
         <span class="n">rs</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;rs&quot;</span><span class="p">]</span>
 
-        <span class="n">xi</span> <span class="o">=</span> <span class="n">JaxPotential</span><span class="o">.</span><span class="n">_x256</span>
-        <span class="n">wi</span> <span class="o">=</span> <span class="n">JaxPotential</span><span class="o">.</span><span class="n">_w256</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="n">JaxPotential</span><span class="o">.</span><span class="n">_xm</span>
+        <span class="n">wi</span> <span class="o">=</span> <span class="n">JaxPotential</span><span class="o">.</span><span class="n">_wm</span>
 
         <span class="k">def</span> <span class="nf">r_le_rs</span><span class="p">():</span>
             <span class="n">xk</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">q</span> <span class="o">*</span> <span class="n">xi</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">q</span>
@@ -1221,6 +1289,27 @@ document.write(`
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="o">-</span><span class="n">G</span> <span class="o">*</span> <span class="p">(</span><span class="n">phi_in</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">phi_out</span><span class="p">)</span>
+
+<div class="viewcode-block" id="JaxDensity.density">
+<a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDensity.density">[docs]</a>
+    <span class="nd">@shared_docstring</span><span class="p">(</span><span class="n">_density</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_density</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="JaxDensity.mass">
+<a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDensity.mass">[docs]</a>
+    <span class="nd">@shared_docstring</span><span class="p">(</span><span class="n">_mass</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mass</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="JaxDensity.potential">
+<a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDensity.potential">[docs]</a>
+    <span class="nd">@shared_docstring</span><span class="p">(</span><span class="n">_potential</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">potential</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_potential</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="JaxDensity.v_circ">
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.JaxDensity.v_circ">[docs]</a>
@@ -2110,7 +2199,7 @@ document.write(`
 
 <div class="viewcode-block" id="CompositePotential">
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.CompositePotential">[docs]</a>
-<span class="k">class</span> <span class="nc">CompositePotential</span><span class="p">(</span><span class="n">JaxPotential</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">CompositePotential</span><span class="p">(</span><span class="n">JaxDensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Composite potential class that combines multiple potentials into a single potential.</span>
 
@@ -2119,7 +2208,19 @@ document.write(`
 <span class="sd">    1. Add potentials using the &#39;+&#39; operator.</span>
 <span class="sd">    2. Use the CompositePotential class to combine multiple potentials.</span>
 
-<span class="sd">    Functions Here just sum the density, mass, and potential of each potential in the composite potential.</span>
+<span class="sd">    Example 1</span>
+<span class="sd">    ---------</span>
+<span class="sd">    &gt;&gt;&gt; from dynamicAll.models  import Plummer, NFW</span>
+<span class="sd">    &gt;&gt;&gt; plum_params = {&#39;M&#39;: 3e5, &#39;rs&#39;: .25}</span>
+<span class="sd">    &gt;&gt;&gt; p1 = Plummer(**plum_params)</span>
+<span class="sd">    &gt;&gt;&gt; nfw_params = {&#39;rhos&#39;:6.4e7, &#39;rs&#39;: 1.5}</span>
+<span class="sd">    &gt;&gt;&gt; p2 = NFW(**nfw_params)</span>
+<span class="sd">    &gt;&gt;&gt; composite = p1 + p2</span>
+
+<span class="sd">    Example 2</span>
+<span class="sd">    ---------</span>
+<span class="sd">    &gt;&gt;&gt; composite = CompositePotential(p1, p2)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">potentials</span><span class="p">):</span>
@@ -2136,7 +2237,7 @@ document.write(`
 <div class="viewcode-block" id="CompositePotential.density">
 <a class="viewcode-back" href="../../dynamicAll.base.html#dynamicAll.base.CompositePotential.density">[docs]</a>
     <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sum the density of each potential in the composite potential.</span>
 
 <span class="sd">        Parameters</span>
