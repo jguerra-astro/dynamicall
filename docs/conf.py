@@ -28,14 +28,18 @@ mathjax_path = (
 utomodule = "dynamicAll"
 
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.napoleon",
-    "sphinx.ext.autosummary",
+    "sphinx.ext.autodoc",  # Automatically generates documentation from docstrings -- Required
+    "sphinx.ext.viewcode",  # Adds links to the source code of documented Python objects -- Optional,but recommended
+    "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings -- Optional, but highly recommended
+    "sphinx.ext.autosummary",  # Generate autodoc summaries -- Optional
+    "sphinx.ext.intersphinx",  # Link to other Sphinx documentation -- Optional
     "nbsphinx",
     "sphinx.ext.mathjax",
     "myst_nb",  # myst_nb is a plugin for MyST Markdown that adds support for executing and displaying Jupyter notebooks.
     "sphinx_copybutton",
+    "sphinx.ext.autosectionlabel",
+    # "sphinx_panels",
+    "sphinx.ext.todo",
     # "sphinx_new_tab_link",
 ]
 nbsphinx_execute = "off"

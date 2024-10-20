@@ -35,13 +35,28 @@ from typing import Callable
 import emcee
 from scipy.optimize import curve_fit
 import warnings
+from functools import wraps
 
 config.update("jax_enable_x64", True)
 
 
+def shared_docstring(source):
+    def decorator(target):
+        @wraps(target)
+        def wrapper(*args, **kwargs):
+            return target(*args, **kwargs)
+
+        wrapper.__doc__ = source.__doc__
+        return wrapper
+
+    return decorator
+
+
 class JaxDensity(ABC):
     """
-    Base class for Potentials.
+    Base class for all spherical models defined by an analytical density profile.
+    All subclasses must at least define a class method `_density` that calculates the density at a given radius r.
+    From there all other properties can be numerically calculated
 
     Parameters
     ----------
@@ -50,8 +65,26 @@ class JaxDensity(ABC):
 
     Returns
     -------
-    _type_
-        _description_
+    JaxDensity
+        spherical model defined by an analytical density profile
+
+    Example
+    -------
+    >>> from dynamicAll.base import JaxDensity
+    ... import jax.numpy as jnp
+    ...
+    ... class Plummer(JaxDensity):
+    ...     def __init__(self, M, rs):
+    ...         self._M = M
+    ...         self._rs = rs
+    ...         self._params = {"M": M, "rs": rs}
+    ...     @classmethod
+    ...     def _density(cls, r, params):
+    ...         a = params["rs"]
+    ...         return 3 * params["M"] / (4 * jnp.pi * a**3) * (1 + r**2 / a**2)**(-2.5)
+
+    See `Documentation <https://jguerra-astro.github.io/dynamicall/>`_ for more details.
+
     """
 
     # Class variables
@@ -97,15 +130,6 @@ class JaxDensity(ABC):
         # Need a different accuracy for the J-factor integral
         xj, wj = np.polynomial.legendre.leggauss(JfactorN)
         self._xj, self._wj = jnp.array(xj), jnp.array(wj)
-
-    def density(self, r):
-        return self._density(r, self._params)
-
-    def mass(self, r):
-        return self._mass(r, self._params)
-
-    def potential(self, r):
-        return self._potential(r, self._params)
 
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
@@ -451,17 +475,67 @@ class JaxDensity(ABC):
 
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
-    def _density(cls, r: float, params):
+    def _density(cls, r: float, params: dict) -> float:
+        """
+        Density profile of the system
+
+        Parameters
+        ----------
+        r : float
+            radius | [kpc]
+        params : dict
+            parameters for the specific model being used -- see the specific model for details
+
+        Returns
+        -------
+        float
+            density | [:math:`\\rm M_{\odot}~kpc^{-3}`]
+
+        Example
+        -------
+        >>> params = {"rhos": 6.4e7, "rs": 1.2} # units are in M_{\odot}~kpc^{-3} and kpc
+        >>> density = JaxPotential.NFW._density(10, params) # using class method
+        >>> # or you can instantiate the class and use the
+        >>> nfw = JaxPotential.NFW(**params)
+        >>> density = nfw.density(10) #using instance method
+        """
         pass
 
     @classmethod
     @partial(jax.jit, static_argnums=(0,))
-    def _mass(cls, r: float, params):
+    def _mass(cls, r: float, params: dict) -> float:
+        r"""
+        Calculates the mass enclosed within a given radius r.
+
+        .. math::
+            M(r) = 4\pi \int_{0}^{r} \rho(r) r^{2} dr
+
+        Parameters
+        ----------
+        r : float
+            radius | [kpc]
+        params : dict
+            parameters for the specific model being used -- see the specific model for details
+
+        Returns
+        -------
+        float
+            mass enclosed within a given radius r | [:math:`\\rm M_{ M_{\odot}`]
+
+        Example
+        -------
+        >>> params = {"rhos": 6.4e7, "rs": 1.2} # units are in M_{\odot}~kpc^{-3} and kpc
+        >>> mass = JaxPotential.NFW._mass(10, params) # using class method
+        >>> # or you can instantiate the class and use the instance method
+        >>> nfw = JaxPotential.NFW(**params)
+        >>> mass = JaxPotential.mass(10) #using instance method
+
+        """
         q = r
         rs = params["rs"]
 
-        xi = JaxPotential._x256
-        wi = JaxPotential._w256
+        xi = JaxPotential._xm
+        wi = JaxPotential._wm
 
         def r_le_rs():
             xk = 0.5 * q * xi + 0.5 * q
@@ -743,6 +817,18 @@ class JaxDensity(ABC):
         )
 
         return -G * (phi_in + 4 * jnp.pi * phi_out)
+
+    @shared_docstring(_density)
+    def density(self, r):
+        return self._density(r, self._params)
+
+    @shared_docstring(_mass)
+    def mass(self, r):
+        return self._mass(r, self._params)
+
+    @shared_docstring(_potential)
+    def potential(self, r):
+        return self._potential(r, self._params)
 
     def v_circ(self, r):
         r"""
@@ -1563,7 +1649,7 @@ class JaxDistribuitionFunction(JaxDensity):
         pass
 
 
-class CompositePotential(JaxPotential):
+class CompositePotential(JaxDensity):
     """
     Composite potential class that combines multiple potentials into a single potential.
 
@@ -1572,7 +1658,19 @@ class CompositePotential(JaxPotential):
     1. Add potentials using the '+' operator.
     2. Use the CompositePotential class to combine multiple potentials.
 
-    Functions Here just sum the density, mass, and potential of each potential in the composite potential.
+    Example 1
+    ---------
+    >>> from dynamicAll.models  import Plummer, NFW
+    >>> plum_params = {'M': 3e5, 'rs': .25}
+    >>> p1 = Plummer(**plum_params)
+    >>> nfw_params = {'rhos':6.4e7, 'rs': 1.5}
+    >>> p2 = NFW(**nfw_params)
+    >>> composite = p1 + p2
+
+    Example 2
+    ---------
+    >>> composite = CompositePotential(p1, p2)
+
     """
 
     def __init__(self, *potentials):
@@ -1587,7 +1685,7 @@ class CompositePotential(JaxPotential):
                 self._dm_priors[unique_key] = value
 
     def density(self, r: jnp.ndarray) -> jnp.ndarray:
-        """
+        r"""
         Sum the density of each potential in the composite potential.
 
         Parameters
