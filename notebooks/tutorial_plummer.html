@@ -16,26 +16,29 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
   
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
     <script src="../_static/documentation_options.js?v=f2a433a1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
@@ -53,6 +56,7 @@
     <link rel="prev" title="Tutorial: Potentials" href="tutorial_potential.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -68,19 +72,8 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="../search.html"
       method="get">
@@ -88,7 +81,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search the docs ..."
          aria-label="Search the docs ..."
          autocomplete="off"
@@ -96,8 +88,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -207,29 +199,21 @@
         <div class="navbar-item navbar-persistent--container">
           
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
         </div>
       
       
         <div class="navbar-item">
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script></div>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
       
         <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -254,15 +238,11 @@ document.write(`
   
     <div class="navbar-persistent--mobile">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
     </div>
   
 
@@ -281,7 +261,8 @@ document.write(`
       
       
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -356,15 +337,11 @@ document.write(`
         
           <div class="navbar-item">
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script></div>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
         
           <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -417,8 +394,6 @@ document.write(`
       
         <div class="header-article-item">
 
-
-
 <nav aria-label="Breadcrumb" class="d-print-none">
   <ul class="bd-breadcrumbs">
     
@@ -427,7 +402,7 @@ document.write(`
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page">Tutorial:...</li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Tutorial: Plummer Model</span></li>
   </ul>
 </nav>
 </div>
@@ -580,15 +555,15 @@ document.write(`
 <h2>Generating data from a Plummer sphere.<a class="headerlink" href="#generating-data-from-a-plummer-sphere" title="Link to this heading">#</a></h2>
 <p>This one is quite simple and there are many examples of sampling from a plummer sphere, but lets go over it anyways.</p>
 <p>The plummer sphere is defined by the density profile</p>
-<div class="amsmath math notranslate nohighlight" id="equation-471e2305-7d00-4e85-b836-8e547e4b4d1c">
-<span class="eqno">(1)<a class="headerlink" href="#equation-471e2305-7d00-4e85-b836-8e547e4b4d1c" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-dea728cb-f007-46ee-8a2a-8c719ab08b9a">
+<span class="eqno">(1)<a class="headerlink" href="#equation-dea728cb-f007-46ee-8a2a-8c719ab08b9a" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \rho(r) = \frac{3M}{4\pi a^3}\left(1 + \frac{r^2}{a^2}\right)^{-5/2}
 \end{equation}\]</div>
 <p>For various systems, we’ll have to numerically calculate the distribution function via the Eddington formula, but we’ll start with the Plummer sphere where you can derive it analytically.
 (See B&amp;T for a derivation)</p>
 <p>The distribution function for a Plummer sphere is given by</p>
-<div class="amsmath math notranslate nohighlight" id="equation-611b6e02-b620-457f-b238-98a81fd3f03e">
-<span class="eqno">(2)<a class="headerlink" href="#equation-611b6e02-b620-457f-b238-98a81fd3f03e" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-00ffe8c2-d0c5-424b-9285-84876cf06877">
+<span class="eqno">(2)<a class="headerlink" href="#equation-00ffe8c2-d0c5-424b-9285-84876cf06877" title="Permalink to this equation">#</a></span>\[\begin{equation}
 f(E) =
 \frac{24\sqrt{2}}{7\pi^3}
 \frac{a^2}{G^5 M^4}(-E)^{7/2}
@@ -596,34 +571,34 @@ f(E) =
 <p>Where M is the total mass of the system, and a is the Plummer radius, and <span class="math notranslate nohighlight">\(E=\Phi(r) + \frac{1}{2}v^2\)</span> is the energy of a particle and goes from <span class="math notranslate nohighlight">\(\Phi(r = 0) = -\frac{GM}{a}\)</span> to 0.</p>
 <p>For the purposes of making mock data of a plummer sphere it is useful to remember that the distribution function is the joint probabilty of finding a star in the phase-space volume <span class="math notranslate nohighlight">\(d^{3}\vec{x}d^{3}\vec{w}\)</span> around the position <span class="math notranslate nohighlight">\(\vec{x}\)</span> and velocity <span class="math notranslate nohighlight">\(\vec{w}\)</span>, and that the density is the marginal probability of finding a star in the volume <span class="math notranslate nohighlight">\(d^{3}\vec{x}\)</span> around the position <span class="math notranslate nohighlight">\(\vec{x}\)</span>.</p>
 <p>We can therefore write the conditional probability of finding a star in the volume <span class="math notranslate nohighlight">\(d^{3}\vec{v}\)</span> around the velocity <span class="math notranslate nohighlight">\(\vec{v}\)</span> given that it is at position <span class="math notranslate nohighlight">\(\vec{x}\)</span> using Bayes’ theorem as</p>
-<div class="amsmath math notranslate nohighlight" id="equation-4204fae3-8c8f-483b-b803-db2a32f87951">
-<span class="eqno">(3)<a class="headerlink" href="#equation-4204fae3-8c8f-483b-b803-db2a32f87951" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-4f2cbf67-c90e-43a3-9326-d25465d03cdd">
+<span class="eqno">(3)<a class="headerlink" href="#equation-4f2cbf67-c90e-43a3-9326-d25465d03cdd" title="Permalink to this equation">#</a></span>\[\begin{equation}
 P(\vec{v}|\vec{x}) = \frac{P(\vec{x},\vec{v})}{P(\vec{x})} = \frac{f(E)}{\rho(\vec{x})}
 \end{equation}\]</div>
 <p>However, none of this is particularly useful, until we start rewriting some stuff.</p>
-<div class="amsmath math notranslate nohighlight" id="equation-c7a383be-7ac2-4729-a8db-eadc5a619485">
-<span class="eqno">(4)<a class="headerlink" href="#equation-c7a383be-7ac2-4729-a8db-eadc5a619485" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-8ebe8419-dd66-4347-b24a-d9ad687f5926">
+<span class="eqno">(4)<a class="headerlink" href="#equation-8ebe8419-dd66-4347-b24a-d9ad687f5926" title="Permalink to this equation">#</a></span>\[\begin{equation}
 F(E) = f(\vec{x},\vec{v})
 \end{equation}\]</div>
 <p>but because everything is spherical and Isotropic we can instead write down</p>
-<div class="amsmath math notranslate nohighlight" id="equation-1f0f3185-8dfc-4847-b295-10aac33749b9">
-<span class="eqno">(5)<a class="headerlink" href="#equation-1f0f3185-8dfc-4847-b295-10aac33749b9" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-292d5276-c666-4c69-a922-72b0bb25a08f">
+<span class="eqno">(5)<a class="headerlink" href="#equation-292d5276-c666-4c69-a922-72b0bb25a08f" title="Permalink to this equation">#</a></span>\[\begin{equation}
 f(r,v)\sim v^{2}r^{2}\left[-\left(\Phi(r)+\frac{1}{2}v^{2}\right)\right]^{7/2}
 \end{equation}\]</div>
 <p>and also</p>
-<div class="amsmath math notranslate nohighlight" id="equation-0deee224-c44c-4af0-9cf7-efd10469b2be">
-<span class="eqno">(6)<a class="headerlink" href="#equation-0deee224-c44c-4af0-9cf7-efd10469b2be" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-a18322ea-9139-4505-920e-5e981c321d21">
+<span class="eqno">(6)<a class="headerlink" href="#equation-a18322ea-9139-4505-920e-5e981c321d21" title="Permalink to this equation">#</a></span>\[\begin{equation}
 p(r) = 4\pi r^{2}\rho(r)
 \end{equation}\]</div>
 <p>(where <span class="math notranslate nohighlight">\(M\equiv 1\)</span>, so thats its <span class="math notranslate nohighlight">\(p(r)\)</span> is normalized)
 and then</p>
-<div class="amsmath math notranslate nohighlight" id="equation-e478d75c-e42e-475b-b9b6-152b623109f5">
-<span class="eqno">(7)<a class="headerlink" href="#equation-e478d75c-e42e-475b-b9b6-152b623109f5" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-15837a44-0b04-4ccd-8da2-0c37fc03158b">
+<span class="eqno">(7)<a class="headerlink" href="#equation-15837a44-0b04-4ccd-8da2-0c37fc03158b" title="Permalink to this equation">#</a></span>\[\begin{equation}
 P(v|r) = \frac{F(r,v)}{p(r)} \sim \frac{v^{2}r^{2}\left[-\left(\Phi(r)+\frac{1}{2}v^{2}\right)\right]^{7/2}}{r^{2}\left(1+\frac{r^{2}}{a^{2}}\right)^{5/2}}
 \end{equation}\]</div>
 <p>However, any coefficient terms depending on r wont really matter since we’re going to normalize it so we can ignore them.</p>
-<div class="amsmath math notranslate nohighlight" id="equation-1406213a-756f-4922-a5ba-dc05bbcd0cfb">
-<span class="eqno">(8)<a class="headerlink" href="#equation-1406213a-756f-4922-a5ba-dc05bbcd0cfb" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-a60923f5-b053-4989-8451-ce2fc2c4cf1a">
+<span class="eqno">(8)<a class="headerlink" href="#equation-a60923f5-b053-4989-8451-ce2fc2c4cf1a" title="Permalink to this equation">#</a></span>\[\begin{equation}
 P(v|r)\sim v^{2}\left[-\left(\Phi(r)+\frac{1}{2}v^{2}\right)\right]^{7/2}
 \end{equation}\]</div>
 <p>In order to sample from this, it would be convenient if it was normalized.
@@ -631,8 +606,8 @@ Here what people tend to do is to make another change of variables.
 We define <span class="math notranslate nohighlight">\(q\equiv \frac{v}{v_{\rm esc}}\)</span> where <span class="math notranslate nohighlight">\(v_{\rm esc}\)</span> is the escape velocity at <span class="math notranslate nohighlight">\(r\)</span>.
 since q can only be between 0 and 1, we can easily normalize it by integrating over the range of q.</p>
 <p>Ultimately we can write</p>
-<div class="amsmath math notranslate nohighlight" id="equation-8ca490e7-9d10-4974-a90a-6871ee72ce44">
-<span class="eqno">(9)<a class="headerlink" href="#equation-8ca490e7-9d10-4974-a90a-6871ee72ce44" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-af1e94ba-19a7-40a0-9a89-0b84f914c214">
+<span class="eqno">(9)<a class="headerlink" href="#equation-af1e94ba-19a7-40a0-9a89-0b84f914c214" title="Permalink to this equation">#</a></span>\[\begin{equation}
 p(q|r) =\frac{512}{7\pi}q^2(1-q^2)^{7/2}
 \end{equation}\]</div>
 <p>which <em>should</em> be easy to sample from. We’ve deceptible seemed to have gotten rid of the dependance of r, but we recover that dependance when we transform back via <span class="math notranslate nohighlight">\(v(r) = q~v_{\rm esc}(r)\)</span></p>
@@ -675,7 +650,8 @@ p(q|r) =\frac{512}{7\pi}q^2(1-q^2)^{7/2}
             
             
               
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
   <div class="sidebar-secondary-item">
@@ -713,8 +689,8 @@ p(q|r) =\frac{512}{7\pi}q^2(1-q^2)^{7/2}
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -747,7 +723,7 @@ p(q|r) =\frac{512}{7\pi}q^2(1-q^2)^{7/2}
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
 </p></div>
       
     </div>
