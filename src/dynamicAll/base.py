@@ -39,6 +39,8 @@ from functools import wraps
 
 config.update("jax_enable_x64", True)
 
+numpyro.set_host_device_count(2)
+
 
 def shared_docstring(source):
     def decorator(target):
@@ -1696,7 +1698,7 @@ class CompositePotential(JaxDensity):
         Returns
         -------
         jnp.ndarray
-            density units of :math:`[ \\rm M_{\odot}~kpc^{-3}]`
+            density | :math:`[ \rm M_{\odot}~kpc^{-3}]`
         """
         return jnp.sum(jnp.array([p.density(r) for p in self.potentials]))
 
@@ -1767,7 +1769,7 @@ class Data(ABC):
     def __init__(self):
         if not hasattr(self, "_r"):
             warnings.warn(
-                r"The '_r' component is not defined.\nOnly projected moments may be available."
+                r"The '_r' component is not defined. Only projected moments may be available."
             )
 
         if not hasattr(self, "_pmr") or not hasattr(self, "_pmt"):
@@ -1893,12 +1895,43 @@ class Data(ABC):
 
         return None  # Optionally return a value if needed
 
-    def global_dispersion(self, ri, vi, d_vi, component=None, plot=False):
+    @classmethod
+    def global_dispersion(
+        cls,
+        vi: jnp.ndarray,
+        d_vi: jnp.ndarray,
+        component=None,
+        plot=False,
+        priors={
+            "mu": dist.Uniform(-1000, 1000),
+            "sigma": dist.Uniform(0, 100),
+        },
+    ):
+        """
+        Uses numpyro to calculate the global velocity dispersion of a given component
+
+        .. math::
+            \mathcal{L}(\mu,\sigma |v_{\rm los}, \delta v_{los})
+            = \prod_i
+            \frac{1}{\sqrt{2\pi(\sigma^{2}+\delta v_{\rm los}^{2})}}
+            \exp\left(-\frac{(v_i - \mu)^2}{2(\sigma^{2} + \delta v_{los}^2)}\right)
+
+        Parameters
+        ----------
+        vi : _type_
+            velocity component
+        d_vi : _type_
+            error in velocity component
+        component : _type_, optional
+            _description_, by default None
+        plot : bool, optional
+            _description_, by default False
+        """
+
         def global_velocity_model(vi, error):
             # Priors for mean velocity and global dispersion
-            mean_velocity = numpyro.sample("mean_velocity", dist.Uniform(-100, 100))
-            global_sigmav = numpyro.sample("global_sigmav", dist.Uniform(0, 100))
-
+            mean_velocity = numpyro.sample("mu", priors["mu"])
+            global_sigmav = numpyro.sample("sigma", priors["sigma"])
             # Likelihood for each observed velocity
             with numpyro.plate("data", len(vi)):
                 total_variance = jnp.sqrt(global_sigmav**2 + error**2)
@@ -1907,59 +1940,38 @@ class Data(ABC):
                 )
 
         # MCMC
-        rng_key = random.PRNGKey(0)
+        rng_key = random.PRNGKey(42)
         kernel = NUTS(global_velocity_model)
-        mcmc = MCMC(kernel, num_warmup=500, num_samples=1000, num_chains=1)
+        mcmc = MCMC(
+            kernel,
+            num_warmup=1000,
+            num_samples=3000,
+            num_chains=2,
+        )
         mcmc.run(rng_key, vi, d_vi)
-        mcmc.print_summary()
+        # mcmc.print_summary()
         samples = mcmc.get_samples()
-        self.mean_velocity = samples["mean_velocity"]
-        self.global_sigmav = samples["global_sigmav"]
+        idata = az.from_numpyro(mcmc)
+        summary = az.summary(idata, hdi_prob=0.68)
 
-        meanv, sigma = jnp.mean(self.mean_velocity), jnp.mean(self.global_sigmav)
-
-        # Plotting
         if plot:
-            fig, ax = plt.subplots(figsize=(10, 6))
-            # Histogram of velocities
-            N, bin_edges = histogram(vi, bins="blocks")
-            import numpy as np
+            print(summary)
+            import corner
 
-            # import matplotlib.pyplot as plt
-            import seaborn as sns
-            from scipy.stats import gaussian_kde
-
-            sns.histplot(vi, bins=30, kde=False, color="skyblue", stat="density")
-
-            # Density Plot with KDE
-            kde = gaussian_kde(vi, weights=1 / (d_vi**2))
-            x = np.linspace(min(vi), max(vi), 1000)
-            kde_values = kde(x)
-            # Confidence interval (e.g., 95%)
-            ci = np.percentile(kde_values, [2.5, 97.5])
-            plt.fill_between(
-                x,
-                kde_values,
-                where=(kde_values >= ci[0]) & (kde_values <= ci[1]),
-                color="gray",
-                alpha=0.5,
+            _fig = corner.corner(
+                samples,
+                labels=[r"$\mu$", r"$\sigma$"],
+                quantiles=[0.16, 0.5, 0.84],
+                show_titles=True,
+                title_kwargs={"fontsize": 12},
+                plot_datapoints=True,
+                fill_contours=True,
+                levels=(0.68, 0.95),
+                # color="b",
+                hist_kwargs={"density": True},
             )
-
-            ax.hist(vi, bins=bin_edges, density=True, alpha=0.6, color="g")
-
-            # Best-fit Gaussian curve
-            xmin, xmax = plt.xlim()
-            x = np.linspace(xmin, xmax, 100)
-            p = scipy.stats.norm.pdf(x, meanv, sigma)
-            ax.plot(x, p, "k", linewidth=2)
-
-            title = "Fit results: mean = {:.2f},  std = {:.2f}".format(meanv, sigma)
-            plt.title(title)
-            plt.xlabel("Velocity")
-            plt.ylabel("Density")
-
             plt.show()
-        return jnp.mean(self.mean_velocity), jnp.mean(self.global_sigmav)
+        return mcmc
 
     def dispersion(
         self,
@@ -2001,7 +2013,7 @@ class Data(ABC):
         )  # Using the center of the bins seems like an ok method -- a mean or median might be better though
 
         # Next get global dispersion and mean velocity
-        meanv, sigma = self.global_dispersion(ri, vi, d_vi, component, plot=plot)
+        meanv, sigma = self.global_dispersion(vi, d_vi, component, plot=plot)
 
         N, _, binnumber = binned_statistic(ri, vi, statistic="count", bins=bin_edges)
 

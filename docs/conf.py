@@ -38,6 +38,7 @@ extensions = [
     "myst_nb",  # myst_nb is a plugin for MyST Markdown that adds support for executing and displaying Jupyter notebooks.
     "sphinx_copybutton",
     "sphinx.ext.autosectionlabel",
+    # "sphinxcontrib-fulltoc", requires pip install sphinxcontrib-fulltoc
     # "sphinx_panels",
     "sphinx.ext.todo",
     # "sphinx_new_tab_link",
@@ -45,12 +46,13 @@ extensions = [
 nbsphinx_execute = "off"
 nb_execution_mode = "off"
 
-autosummary_generate = True
 autodoc_default_options = {
     "members": True,
     "undoc-members": True,
     "show-inheritance": True,
 }
+
+autosummary_generate = True
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",
@@ -68,7 +70,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "pydata_sphinx_theme"
+html_theme = "pydata_sphinx_theme"  # requires pip install pydata-sphinx-theme
 html_static_path = ["_static"]
 
 copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
@@ -89,18 +91,3 @@ html_theme_options = {
     ]
 }
 autodoc_mock_imports = ["agama"]
-# autodoc_mock_imports = [
-#     "jax",
-#     "jaxopt",
-#     "agama",
-#     "emcee",
-#     "corner",
-#     "scipy",
-#     "astropy",
-#     "numpy",
-#     "numpyro",
-#     "matplotlib",
-#     "arviz",
-#     "astroquery",
-#     "sci-kit-learn",
-# ]
