@@ -17,6 +17,7 @@ The use of Jax also allows us to use automatic differentiation to calculate the 
    Installation
    notebooks/numerical_methods
    notebooks/tutorial_potential
+   notebooks
    notebooks/tutorial_plummer
    notebooks/tutorial_jfactors
    notebooks/tutorial_dracoish
