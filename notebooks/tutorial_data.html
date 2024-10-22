@@ -424,12 +424,6 @@
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The autoreload extension is already loaded. To reload it, use:
-  %reload_ext autoreload
-</pre></div>
-</div>
-</div>
 </details>
 </div>
 <div class="cell tag_hide-cell docutils container">
@@ -451,12 +445,18 @@
 </div>
 <section id="loading-a-data-set">
 <h2>Loading a data set<a class="headerlink" href="#loading-a-data-set" title="Link to this heading">#</a></h2>
-<div class="cell docutils container">
+<div class="cell tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_path</span> <span class="o">=</span> <span class="s2">&quot;/Users/juan/Desktop/dracoish.txt&quot;</span>
 </pre></div>
 </div>
 </div>
+</details>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -745,7 +745,7 @@ prior on <span class="math notranslate nohighlight">\(\sigma\)</span> is a unifo
 </div>
 </div>
 <div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "8752fde703c34ce2aaea667958e9d8e5", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "8320e7bd893a45ed8dde9990cca4428f", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>         mean     sd  hdi_16%  hdi_84%  mcse_mean  mcse_sd  ess_bulk  \
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "9bb515dbaa804c6c997de6999a90a525", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "464d89887b974149a8033ab54ecc1153", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>         mean     sd  hdi_16%  hdi_84%  mcse_mean  mcse_sd  ess_bulk  \
 mu     59.908  0.091   59.809   59.988      0.001    0.001    6449.0   
 sigma   8.912  0.068    8.844    8.980      0.001    0.001    3456.0   
 
@@ -873,7 +873,7 @@ median sigma: 8.911
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x41ea25e10&gt;]
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x3247a5510&gt;]
 </pre></div>
 </div>
 <img alt="../_images/0d7b4418781db0568beecdaf37557ed920d66c1e3dcadf8ab54e6c9f13dae32e.png" src="../_images/0d7b4418781db0568beecdaf37557ed920d66c1e3dcadf8ab54e6c9f13dae32e.png" />
@@ -896,7 +896,7 @@ median sigma: 8.911
 </div>
 </div>
 <div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "6803f53230194a40b321724f192f2714", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "a62fc7bca52042e1972fafc42091070e", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "0ca2938a9698412dab8ce2d161c95a20", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "70083ab898ad4674831bc5f3b886e442", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -935,20 +935,6 @@ sigma    3414.0    1.0
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_dist_comparison</span><span class="p">(</span><span class="n">idata</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([[&lt;Axes: &gt;, &lt;Axes: xlabel=&#39;mu&#39;&gt;],
-       [&lt;Axes: &gt;, &lt;Axes: xlabel=&#39;sigma&#39;&gt;]], dtype=object)
-</pre></div>
-</div>
-<img alt="../_images/7c3d803eb92c02aa921aa89eb54f2da2bc0a10290cfa98c74ec83a9e1ab5a2bc.png" src="../_images/7c3d803eb92c02aa921aa89eb54f2da2bc0a10290cfa98c74ec83a9e1ab5a2bc.png" />
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
 
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
@@ -982,41 +968,13 @@ sigma    3414.0    1.0
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x46cf68ed0&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x324834910&gt;
 </pre></div>
 </div>
 <img alt="../_images/54932653dd7c464b3c8d4203e72840d8f8d7f61e1c82212498403449276c1f9c.png" src="../_images/54932653dd7c464b3c8d4203e72840d8f8d7f61e1c82212498403449276c1f9c.png" />
 </div>
 </div>
 </section>
-</section>
-<section id="initialze-data-class">
-<h2>Initialze Data class:<a class="headerlink" href="#initialze-data-class" title="Link to this heading">#</a></h2>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Dsphsim</span><span class="p">(</span><span class="n">Data</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="n">table</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_R</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;RPROJ&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_vlos</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;VMEAS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">d_vlos</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;VERR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-
-
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">Dsphsim</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/Users/juan/phd/projects/dynamicAll/src/dynamicAll/base.py:1771: UserWarning: The &#39;_r&#39; component is not defined. Only projected moments may be available.
-  warnings.warn(
-/Users/juan/phd/projects/dynamicAll/src/dynamicAll/base.py:1776: UserWarning: &#39;pmr&#39; and &#39;pmt&#39; components are not defined.\nVelocity dispersion for these components will not be available.\n only &#39;los&#39; moment will be available
-  warnings.warn(
-</pre></div>
-</div>
-</div>
-</div>
 </section>
 </section>
 
@@ -1054,7 +1012,6 @@ sigma    3414.0    1.0
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sanity-check">sanity check</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initialze-data-class">Initialze Data class:</a></li>
 </ul>
   </nav></div>
 
