@@ -1906,6 +1906,7 @@ class Data(ABC):
             "mu": dist.Uniform(-1000, 1000),
             "sigma": dist.Uniform(0, 100),
         },
+        half_light=None,
     ):
         """
         Uses numpyro to calculate the global velocity dispersion of a given component
@@ -1928,11 +1929,20 @@ class Data(ABC):
             _description_, by default False
         """
 
-        def global_velocity_model(vi, error):
+        def global_velocity_model(vi, error, half_light=half_light):
             # Priors for mean velocity and global dispersion
             mean_velocity = numpyro.sample("mu", priors["mu"])
             global_sigmav = numpyro.sample("sigma", priors["sigma"])
             # Likelihood for each observed velocity
+            if half_light is not None:
+                G = 4.302e-6  # kpc (km/s)^2 / M_sun
+                r_half = numpyro.sample(
+                    "r_half", half_light["dist"](**half_light["params"])
+                )
+                _mwolf = numpyro.deterministic(
+                    "mwolf", (4 * r_half * global_sigmav**2) / (G)
+                )
+
             with numpyro.plate("data", len(vi)):
                 total_variance = jnp.sqrt(global_sigmav**2 + error**2)
                 numpyro.sample(
@@ -1958,18 +1968,60 @@ class Data(ABC):
             print(summary)
             import corner
 
-            _fig = corner.corner(
-                samples,
-                labels=[r"$\mu$", r"$\sigma$"],
-                quantiles=[0.16, 0.5, 0.84],
-                show_titles=True,
-                title_kwargs={"fontsize": 12},
-                plot_datapoints=True,
-                fill_contours=True,
-                levels=(0.68, 0.95),
-                # color="b",
-                hist_kwargs={"density": True},
-            )
+            if half_light is not None:
+                labels = [
+                    r"$\mu$",
+                    r"$M_{\rm wolf}$",
+                    r"$r_{\rm half}$",
+                    r"$\sigma$",
+                ]
+                _fig = corner.corner(
+                    samples,
+                    labels=labels,
+                    quantiles=[0.16, 0.5, 0.84],
+                    show_titles=True,
+                    title_kwargs={
+                        "fontsize": 12,
+                    },
+                    title_fmt=".2f",
+                    plot_datapoints=True,
+                    fill_contours=True,
+                    levels=(0.68, 0.95),
+                    # color="b",
+                    hist_kwargs={"density": True},
+                )
+                axes = np.array(_fig.axes).reshape((len(labels), len(labels)))
+                ax = axes[1, 1]
+                title = ax.get_title()
+                import re
+
+                numbers = re.findall(r"[-+]?\d*\.\d+|\d+", title)
+                if len(numbers) == 3:
+                    median = float(numbers[0])
+                    lower = float(numbers[1])
+                    upper = float(numbers[2])
+                    # Create new title with scientific notation for all values
+                    new_title = f"${median:.2e}^{{+{upper:.2e}}}_{{{lower:.2e}}}$"
+                    ax.set_title(new_title)
+
+            else:
+                labels = [r"$\mu$", r"$\sigma$"]
+
+                _fig = corner.corner(
+                    samples,
+                    labels=labels,
+                    quantiles=[0.16, 0.5, 0.84],
+                    show_titles=True,
+                    title_kwargs={
+                        "fontsize": 12,
+                    },
+                    title_fmt=".2f",
+                    plot_datapoints=True,
+                    fill_contours=True,
+                    levels=(0.68, 0.95),
+                    # color="b",
+                    hist_kwargs={"density": True},
+                )
             plt.show()
         return mcmc
 
