@@ -730,7 +730,7 @@
 <p>This is done by fitting the velocities with a Gaussian Distribution</p>
 <div class="math notranslate nohighlight">
 \[
-\mathcal{L}(\mu,\sigma |v_{\rm los}, \delta v_{los}) = \prod_i \frac{1}{\sqrt{2\pi(\sigma^{2}+\delta v_{\rm los}^{2})}} \exp\left(-\frac{(v_i - \mu)^2}{2(\sigma^{2} + \delta v_{los}^2)}\right)
+\mathcal{L}(\mu,\sigma |v_{\rm los}, \delta v_{los}) = \prod_i \frac{1}{\sqrt{2\pi(\sigma^{2}+\delta v_{\rm los,i}^{2})}} \exp\left(-\frac{(v_i - \mu)^2}{2(\sigma^{2} + \delta v_{los,i}^2)}\right)
 \]</div>
 <p>As default we use uniformative priors on <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\sigma\)</span>.</p>
 <p>Prior on <span class="math notranslate nohighlight">\(\mu\)</span> is a uniform distribution between -1000 and 1000 km/s.
@@ -739,14 +739,11 @@ prior on <span class="math notranslate nohighlight">\(\sigma\)</span> is a unifo
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">vlos</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$v_{\rm los}$&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$v_{\rm los}$&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[Text(0.5, 0, &#39;$v_{\\rm los}$&#39;)]
-</pre></div>
-</div>
 <img alt="../_images/34f69db5ab52c6445e19e10e90f3c5b2229b6644684ca064e14b7804764b2b55.png" src="../_images/34f69db5ab52c6445e19e10e90f3c5b2229b6644684ca064e14b7804764b2b55.png" />
 </div>
 </div>
@@ -768,7 +765,7 @@ prior on <span class="math notranslate nohighlight">\(\sigma\)</span> is a unifo
 </div>
 </div>
 <div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "9bb515dbaa804c6c997de6999a90a525", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "464d89887b974149a8033ab54ecc1153", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>         mean     sd  hdi_16%  hdi_84%  mcse_mean  mcse_sd  ess_bulk  \
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "e6b4b91d33aa4cb0813b7124e784a787", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "d42aad3eee354d65b62b28f3854d1dcb", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>         mean     sd  hdi_16%  hdi_84%  mcse_mean  mcse_sd  ess_bulk  \
 mu     59.908  0.091   59.809   59.988      0.001    0.001    6449.0   
 sigma   8.912  0.068    8.844    8.980      0.001    0.001    3456.0   
 
@@ -861,6 +858,59 @@ median sigma: 8.911
 </div>
 </div>
 </section>
+</section>
+<section id="calculate-mass-enclosed-within-half-light-radius">
+<h2>Calculate mass enclosed within half light radius<a class="headerlink" href="#calculate-mass-enclosed-within-half-light-radius" title="Link to this heading">#</a></h2>
+<p>If you know the half-light radius of the system, you could calcualate <span class="math notranslate nohighlight">\(M_{1/2}\)</span> where
+$<span class="math notranslate nohighlight">\(
+M_{1/2}= \frac{3\langle\sigma_{los}^2\rangle r_{1/2}}{G} 
+\)</span>$</p>
+<p>usually only the projected half light radius is known</p>
+<div class="math notranslate nohighlight">
+\[
+M_{1/2} = \frac{4\langle\sigma_{los}^2\rangle R_{e}}{G}
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(R_{e} = \frac{3}{4}r_{1/2}\)</span> is the projected half light radius.
+$<span class="math notranslate nohighlight">\(
+M_{1/2} = 930 \left(\frac{\langle\sigma_{los}^2\rangle}{\rm km^{2}s^{-2}}\right)\left(\frac{R_{e}}{\rm pc}\right)\rm M_{\odot}
+\)</span>$</p>
+<p>Assuming the uncertainties are Gaussian, we can calculate the Wolf Mass as follows:</p>
+<!-- TODO: Implement the equivalent formula for proper motions (There is only a mass estimator for one component of the proper motions).--> <div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rhalf</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;dist&quot;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span>
+    <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;loc&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="p">},</span>  <span class="c1"># mean and std of the normal distribution in kpc</span>
+<span class="p">}</span>
+<span class="n">mcmc</span> <span class="o">=</span> <span class="n">Data</span><span class="o">.</span><span class="n">global_dispersion</span><span class="p">(</span>
+    <span class="n">vlos</span><span class="p">,</span>
+    <span class="n">dvlos</span><span class="p">,</span>
+    <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span>
+    <span class="n">half_light</span><span class="o">=</span><span class="n">rhalf</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "8a478656391c483ebfabc07ae56c9940", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "0524d6ffad48488da9857f27414b40d6", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                mean           sd       hdi_16%       hdi_84%   mcse_mean  \
+mu      5.990900e+01        0.090  5.982600e+01  6.000300e+01       0.001   
+mwolf   3.698029e+07  7301743.844  2.911896e+07  4.356885e+07  105443.648   
+r_half  5.010000e-01        0.099  4.010000e-01  5.950000e-01       0.001   
+sigma   8.912000e+00        0.068  8.846000e+00  8.980000e+00       0.001   
+
+          mcse_sd  ess_bulk  ess_tail  r_hat  
+mu          0.001    7018.0    4742.0    1.0  
+mwolf   75608.667    4799.0    3649.0    1.0  
+r_half      0.001    4784.0    3924.0    1.0  
+sigma       0.001    4730.0    4038.0    1.0  
+</pre></div>
+</div>
+<img alt="../_images/2e17b925869cec32090653671ff727dee3a223b82e4fe3b468ef1d1ba9038e33.png" src="../_images/2e17b925869cec32090653671ff727dee3a223b82e4fe3b468ef1d1ba9038e33.png" />
+</div>
+</div>
 <section id="sanity-check">
 <h3>sanity check<a class="headerlink" href="#sanity-check" title="Link to this heading">#</a></h3>
 <p>Lets generate some fake data and see if we can recover the input values</p>
@@ -896,7 +946,7 @@ median sigma: 8.911
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x3247a5510&gt;]
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x32c58c490&gt;]
 </pre></div>
 </div>
 <img alt="../_images/0d7b4418781db0568beecdaf37557ed920d66c1e3dcadf8ab54e6c9f13dae32e.png" src="../_images/0d7b4418781db0568beecdaf37557ed920d66c1e3dcadf8ab54e6c9f13dae32e.png" />
@@ -919,7 +969,7 @@ median sigma: 8.911
 </div>
 </div>
 <div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "0ca2938a9698412dab8ce2d161c95a20", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "70083ab898ad4674831bc5f3b886e442", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "8fe95bd8d688458cb0d93d053cb02b1b", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "599a7e13a87b430abe23290a98038c9a", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -991,7 +1041,7 @@ sigma    3414.0    1.0
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x324834910&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x32cac4490&gt;
 </pre></div>
 </div>
 <img alt="../_images/54932653dd7c464b3c8d4203e72840d8f8d7f61e1c82212498403449276c1f9c.png" src="../_images/54932653dd7c464b3c8d4203e72840d8f8d7f61e1c82212498403449276c1f9c.png" />
@@ -1050,6 +1100,9 @@ sigma    3414.0    1.0
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-a-data-set">Loading a data set</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Global velocity dispersion</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-mass-enclosed-within-half-light-radius">Calculate mass enclosed within half light radius</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sanity-check">sanity check</a></li>
 </ul>
 </li>

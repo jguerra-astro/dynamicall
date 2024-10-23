@@ -2465,6 +2465,7 @@
             <span class="s2">&quot;mu&quot;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
             <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
         <span class="p">},</span>
+        <span class="n">half_light</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Uses numpyro to calculate the global velocity dispersion of a given component</span>
@@ -2487,11 +2488,20 @@
 <span class="sd">            _description_, by default False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">global_velocity_model</span><span class="p">(</span><span class="n">vi</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">global_velocity_model</span><span class="p">(</span><span class="n">vi</span><span class="p">,</span> <span class="n">error</span><span class="p">,</span> <span class="n">half_light</span><span class="o">=</span><span class="n">half_light</span><span class="p">):</span>
             <span class="c1"># Priors for mean velocity and global dispersion</span>
             <span class="n">mean_velocity</span> <span class="o">=</span> <span class="n">numpyro</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="n">priors</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">])</span>
             <span class="n">global_sigmav</span> <span class="o">=</span> <span class="n">numpyro</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">,</span> <span class="n">priors</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">])</span>
             <span class="c1"># Likelihood for each observed velocity</span>
+            <span class="k">if</span> <span class="n">half_light</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">G</span> <span class="o">=</span> <span class="mf">4.302e-6</span>  <span class="c1"># kpc (km/s)^2 / M_sun</span>
+                <span class="n">r_half</span> <span class="o">=</span> <span class="n">numpyro</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+                    <span class="s2">&quot;r_half&quot;</span><span class="p">,</span> <span class="n">half_light</span><span class="p">[</span><span class="s2">&quot;dist&quot;</span><span class="p">](</span><span class="o">**</span><span class="n">half_light</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">])</span>
+                <span class="p">)</span>
+                <span class="n">_mwolf</span> <span class="o">=</span> <span class="n">numpyro</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span>
+                    <span class="s2">&quot;mwolf&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">r_half</span> <span class="o">*</span> <span class="n">global_sigmav</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">G</span><span class="p">)</span>
+                <span class="p">)</span>
+
             <span class="k">with</span> <span class="n">numpyro</span><span class="o">.</span><span class="n">plate</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vi</span><span class="p">)):</span>
                 <span class="n">total_variance</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">global_sigmav</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">error</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
                 <span class="n">numpyro</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
@@ -2517,18 +2527,60 @@
             <span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
             <span class="kn">import</span> <span class="nn">corner</span>
 
-            <span class="n">_fig</span> <span class="o">=</span> <span class="n">corner</span><span class="o">.</span><span class="n">corner</span><span class="p">(</span>
-                <span class="n">samples</span><span class="p">,</span>
-                <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="sa">r</span><span class="s2">&quot;$\mu$&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;$\sigma$&quot;</span><span class="p">],</span>
-                <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.84</span><span class="p">],</span>
-                <span class="n">show_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">title_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;fontsize&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">},</span>
-                <span class="n">plot_datapoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">fill_contours</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">levels</span><span class="o">=</span><span class="p">(</span><span class="mf">0.68</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">),</span>
-                <span class="c1"># color=&quot;b&quot;,</span>
-                <span class="n">hist_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;density&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">half_light</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="sa">r</span><span class="s2">&quot;$\mu$&quot;</span><span class="p">,</span>
+                    <span class="sa">r</span><span class="s2">&quot;$M_{\rm wolf}$&quot;</span><span class="p">,</span>
+                    <span class="sa">r</span><span class="s2">&quot;$r_{\rm half}$&quot;</span><span class="p">,</span>
+                    <span class="sa">r</span><span class="s2">&quot;$\sigma$&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="n">_fig</span> <span class="o">=</span> <span class="n">corner</span><span class="o">.</span><span class="n">corner</span><span class="p">(</span>
+                    <span class="n">samples</span><span class="p">,</span>
+                    <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+                    <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.84</span><span class="p">],</span>
+                    <span class="n">show_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">title_kwargs</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;fontsize&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="n">title_fmt</span><span class="o">=</span><span class="s2">&quot;.2f&quot;</span><span class="p">,</span>
+                    <span class="n">plot_datapoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">fill_contours</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">levels</span><span class="o">=</span><span class="p">(</span><span class="mf">0.68</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">),</span>
+                    <span class="c1"># color=&quot;b&quot;,</span>
+                    <span class="n">hist_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;density&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="p">)</span>
+                <span class="n">axes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_fig</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)))</span>
+                <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">title</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_title</span><span class="p">()</span>
+                <span class="kn">import</span> <span class="nn">re</span>
+
+                <span class="n">numbers</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[-+]?\d*\.\d+|\d+&quot;</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">median</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">lower</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">upper</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="c1"># Create new title with scientific notation for all values</span>
+                    <span class="n">new_title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;$</span><span class="si">{</span><span class="n">median</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">^</span><span class="se">{{</span><span class="s2">+</span><span class="si">{</span><span class="n">upper</span><span class="si">:</span><span class="s2">.2e</span><span class="se">}}</span><span class="si">}</span><span class="s2">_</span><span class="se">{{</span><span class="si">{</span><span class="n">lower</span><span class="si">:</span><span class="s2">.2e</span><span class="se">}}</span><span class="si">}</span><span class="s2">$&quot;</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">new_title</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="sa">r</span><span class="s2">&quot;$\mu$&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;$\sigma$&quot;</span><span class="p">]</span>
+
+                <span class="n">_fig</span> <span class="o">=</span> <span class="n">corner</span><span class="o">.</span><span class="n">corner</span><span class="p">(</span>
+                    <span class="n">samples</span><span class="p">,</span>
+                    <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+                    <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.84</span><span class="p">],</span>
+                    <span class="n">show_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">title_kwargs</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;fontsize&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="n">title_fmt</span><span class="o">=</span><span class="s2">&quot;.2f&quot;</span><span class="p">,</span>
+                    <span class="n">plot_datapoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">fill_contours</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">levels</span><span class="o">=</span><span class="p">(</span><span class="mf">0.68</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">),</span>
+                    <span class="c1"># color=&quot;b&quot;,</span>
+                    <span class="n">hist_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;density&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">mcmc</span></div>
 
