@@ -1,6 +1,4 @@
-<!-- Joss badge -->
 [![status](https://joss.theoj.org/papers/a26f20391c1360ed1f2806fa09065816/status.svg)](https://joss.theoj.org/papers/a26f20391c1360ed1f2806fa09065816)
-<!-- MIT Licence badge -->
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Dynamicall is a package written to fit kinematic observations of Dwarf Galaxies using Bayesian Inference.
