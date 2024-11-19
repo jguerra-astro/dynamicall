@@ -17,7 +17,7 @@ authors:
     affiliation: '1'
 
 affiliations:
- - name: Yale University
+ - name: Yale University, New Haven, CT, USA
    index: 1
 
 date:  20 September 2024
